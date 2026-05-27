@@ -1,11 +1,10 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ProductForm } from '@/components/admin/product-form'
-import { getProductAdmin } from '@/lib/actions/products'
+import { getProductAdmin, deleteProduct } from '@/lib/actions/products'
 import { getAllCategoriesAdmin } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
-import { deleteProduct } from '@/lib/actions/products'
+import { DeleteButton } from './delete-button'
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -27,9 +26,7 @@ export default async function EditProductPage({ params }: Props) {
             <h1 className="text-xl font-semibold mt-1">{product.name}</h1>
           </div>
           <form action={async () => { 'use server'; await deleteProduct(id); redirect('/admin/products') }}>
-            <button type="submit" className="text-xs text-red-500 hover:text-red-700 underline" onClick={(e) => { if (!confirm('Delete this product?')) e.preventDefault() }}>
-              Delete Product
-            </button>
+            <DeleteButton />
           </form>
         </div>
         <ProductForm product={product} categories={categories} />
