@@ -12,7 +12,7 @@ export default async function NewProductPage() {
   const categories = await getAllCategoriesAdmin()
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <Link href="/admin/products" className="text-xs text-gray-400 hover:text-black underline">Products</Link>

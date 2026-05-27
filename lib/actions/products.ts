@@ -162,14 +162,15 @@ export async function deleteProduct(id: string) {
   return { success: true }
 }
 
-export async function upsertVariant(variant: Partial<ProductVariant> & { product_id: string }) {
+export async function upsertVariant(variant: Partial<ProductVariant> & { product_id: string; _dirty?: boolean; _new?: boolean }) {
   const supabase = createSupabaseAdminClient()
+  const { _dirty, _new, ...payload } = variant
 
-  if (variant.id) {
+  if (payload.id) {
     const { data, error } = await supabase
       .from('product_variants')
-      .update(variant)
-      .eq('id', variant.id)
+      .update(payload)
+      .eq('id', payload.id)
       .select()
       .single()
     if (error) return { error: error.message }
@@ -177,7 +178,7 @@ export async function upsertVariant(variant: Partial<ProductVariant> & { product
     return { data }
   }
 
-  const { data, error } = await supabase.from('product_variants').insert(variant).select().single()
+  const { data, error } = await supabase.from('product_variants').insert(payload).select().single()
   if (error) return { error: error.message }
   revalidatePath('/admin/products')
   return { data }

@@ -13,14 +13,14 @@ interface ProductDetailClientProps {
 
 export function ProductDetailClient({ product, variants }: ProductDetailClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
+  const allOutOfStock = variants.filter((v) => v.is_active).every((v) => v.stock_quantity <= 0)
 
   return (
     <div className="space-y-5">
-      <VariantSelector
-        variants={variants}
-        onSelect={setSelectedVariant}
-      />
-      <AddToCartButton product={product} variant={selectedVariant} />
+      {!allOutOfStock && (
+        <VariantSelector variants={variants} onSelect={setSelectedVariant} />
+      )}
+      <AddToCartButton product={product} variant={selectedVariant} allOutOfStock={allOutOfStock} />
     </div>
   )
 }

@@ -6,7 +6,6 @@ import { Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { Product, Category } from '@/lib/types'
 import { createProduct, updateProduct } from '@/lib/actions/products'
 import { VariantManager } from './variant-manager'
@@ -46,8 +45,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     if (result.error) { toast.error(result.error); setLoading(false); return }
 
     toast.success(product ? 'Product updated' : 'Product created')
-    router.push('/admin/products')
-    router.refresh()
+    if (product) {
+      router.push('/admin/products')
+      router.refresh()
+    } else {
+      router.push(`/admin/products/${(result as any).data.id}`)
+    }
   }
 
   return (
@@ -131,17 +134,16 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Category</Label>
-                <Select value={categoryId} onValueChange={(v) => setCategoryId(v ?? '')}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">No category</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full h-10 border border-input bg-background px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="">No category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="sku_prefix">SKU Prefix</Label>

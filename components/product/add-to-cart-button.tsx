@@ -9,14 +9,15 @@ import { toast } from 'sonner'
 interface AddToCartButtonProps {
   product: Product
   variant: ProductVariant | null
+  allOutOfStock?: boolean
 }
 
-export function AddToCartButton({ product, variant }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variant, allOutOfStock = false }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false)
   const { addItem, openCart } = useCartStore()
 
-  const isOutOfStock = variant ? variant.stock_quantity <= 0 : false
-  const noVariantSelected = !variant
+  const isOutOfStock = allOutOfStock || (variant ? variant.stock_quantity <= 0 : false)
+  const noVariantSelected = !allOutOfStock && !variant
 
   function handleAdd() {
     if (!variant || variant.stock_quantity <= 0) return
@@ -48,11 +49,11 @@ export function AddToCartButton({ product, variant }: AddToCartButtonProps) {
   let label = 'Add to Cart'
   let disabled = false
 
-  if (noVariantSelected) {
-    label = 'Select size'
-    disabled = true
-  } else if (isOutOfStock) {
+  if (isOutOfStock) {
     label = 'Out of Stock'
+    disabled = true
+  } else if (noVariantSelected) {
+    label = 'Select size'
     disabled = true
   } else if (added) {
     label = 'Added!'

@@ -23,7 +23,7 @@ export default async function AdminCategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
           <Link href="/admin" className="text-xs text-gray-400 hover:text-black underline">Dashboard</Link>
