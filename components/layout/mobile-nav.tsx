@@ -19,7 +19,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent side="left" className="flex flex-col w-72 p-0">
+      <SheetContent side="left" className="flex flex-col w-72 p-0" showCloseButton={false}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <Link href="/" onClick={onClose} className="text-base font-semibold tracking-widest uppercase">
             {SITE_CONFIG.brand.name}

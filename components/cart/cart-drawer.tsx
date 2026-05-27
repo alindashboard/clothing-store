@@ -15,7 +15,7 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && closeCart()}>
-      <SheetContent side="right" className="flex flex-col w-full sm:max-w-md p-0">
+      <SheetContent side="right" className="flex flex-col w-full sm:max-w-md p-0" showCloseButton={false}>
         <SheetHeader className="px-5 py-4 border-b border-gray-100 flex flex-row items-center justify-between">
           <SheetTitle className="text-base font-semibold">
             Cart {count > 0 && <span className="text-gray-400 font-normal">({count})</span>}
