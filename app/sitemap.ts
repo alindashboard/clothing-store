@@ -3,8 +3,13 @@ import { SITE_CONFIG } from '@/lib/config'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createSupabaseAdminClient()
   const base = SITE_CONFIG.brand.url
+
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    return [{ url: base, changeFrequency: 'daily', priority: 1 }]
+  }
+
+  const supabase = createSupabaseAdminClient()
 
   const [{ data: products }, { data: categories }] = await Promise.all([
     supabase.from('products').select('slug, updated_at').eq('is_active', true),
