@@ -30,7 +30,7 @@ export default async function AdminCategoriesPage() {
           <h1 className="text-xl font-semibold mt-1">Categories</h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4">Add Category</h2>
             <form action={handleCreate} className="space-y-3">
@@ -54,8 +54,8 @@ export default async function AdminCategoriesPage() {
             </form>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
+            <table className="w-full text-sm min-w-[320px]">
               <thead>
                 <tr className="border-b border-gray-100">
                   {['Name', 'Slug', 'Order', 'Active', ''].map((h) => (
