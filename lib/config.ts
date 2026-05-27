@@ -1,39 +1,39 @@
 export const SITE_CONFIG = {
-  url: 'https://example.com',
-  business: {
-    name: 'Numele Afacerii',
-    legalName: 'NUMELE AFACERII SRL',
-    cui: 'RO00000000',
-    phone: '+40700000000',
-    phoneDisplay: '+40 700 000 000',
-    whatsapp: 'https://wa.me/40700000000',
-    address: 'Orașul tău',
-    fullAddress: 'Str. Exemplu, Nr. 1, Orașul tău, România',
-    schedule: 'Luni – Vineri · 09:00 – 18:00',
-    city: 'Orașul tău',
-    region: 'Județul tău',
-    country: 'RO',
-    description: 'Descrierea scurtă a afacerii tale. Editează în lib/config.ts.',
-    email: 'contact@example.com',
-  },
-  branding: {
-    primaryColor: '#2563eb',
-    accentColor: '#16a34a',
+  brand: {
+    name: '[Brand]',
+    tagline: 'Your essentials, always',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://clothing-store.vercel.app',
     logo: '/logo.svg',
+    currency: 'EUR',
+    currencySymbol: '€',
+    locale: 'en',
+  },
+  contact: {
+    email: 'contact@placeholder.com',
+    phone: '+39 XXX XXX XXXX',
+    whatsapp: '39XXXXXXXXXX',
+    whatsappOrderMessage: 'Hi, I would like to place an order:',
+  },
+  shipping: {
+    freeShippingThreshold: 150,
+    standardShippingCost: 9.90,
+    expressShippingCost: 14.90,
+    estimatedDays: { standard: '3-5', express: '1-2' },
+  },
+  checkout: {
+    enableStripe: false,
+    enableWhatsAppOrder: true,
+    enableBankTransfer: true,
+    taxRate: 0.22,
   },
   features: {
-    reservations: true,
-    contactForm: true,
-    gallery: true,
-    whatsapp: true,
+    enableNewsletter: false,
+    enableWishlist: false,
+    enableReviews: false,
   },
-  itemLabel: {
-    singular: 'cameră',
-    plural: 'camere',
-    priceUnit: 'noapte',
+  social: {
+    instagram: '',
+    facebook: '',
+    tiktok: '',
   },
-  seo: {
-    keywords: [] as string[],
-    schemaType: 'LocalBusiness',
-  },
-} as const
+}

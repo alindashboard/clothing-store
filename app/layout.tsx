@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { DM_Sans } from 'next/font/google'
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/config'
+import { CartDrawer } from '@/components/cart/cart-drawer'
+import { Toaster } from '@/components/ui/sonner'
 
 const dmSans = DM_Sans({
   variable: '--font-sans',
@@ -10,45 +12,29 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_CONFIG.url),
+  metadataBase: new URL(SITE_CONFIG.brand.url),
   title: {
-    default: SITE_CONFIG.business.name,
-    template: `%s | ${SITE_CONFIG.business.name}`,
+    default: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}`,
+    template: `%s | ${SITE_CONFIG.brand.name}`,
   },
-  description: SITE_CONFIG.business.description,
-  keywords: SITE_CONFIG.seo.keywords as string[],
-  authors: [{ name: SITE_CONFIG.business.name }],
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
+  description: SITE_CONFIG.brand.tagline,
+  robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
-    locale: 'ro_RO',
-    siteName: SITE_CONFIG.business.name,
-    title: SITE_CONFIG.business.name,
-    description: SITE_CONFIG.business.description,
-    url: SITE_CONFIG.url,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: SITE_CONFIG.business.name,
-    description: SITE_CONFIG.business.description,
-  },
-  alternates: {
-    canonical: SITE_CONFIG.url,
+    locale: 'en_US',
+    siteName: SITE_CONFIG.brand.name,
+    url: SITE_CONFIG.brand.url,
   },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ro" className={`${dmSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${dmSans.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-white text-[#111111]">
+        {children}
+        <CartDrawer />
+        <Toaster position="bottom-right" />
+      </body>
     </html>
   )
 }

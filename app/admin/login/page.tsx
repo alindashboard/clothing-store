@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, Car } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { createSupabaseBrowserClient } from '@/lib/supabase'
+import { SITE_CONFIG } from '@/lib/config'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -22,76 +21,40 @@ export default function LoginPage() {
     setLoading(true)
 
     const supabase = createSupabaseBrowserClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
-      setError('Email sau parolă incorectă.')
+      setError('Invalid email or password.')
       setLoading(false)
       return
     }
 
-    router.push('/admin/dashboard')
+    router.push('/admin')
     router.refresh()
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center">
-            <Car className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="font-bold text-sm">Expert Doi Trans</p>
-            <p className="text-xs text-muted-foreground">Panou Admin</p>
-          </div>
+        <div className="text-center mb-8">
+          <p className="text-sm font-semibold tracking-[0.2em] uppercase">{SITE_CONFIG.brand.name}</p>
+          <p className="text-xs text-gray-400 mt-1 tracking-widest uppercase">Admin</p>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Autentificare</CardTitle>
-            <CardDescription>Introdu credențialele pentru a accesa panoul.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@exemplu.ro"
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Parolă</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              {error && (
-                <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>
-              )}
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Intră în cont'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-200 p-8">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required disabled={loading} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="..." required disabled={loading} />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button type="submit" disabled={loading} className="w-full h-11 bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50">
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
       </div>
     </div>
   )

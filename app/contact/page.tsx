@@ -1,0 +1,46 @@
+import type { Metadata } from 'next'
+import { AnnouncementBar } from '@/components/layout/announcement-bar'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { getCategories } from '@/lib/actions/categories'
+import { ContactFormClient } from './contact-form-client'
+import { SITE_CONFIG } from '@/lib/config'
+
+export const metadata: Metadata = {
+  title: `Contact | ${SITE_CONFIG.brand.name}`,
+}
+
+export default async function ContactPage() {
+  const categories = await getCategories()
+  return (
+    <>
+      <AnnouncementBar />
+      <Header categories={categories} />
+
+      <main className="max-w-2xl mx-auto px-4 py-16 flex-1">
+        <h1 className="text-2xl font-light tracking-wider mb-2">Contact</h1>
+        <p className="text-sm text-gray-500 mb-10">
+          Have a question? We&apos;d love to hear from you.
+        </p>
+        <ContactFormClient />
+
+        <div className="mt-10 pt-8 border-t border-gray-100 space-y-3">
+          {SITE_CONFIG.contact.email && (
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Email:</span>{' '}
+              <a href={`mailto:${SITE_CONFIG.contact.email}`} className="underline">{SITE_CONFIG.contact.email}</a>
+            </p>
+          )}
+          {SITE_CONFIG.contact.phone && (
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Phone:</span>{' '}
+              <a href={`tel:${SITE_CONFIG.contact.phone}`} className="underline">{SITE_CONFIG.contact.phone}</a>
+            </p>
+          )}
+        </div>
+      </main>
+
+      <Footer />
+    </>
+  )
+}

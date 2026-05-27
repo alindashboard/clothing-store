@@ -1,17 +1,14 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
   return (
-    <main className="flex-1 flex items-center justify-center px-4 py-16 text-center">
+    <main className="flex-1 flex items-center justify-center px-4 py-20 text-center min-h-screen">
       <div>
-        <h1 className="text-6xl font-bold text-slate-200 mb-4">404</h1>
-        <h2 className="text-2xl font-bold mb-2">Pagina nu a fost găsită</h2>
-        <p className="text-muted-foreground mb-8">
-          Pagina pe care o cauți nu există sau a fost mutată.
-        </p>
-        <Link href="/">
-          <Button>Înapoi acasă</Button>
+        <p className="text-xs tracking-[0.4em] uppercase text-gray-400 mb-4">404</p>
+        <h1 className="text-2xl font-light mb-2">Page not found</h1>
+        <p className="text-gray-500 text-sm mb-8">The page you are looking for does not exist.</p>
+        <Link href="/" className="text-sm font-medium border border-black px-8 py-3 hover:bg-black hover:text-white transition-colors">
+          Go Home
         </Link>
       </div>
     </main>
