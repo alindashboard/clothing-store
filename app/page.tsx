@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
+import { MarqueeTicker } from '@/components/layout/marquee-ticker'
 import { Footer } from '@/components/layout/footer'
 import { ProductGrid } from '@/components/product/product-grid'
 import { getProducts } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
+import { getSiteSettings } from '@/lib/brand-accent'
 
 export const metadata: Metadata = {
   title: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}`,
@@ -14,9 +17,10 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [categories, featuredProducts] = await Promise.all([
+  const [categories, featuredProducts, settings] = await Promise.all([
     getCategories(),
     getProducts({ featured: true, limit: 8 }),
+    getSiteSettings(),
   ])
 
   const heroCategories = categories.slice(0, 3)
@@ -27,34 +31,107 @@ export default async function HomePage() {
       <Header categories={categories} />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="relative h-[70vh] min-h-[500px] bg-[#111111] flex items-center justify-center overflow-hidden">
+
+        {/* ── HERO ──────────────────────────────────────────────────────── */}
+        <section
+          className="kaya-hero kaya-hero-glow relative overflow-hidden flex items-center justify-center"
+          style={{ minHeight: 680, background: '#0b0b0c' }}
+        >
+          {/* Faint giant "K" in background */}
           <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #2a2a2a 100%)',
-            }}
-          />
-          <div className="relative z-10 text-center text-white px-4">
-            <p className="text-xs tracking-[0.4em] uppercase text-gray-400 mb-4">
-              New Collection
-            </p>
-            <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-6">
-              {SITE_CONFIG.brand.name}
-            </h1>
-            <p className="text-sm text-gray-400 tracking-widest uppercase mb-10">
-              {SITE_CONFIG.brand.tagline}
-            </p>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 border border-white text-white text-xs font-medium tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-all duration-300"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+            aria-hidden="true"
+          >
+            <span
+              style={{
+                fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
+                fontWeight: 600,
+                fontSize: 'clamp(280px, 40vw, 520px)',
+                lineHeight: 1,
+                color: 'rgba(236,230,218,0.025)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+              }}
             >
-              Shop Now
-            </Link>
+              K
+            </span>
+          </div>
+
+          {/* Logo PNG centered */}
+          <div className="relative z-10 flex flex-col items-center justify-center w-full h-full py-24 px-4">
+            <div className="flex items-center justify-center">
+              <Image
+                src={settings.heroLogoSrc}
+                alt={SITE_CONFIG.brand.name}
+                width={520}
+                height={320}
+                priority
+                className="w-[min(480px,72vw)] h-auto"
+                style={{ mixBlendMode: 'lighten' }}
+              />
+            </div>
+          </div>
+
+          {/* Bottom row: season label | CTA button | scroll hint */}
+          <div
+            className="absolute bottom-10 left-6 right-6 z-10"
+          >
+            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 items-end gap-6">
+              {/* Left: season + tagline */}
+              <div>
+                <p
+                  className="text-xs mb-3 tracking-[0.3em] uppercase"
+                  style={{ color: settings.accent, fontFamily: 'var(--font-sans)' }}
+                >
+                  {settings.heroSeasonLabel}
+                </p>
+                <p
+                  className="text-lg leading-snug"
+                  style={{
+                    fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
+                    fontWeight: 400,
+                    color: '#ece6da',
+                    maxWidth: 320,
+                  }}
+                >
+                  {settings.tagline}
+                </p>
+              </div>
+
+              {/* Center: CTA */}
+              <div className="flex justify-center">
+                <Link
+                  href={settings.heroCtaUrl}
+                  className="inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
+                  style={{
+                    background: settings.accent,
+                    color: '#0b0b0c',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                >
+                  {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
+                </Link>
+              </div>
+
+              {/* Right: scroll hint */}
+              <div className="hidden md:flex justify-end">
+                <p
+                  className="text-xs tracking-[0.22em] uppercase"
+                  style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-sans)' }}
+                >
+                  ↓ Scroll
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Category blocks */}
+        {/* ── TICKER ────────────────────────────────────────────────────── */}
+        {settings.tickerEnabled && (
+          <MarqueeTicker settings={settings} accent={settings.accent} />
+        )}
+
+        {/* ── CATEGORIES ────────────────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {heroCategories.map((cat) => (
@@ -77,7 +154,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Featured products */}
+        {/* ── FEATURED PRODUCTS ─────────────────────────────────────────── */}
         {featuredProducts.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 py-8 pb-20">
             <div className="flex items-baseline justify-between mb-8">

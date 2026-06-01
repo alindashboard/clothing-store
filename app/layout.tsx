@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DM_Sans } from 'next/font/google'
+import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/config'
 import { getBrandAccent } from '@/lib/brand-accent'
@@ -10,6 +10,14 @@ const dmSans = DM_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800'],
+})
+
+// Luxury display serif — used for ticker, hero headings, product card names.
+const cormorant = Cormorant_Garamond({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
 })
 
 export const metadata: Metadata = {
@@ -34,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${cormorant.variable} h-full antialiased`}
       style={{ '--brand-accent': accent } as React.CSSProperties}
     >
       <body className="min-h-full flex flex-col bg-white text-[#111111]">

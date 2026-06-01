@@ -181,3 +181,47 @@
 .accent-fg    { color:            var(--brand-accent, #c2a04a); }
 .accent-bg    { background-color: var(--brand-accent, #c2a04a); }
 .accent-border{ border-color:     var(--brand-accent, #c2a04a); }
+
+/* ── Ticker marquee ─────────────────────────────────────────────────────────
+   Speed is driven by --ticker-speed (seconds), injected inline on the element.
+   Two identical blocks side by side → seamless infinite loop.
+   prefers-reduced-motion: pause the animation entirely.
+────────────────────────────────────────────────────────────────────────── */
+@keyframes kaya-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.kaya-ticker-track {
+  animation: kaya-ticker var(--ticker-speed, 42s) linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kaya-ticker-track { animation-play-state: paused; }
+}
+
+/* ── Hero background ────────────────────────────────────────────────────────
+   Polished-concrete radial gradient echoing the store interior.
+   The ::after glow is the gold pool from the floor lights.
+────────────────────────────────────────────────────────────────────────── */
+.kaya-hero {
+  background: radial-gradient(
+    135% 95% at 50% -12%,
+    #26262b 0%,
+    #131315 46%,
+    #0b0b0c 78%
+  );
+}
+
+.kaya-hero-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    55% 38% at 50% 102%,
+    rgba(194, 160, 74, 0.16),
+    rgba(194, 160, 74, 0) 70%
+  );
+}

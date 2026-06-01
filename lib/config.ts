@@ -23,6 +23,25 @@ export const SITE_CONFIG = {
       { value: '#b08d57', label: 'Antique Bronze' },
       { value: '#b9bdbf', label: 'Platinum Silver' },
     ],
+
+    /** Scrolling ticker bar below the hero. */
+    ticker: {
+      text: 'KAYA Studio Outlet',
+      separator: '✦',
+      subtext: 'New drop every week',
+      /** Animation duration in seconds — lower = faster. */
+      speed: 42,
+      enabled: true,
+    },
+
+    /** Hero section defaults. */
+    hero: {
+      seasonLabel: 'F/W 26 · Drop 01',
+      ctaText: 'Shop the drop',
+      ctaUrl: '/products',
+      /** Path inside /public, or a full URL. */
+      logoSrc: '/kaya-logo.png',
+    },
   },
   contact: {
     email: 'contact@placeholder.com',
