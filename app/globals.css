@@ -129,3 +129,55 @@
     @apply font-sans;
   }
 }
+
+/* ── Brand metallic effects ────────────────────────────────────────────────
+   Applied to text nodes. Mirrored from the KAYA Studio design system.
+   Usage: <span className="metal-silver">KAYA</span>
+          <span className="metal-gold">Outlet</span>
+   The gradient direction (176 deg) gives a natural foil-stamp tilt.
+────────────────────────────────────────────────────────────────────────── */
+
+.metal-silver {
+  background: linear-gradient(
+    176deg,
+    #ffffff 0%,
+    #edeff0 20%,
+    #c2c6c8 44%,
+    #898d8f 53%,
+    #d4d7d8 70%,
+    #fbfcfc 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.metal-gold {
+  background: linear-gradient(
+    176deg,
+    #f7eab4 0%,
+    #e6cd7e 26%,
+    #c19a3e 50%,
+    #9c7a2b 60%,
+    #e3c777 80%,
+    #f8edbe 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Brand accent utility ──────────────────────────────────────────────────
+   --brand-accent is injected by the root layout from SITE_CONFIG (or DB).
+   Use it anywhere you need the active accent colour:
+     color: var(--brand-accent)
+     border-color: var(--brand-accent)
+     background: var(--brand-accent)
+   Hardcoded fallback keeps things working if the variable isn't set.
+────────────────────────────────────────────────────────────────────────── */
+
+.accent-fg    { color:            var(--brand-accent, #c2a04a); }
+.accent-bg    { background-color: var(--brand-accent, #c2a04a); }
+.accent-border{ border-color:     var(--brand-accent, #c2a04a); }

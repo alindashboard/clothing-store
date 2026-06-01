@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { DM_Sans } from 'next/font/google'
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/config'
+import { getBrandAccent } from '@/lib/brand-accent'
 import { CartDrawer } from '@/components/cart/cart-drawer'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -27,9 +28,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const accent = await getBrandAccent()
+
   return (
-    <html lang="en" className={`${dmSans.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${dmSans.variable} h-full antialiased`}
+      style={{ '--brand-accent': accent } as React.CSSProperties}
+    >
       <body className="min-h-full flex flex-col bg-white text-[#111111]">
         {children}
         <CartDrawer />
