@@ -7,7 +7,7 @@ import { MarqueeTicker } from '@/components/layout/marquee-ticker'
 import { Footer } from '@/components/layout/footer'
 import { ProductGrid } from '@/components/product/product-grid'
 import { getProducts } from '@/lib/actions/products'
-import { getCategories } from '@/lib/actions/categories'
+import { getCategories, getCategoriesForLanding } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 
@@ -17,13 +17,12 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [categories, featuredProducts, settings] = await Promise.all([
+  const [categories, landingCategories, featuredProducts, settings] = await Promise.all([
     getCategories(),
+    getCategoriesForLanding(),
     getProducts({ featured: true, limit: 8 }),
     getSiteSettings(),
   ])
-
-  const heroCategories = categories.slice(0, 3)
 
   return (
     <>
@@ -57,18 +56,41 @@ export default async function HomePage() {
             </span>
           </div>
 
-          {/* Logo PNG centered */}
+          {/* Logo PNG centered + subtle reflection */}
           <div className="relative z-10 flex flex-col items-center justify-center w-full h-full py-24 px-4">
-            <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center">
+              {/* Main logo */}
               <Image
                 src={settings.heroLogoSrc}
                 alt={SITE_CONFIG.brand.name}
                 width={520}
-                height={320}
+                height={640}
                 priority
-                className="w-[min(480px,72vw)] h-auto"
+                className="w-[min(360px,58vw)] h-auto"
                 style={{ mixBlendMode: 'lighten' }}
               />
+              {/* Reflection — vertically flipped, faded, blurred */}
+              <div
+                aria-hidden="true"
+                className="w-[min(360px,58vw)] overflow-hidden"
+                style={{ height: '60px', marginTop: '-4px' }}
+              >
+                <Image
+                  src={settings.heroLogoSrc}
+                  alt=""
+                  width={520}
+                  height={640}
+                  className="w-full h-auto"
+                  style={{
+                    mixBlendMode: 'lighten',
+                    transform: 'scaleY(-1)',
+                    opacity: 0.18,
+                    filter: 'blur(2px)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 100%)',
+                    maskImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 100%)',
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -132,27 +154,66 @@ export default async function HomePage() {
         )}
 
         {/* ── CATEGORIES ────────────────────────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {heroCategories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/category/${cat.slug}`}
-                className="group relative aspect-[3/4] bg-gray-100 overflow-hidden block"
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                <div
-                  className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-                  style={{ background: 'linear-gradient(135deg, #d4d4d4 0%, #a8a8a8 100%)' }}
-                />
-                <div className="absolute bottom-0 left-0 z-20 p-6">
-                  <p className="text-white text-xs tracking-widest uppercase mb-1 opacity-80">Collection</p>
-                  <p className="text-white text-2xl font-light">{cat.name}</p>
-                </div>
+        {landingCategories.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 py-16">
+            <div className="flex items-end justify-between mb-8">
+              <h2 className="text-2xl md:text-4xl font-light tracking-tight">Shop by category</h2>
+              <Link href="/products" className="text-xs tracking-widest uppercase text-gray-500 hover:text-black transition-colors hidden md:block">
+                All products →
               </Link>
-            ))}
-          </div>
-        </section>
+            </div>
+            <div className={`grid gap-4 ${
+              landingCategories.length === 1 ? 'grid-cols-1' :
+              landingCategories.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
+              'grid-cols-1 md:grid-cols-3'
+            }`}>
+              {landingCategories.map((cat, i) => (
+                <Link
+                  key={cat.id}
+                  href={`/category/${cat.slug}`}
+                  className="group relative aspect-[3/4] bg-gray-100 overflow-hidden block"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+                  <div
+                    className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+                    style={{
+                      background: i === 0
+                        ? 'linear-gradient(135deg, #1a1a1d 0%, #2d2d30 100%)'
+                        : i === 1
+                        ? 'linear-gradient(135deg, #2a2a2d 0%, #1a1a1d 100%)'
+                        : 'linear-gradient(135deg, #222225 0%, #2a2a2d 100%)',
+                    }}
+                  />
+                  {/* Category number badge */}
+                  <div
+                    className="absolute top-4 left-4 z-20 text-xs tracking-widest uppercase px-2.5 py-1.5"
+                    style={{
+                      color: settings.accent,
+                      border: `1px solid ${settings.accent}40`,
+                      background: 'rgba(11,11,12,0.6)',
+                      backdropFilter: 'blur(4px)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    0{i + 1}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
+                    <p
+                      className="text-xs tracking-widest uppercase mb-2 opacity-70"
+                      style={{ color: settings.accent }}
+                    >
+                      Collection
+                    </p>
+                    <div className="flex items-end justify-between">
+                      <p className="text-white text-2xl font-light">{cat.name}</p>
+                      <span className="text-white opacity-60 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── FEATURED PRODUCTS ─────────────────────────────────────────── */}
         {featuredProducts.length > 0 && (

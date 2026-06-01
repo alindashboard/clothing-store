@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase'
 import type { Category } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
+import { SITE_CONFIG } from '@/lib/config'
 
 export async function getCategories(): Promise<Category[]> {
   const supabase = await createSupabaseServerClient()
@@ -16,6 +17,22 @@ export async function getCategories(): Promise<Category[]> {
 
   if (error) return []
   return data ?? []
+}
+
+/** Categories shown on the homepage landing grid, in config-defined order. */
+export async function getCategoriesForLanding(): Promise<Category[]> {
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('is_active', true)
+    .in('slug', SITE_CONFIG.brand.landingCategorySlugs)
+
+  if (error) return []
+
+  // Preserve the order defined in config
+  const order = SITE_CONFIG.brand.landingCategorySlugs
+  return (data ?? []).sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug))
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {

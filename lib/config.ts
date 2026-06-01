@@ -16,6 +16,19 @@ export const SITE_CONFIG = {
      */
     accent: '#c2a04a',           // champagne gold — metallic brand default
 
+    /**
+     * Category slugs shown on the homepage landing grid.
+     * Order matters — first slug = first card.
+     * To change what appears on landing, update this list (admin UI coming).
+     */
+    landingCategorySlugs: ['sneakers', 'seturi', 'tricouri'],
+
+    /**
+     * Category slugs that use numeric shoe sizes (37–45).
+     * All other categories default to clothing sizes (S/M/L/XL).
+     */
+    shoeCategorySlugs: ['sneakers', 'papuci'],
+
     /** Curated metallic swatch options shown in the admin accent picker. */
     accentOptions: [
       { value: '#c2a04a', label: 'Champagne Gold' },   // brand default

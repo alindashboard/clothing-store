@@ -176,6 +176,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               <VariantManager
                 productId={product.id}
                 initialVariants={product.variants ?? []}
+                categorySlug={categories.find(c => c.id === categoryId)?.slug ?? ''}
               />
             </section>
           )}

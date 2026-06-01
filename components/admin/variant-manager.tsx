@@ -6,11 +6,18 @@ import { Input } from '@/components/ui/input'
 import type { ProductVariant } from '@/lib/types'
 import { upsertVariant, deleteVariant } from '@/lib/actions/products'
 import { toast } from 'sonner'
+import { SITE_CONFIG } from '@/lib/config'
 
 interface VariantManagerProps {
   productId: string
   initialVariants: ProductVariant[]
+  /** Slug of the product's category — used to show the right size quick-add buttons. */
+  categorySlug?: string
 }
+
+const SHOE_SIZES    = ['37','38','39','40','41','42','43','44','45']
+const CLOTH_SIZES   = ['S','M','L','XL']
+const CLOTH_SIZES_XS = ['XS','S','M','L','XL']
 
 type DraftVariant = Partial<ProductVariant> & {
   product_id: string
@@ -18,7 +25,8 @@ type DraftVariant = Partial<ProductVariant> & {
   _new?: boolean
 }
 
-export function VariantManager({ productId, initialVariants }: VariantManagerProps) {
+export function VariantManager({ productId, initialVariants, categorySlug = '' }: VariantManagerProps) {
+  const isShoeCategory = SITE_CONFIG.brand.shoeCategorySlugs.includes(categorySlug)
   const [variants, setVariants] = useState<DraftVariant[]>(
     initialVariants.map((v) => ({ ...v, _dirty: false, _new: false }))
   )
@@ -70,8 +78,7 @@ export function VariantManager({ productId, initialVariants }: VariantManagerPro
     toast.success('Variant removed')
   }
 
-  function quickAddSizes(color: string, hex: string) {
-    const sizes = ['XS', 'S', 'M', 'L', 'XL']
+  function quickAddSizes(sizes: string[], color: string, hex: string) {
     const newRows: DraftVariant[] = sizes.map((size, i) => ({
       product_id: productId,
       size,
@@ -89,16 +96,42 @@ export function VariantManager({ productId, initialVariants }: VariantManagerPro
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-600">Variants</h3>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => quickAddSizes('Black', '#000000')}
-            className="text-xs px-3 py-1.5 border border-gray-300 hover:border-gray-500 transition-colors"
-          >
-            Quick add XS–XL (Black)
-          </button>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-600">
+          Variants
+          {isShoeCategory && (
+            <span className="ml-2 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded tracking-normal normal-case">
+              Shoe sizes
+            </span>
+          )}
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {isShoeCategory ? (
+            <button
+              type="button"
+              onClick={() => quickAddSizes(SHOE_SIZES, 'Standard', '#808080')}
+              className="text-xs px-3 py-1.5 border border-gray-300 hover:border-gray-500 transition-colors"
+            >
+              Quick add 37–45
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => quickAddSizes(CLOTH_SIZES, 'Black', '#000000')}
+                className="text-xs px-3 py-1.5 border border-gray-300 hover:border-gray-500 transition-colors"
+              >
+                Quick add S–XL
+              </button>
+              <button
+                type="button"
+                onClick={() => quickAddSizes(CLOTH_SIZES_XS, 'Black', '#000000')}
+                className="text-xs px-3 py-1.5 border border-gray-300 hover:border-gray-500 transition-colors"
+              >
+                + XS
+              </button>
+            </>
+          )}
           <button
             type="button"
             onClick={addRow}
