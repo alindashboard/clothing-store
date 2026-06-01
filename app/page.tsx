@@ -56,42 +56,16 @@ export default async function HomePage() {
             </span>
           </div>
 
-          {/* Logo PNG centered + subtle reflection */}
-          <div className="relative z-10 flex flex-col items-center justify-center w-full h-full py-24 px-4">
-            <div className="flex flex-col items-center">
-              {/* Main logo */}
-              <Image
-                src={settings.heroLogoSrc}
-                alt={SITE_CONFIG.brand.name}
-                width={520}
-                height={640}
-                priority
-                className="w-[min(360px,58vw)] h-auto"
-                style={{ mixBlendMode: 'lighten' }}
-              />
-              {/* Reflection — vertically flipped, faded, blurred */}
-              <div
-                aria-hidden="true"
-                className="w-[min(360px,58vw)] overflow-hidden"
-                style={{ height: '60px', marginTop: '-4px' }}
-              >
-                <Image
-                  src={settings.heroLogoSrc}
-                  alt=""
-                  width={520}
-                  height={640}
-                  className="w-full h-auto"
-                  style={{
-                    mixBlendMode: 'lighten',
-                    transform: 'scaleY(-1)',
-                    opacity: 0.18,
-                    filter: 'blur(2px)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 100%)',
-                    maskImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 100%)',
-                  }}
-                />
-              </div>
-            </div>
+          {/* Logo PNG centered — transparent PNG, no blend mode needed */}
+          <div className="relative z-10 flex items-center justify-center w-full h-full py-24 px-4">
+            <Image
+              src={settings.heroLogoSrc}
+              alt={SITE_CONFIG.brand.name}
+              width={520}
+              height={640}
+              priority
+              className="w-[min(340px,55vw)] h-auto"
+            />
           </div>
 
           {/* Bottom row: season label | CTA button | scroll hint */}
