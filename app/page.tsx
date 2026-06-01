@@ -6,8 +6,9 @@ import { Header } from '@/components/layout/header'
 import { MarqueeTicker } from '@/components/layout/marquee-ticker'
 import { Footer } from '@/components/layout/footer'
 import { ProductGrid } from '@/components/product/product-grid'
-import { getProducts } from '@/lib/actions/products'
+import { getProducts, getCategoryImages } from '@/lib/actions/products'
 import { getCategories, getCategoriesForLanding } from '@/lib/actions/categories'
+import { CategoryImageSlider } from '@/components/layout/category-image-slider'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 
@@ -23,6 +24,8 @@ export default async function HomePage() {
     getProducts({ featured: true, limit: 8 }),
     getSiteSettings(),
   ])
+
+  const categoryImages = await getCategoryImages(landingCategories.map((c) => c.id))
 
   return (
     <>
@@ -148,16 +151,26 @@ export default async function HomePage() {
                   className="group relative aspect-[3/4] bg-gray-100 overflow-hidden block"
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
-                  <div
-                    className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-                    style={{
-                      background: i === 0
-                        ? 'linear-gradient(135deg, #1a1a1d 0%, #2d2d30 100%)'
-                        : i === 1
-                        ? 'linear-gradient(135deg, #2a2a2d 0%, #1a1a1d 100%)'
-                        : 'linear-gradient(135deg, #222225 0%, #2a2a2d 100%)',
-                    }}
-                  />
+                  {/* Category images — carousel if multiple, single image, or dark gradient fallback */}
+                  <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
+                    {(categoryImages[cat.id]?.length ?? 0) > 0 ? (
+                      <CategoryImageSlider
+                        images={categoryImages[cat.id]}
+                        alt={cat.name}
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          background: i === 0
+                            ? 'linear-gradient(135deg, #1a1a1d 0%, #2d2d30 100%)'
+                            : i === 1
+                            ? 'linear-gradient(135deg, #2a2a2d 0%, #1a1a1d 100%)'
+                            : 'linear-gradient(135deg, #222225 0%, #2a2a2d 100%)',
+                        }}
+                      />
+                    )}
+                  </div>
                   {/* Category number badge */}
                   <div
                     className="absolute top-4 left-4 z-20 text-xs tracking-widest uppercase px-2.5 py-1.5"

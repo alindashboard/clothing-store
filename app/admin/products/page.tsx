@@ -2,20 +2,32 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import { getAllProductsAdmin } from '@/lib/actions/products'
+import { getAllCategoriesAdmin } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
+import { ProductFilterBar } from '@/components/admin/product-filter-bar'
+import { Suspense } from 'react'
 
-export default async function AdminProductsPage() {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoryId?: string }>
+}) {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const products = await getAllProductsAdmin()
+  const { categoryId } = await searchParams
+
+  const [products, categories] = await Promise.all([
+    getAllProductsAdmin({ categoryId }),
+    getAllCategoriesAdmin(),
+  ])
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-semibold">Products</h1>
         <Link
           href="/admin/products/new"
@@ -24,6 +36,15 @@ export default async function AdminProductsPage() {
           <Plus className="w-4 h-4" /> Add Product
         </Link>
       </div>
+
+      {/* Category filter */}
+      <Suspense>
+        <ProductFilterBar
+          categories={categories}
+          activeCategoryId={categoryId ?? ''}
+          totalCount={products.length}
+        />
+      </Suspense>
 
       {/* Desktop table */}
       <div className="hidden md:block bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -64,7 +85,7 @@ export default async function AdminProductsPage() {
               )
             })}
             {products.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No products yet.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No products in this category.</td></tr>
             )}
           </tbody>
         </table>
@@ -99,7 +120,7 @@ export default async function AdminProductsPage() {
           )
         })}
         {products.length === 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-400">No products yet.</div>
+          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-400">No products in this category.</div>
         )}
       </div>
     </div>

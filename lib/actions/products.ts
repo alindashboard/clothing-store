@@ -60,9 +60,11 @@ export async function getProduct(slug: string): Promise<Product | null> {
   return data
 }
 
-export async function getAllProductsAdmin(): Promise<Product[]> {
+export async function getAllProductsAdmin(options?: {
+  categoryId?: string
+}): Promise<Product[]> {
   const supabase = createSupabaseAdminClient()
-  const { data, error } = await supabase
+  let query = supabase
     .from('products')
     .select(`
       *,
@@ -72,8 +74,45 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
     `)
     .order('created_at', { ascending: false })
 
+  if (options?.categoryId) {
+    query = query.eq('category_id', options.categoryId)
+  }
+
+  const { data, error } = await query
   if (error) { console.error(error); return [] }
   return data ?? []
+}
+
+/** Returns up to `limit` image URLs per category ID (for landing card carousels). */
+export async function getCategoryImages(
+  categoryIds: string[],
+  limit = 3,
+): Promise<Record<string, string[]>> {
+  if (categoryIds.length === 0) return {}
+  const supabase = createSupabaseAdminClient()
+  const { data } = await supabase
+    .from('products')
+    .select('category_id, images:product_images(url, is_primary, sort_order)')
+    .eq('is_active', true)
+    .in('category_id', categoryIds)
+    .order('created_at', { ascending: false })
+
+  if (!data) return {}
+
+  const result: Record<string, string[]> = {}
+  for (const product of data) {
+    const catId = product.category_id as string
+    if (!catId) continue
+    if (!result[catId]) result[catId] = []
+    if (result[catId].length >= limit) continue
+    const imgs = product.images as { url: string; is_primary: boolean; sort_order: number }[]
+    if (!imgs?.length) continue
+    const sorted = [...imgs].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
+    for (const img of sorted) {
+      if (result[catId].length < limit) result[catId].push(img.url)
+    }
+  }
+  return result
 }
 
 export async function getProductAdmin(id: string): Promise<Product | null> {
