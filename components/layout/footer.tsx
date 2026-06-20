@@ -1,5 +1,16 @@
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/config'
+import { STORE_INFO } from '@/lib/store-info'
+
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
 
 export function Footer() {
   const { brand, contact, social } = SITE_CONFIG
@@ -28,6 +39,7 @@ export function Footer() {
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Info</p>
             <ul className="space-y-2">
+              <li><Link href="/magazin" className="text-xs text-gray-300 hover:text-white transition-colors">Magazin</Link></li>
               <li><Link href="/terms" className="text-xs text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
               <li><Link href="/privacy" className="text-xs text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
@@ -51,10 +63,16 @@ export function Footer() {
               )}
             </ul>
             {(social.instagram || social.facebook) && (
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-col gap-2 mt-4">
                 {social.instagram && (
-                  <a href={social.instagram} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-white transition-colors">
-                    Instagram
+                  <a
+                    href={social.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors"
+                  >
+                    <InstagramIcon className="w-3.5 h-3.5" />
+                    {STORE_INFO.instagramHandle}
                   </a>
                 )}
                 {social.facebook && (

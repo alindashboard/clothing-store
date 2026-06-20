@@ -1,3 +1,5 @@
+import { STORE_INFO } from './store-info'
+
 export const SITE_CONFIG = {
   brand: {
     name: 'KAYA Studio Outlet',
@@ -57,10 +59,10 @@ export const SITE_CONFIG = {
     },
   },
   contact: {
-    email: 'contact@placeholder.com',
-    phone: '+39 XXX XXX XXXX',
-    whatsapp: '39XXXXXXXXXX',
-    whatsappOrderMessage: 'Hi, I would like to place an order:',
+    email: STORE_INFO.email,
+    phone: STORE_INFO.phone,
+    whatsapp: '40XXXXXXXXXX',
+    whatsappOrderMessage: 'Bună ziua, aș dori să plasez o comandă:',
   },
   shipping: {
     freeShippingThreshold: 150,
@@ -80,7 +82,7 @@ export const SITE_CONFIG = {
     enableReviews: false,
   },
   social: {
-    instagram: '',
+    instagram: STORE_INFO.instagram,
     facebook: '',
     tiktok: '',
   },

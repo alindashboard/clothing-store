@@ -9,6 +9,7 @@ import { ProductGrid } from '@/components/product/product-grid'
 import { getProducts, getCategoryImages } from '@/lib/actions/products'
 import { getCategories, getCategoriesForLanding } from '@/lib/actions/categories'
 import { CategoryImageSlider } from '@/components/layout/category-image-slider'
+import { VisitUsSection } from '@/components/layout/visit-us-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 
@@ -216,6 +217,7 @@ export default async function HomePage() {
         )}
       </main>
 
+      <VisitUsSection />
       <Footer />
     </>
   )
