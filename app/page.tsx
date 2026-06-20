@@ -10,6 +10,7 @@ import { getProducts, getCategoryImages } from '@/lib/actions/products'
 import { getCategories, getCategoriesForLanding } from '@/lib/actions/categories'
 import { CategoryImageSlider } from '@/components/layout/category-image-slider'
 import { VisitUsSection } from '@/components/layout/visit-us-section'
+import { InstagramSection } from '@/components/layout/instagram-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 
@@ -37,8 +38,8 @@ export default async function HomePage() {
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section
-          className="kaya-hero kaya-hero-glow relative overflow-hidden flex items-center justify-center"
-          style={{ minHeight: 680, background: '#0b0b0c' }}
+          className="kaya-hero kaya-hero-glow relative overflow-hidden flex items-center justify-center min-h-[50vh] md:min-h-[680px]"
+          style={{ background: '#0b0b0c' }}
         >
           {/* Faint giant "K" in background */}
           <div
@@ -60,8 +61,8 @@ export default async function HomePage() {
             </span>
           </div>
 
-          {/* Logo PNG centered — transparent PNG, no blend mode needed */}
-          <div className="relative z-10 flex items-center justify-center w-full h-full py-24 px-4">
+          {/* Logo PNG centered — hidden on mobile to reduce hero height */}
+          <div className="relative z-10 hidden md:flex items-center justify-center w-full h-full py-24 px-4">
             <Image
               src={settings.heroLogoSrc}
               alt={SITE_CONFIG.brand.name}
@@ -218,6 +219,7 @@ export default async function HomePage() {
       </main>
 
       <VisitUsSection />
+      <InstagramSection />
       <Footer />
     </>
   )
