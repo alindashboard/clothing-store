@@ -48,7 +48,7 @@ export default async function HomePage() {
           style={{ background: '#0b0b0c' }}
         >
           {/* ── MOBILE LAYOUT (hidden on md+) ─────────────────────────── */}
-          <div className="md:hidden flex flex-col items-center justify-center py-16 px-6 text-center relative z-10">
+          <div className="md:hidden flex flex-col items-center pt-8 pb-10 px-6 text-center relative z-10">
             <Image
               src="/kaya-logo.png"
               alt="KAYA Studio Outlet"
@@ -58,7 +58,7 @@ export default async function HomePage() {
               className="w-[60vw] max-w-[200px] h-auto"
             />
             <p
-              className="mt-8 text-base font-light"
+              className="mt-6 text-base font-light"
               style={{
                 fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
                 fontStyle: 'italic',
@@ -67,17 +67,6 @@ export default async function HomePage() {
             >
               {settings.tagline}
             </p>
-            <Link
-              href={settings.heroCtaUrl}
-              className="mt-8 inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
-              style={{
-                background: settings.accent,
-                color: '#0b0b0c',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
-            </Link>
           </div>
 
           {/* ── DESKTOP LAYOUT (hidden on mobile) ─────────────────────── */}
