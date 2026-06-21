@@ -44,88 +44,104 @@ export default async function HomePage() {
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section
-          className="kaya-hero relative overflow-hidden flex items-center justify-center min-h-[50vh] md:h-[500px] md:min-h-0"
+          className="kaya-hero relative overflow-hidden"
           style={{ background: '#0b0b0c' }}
         >
-          {/* Desktop: full-bleed background image (logo + visuals baked in) */}
-          <div className="hidden md:block absolute inset-0 z-0">
+          {/* ── MOBILE LAYOUT (hidden on md+) ─────────────────────────── */}
+          <div className="md:hidden flex flex-col items-center justify-center py-16 px-6 text-center relative z-10">
             <Image
-              src="/hero-nou-kaya.png"
+              src="/kaya-logo.png"
               alt="KAYA Studio Outlet"
-              fill
+              width={996}
+              height={1253}
               priority
-              sizes="100vw"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              className="w-[60vw] max-w-[200px] h-auto"
             />
-          </div>
-
-          {/* Mobile only: faint giant "K" in background */}
-          <div
-            className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-            aria-hidden="true"
-          >
-            <span
+            <p
+              className="mt-8 text-base font-light"
               style={{
                 fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
-                fontWeight: 600,
-                fontSize: 'clamp(280px, 40vw, 520px)',
-                lineHeight: 1,
-                color: 'rgba(236,230,218,0.025)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
+                fontStyle: 'italic',
+                color: 'rgba(236,230,218,0.55)',
               }}
             >
-              K
-            </span>
+              {settings.tagline}
+            </p>
+            <Link
+              href={settings.heroCtaUrl}
+              className="mt-8 inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
+              style={{
+                background: settings.accent,
+                color: '#0b0b0c',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
+            </Link>
           </div>
 
-          {/* Bottom row: season label | CTA button | scroll hint */}
-          <div className="absolute bottom-10 left-6 right-6 z-10">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 items-end gap-6">
-              {/* Left: season + tagline */}
-              <div>
-                <p
-                  className="text-xs mb-3 tracking-[0.3em] uppercase"
-                  style={{ color: settings.accent, fontFamily: 'var(--font-sans)' }}
-                >
-                  {settings.heroSeasonLabel}
-                </p>
-                <p
-                  className="text-lg leading-snug"
-                  style={{
-                    fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
-                    fontWeight: 400,
-                    color: '#ece6da',
-                    maxWidth: 320,
-                  }}
-                >
-                  {settings.tagline}
-                </p>
-              </div>
+          {/* ── DESKTOP LAYOUT (hidden on mobile) ─────────────────────── */}
+          <div className="hidden md:block relative h-[500px]">
+            {/* Full-bleed background image (logo + visuals baked in) */}
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/hero-nou-kaya.png"
+                alt="KAYA Studio Outlet"
+                fill
+                priority
+                sizes="100vw"
+                style={{ objectFit: 'cover', objectPosition: 'center' }}
+              />
+            </div>
 
-              {/* Center: CTA */}
-              <div className="flex justify-center">
-                <Link
-                  href={settings.heroCtaUrl}
-                  className="inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
-                  style={{
-                    background: settings.accent,
-                    color: '#0b0b0c',
-                    fontFamily: 'var(--font-sans)',
-                  }}
-                >
-                  {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
-                </Link>
-              </div>
+            {/* Bottom row: season label | CTA button | scroll hint */}
+            <div className="absolute bottom-10 left-6 right-6 z-10">
+              <div className="max-w-6xl mx-auto grid grid-cols-3 items-end gap-6">
+                {/* Left: season + tagline */}
+                <div>
+                  <p
+                    className="text-xs mb-3 tracking-[0.3em] uppercase"
+                    style={{ color: settings.accent, fontFamily: 'var(--font-sans)' }}
+                  >
+                    {settings.heroSeasonLabel}
+                  </p>
+                  <p
+                    className="text-lg leading-snug"
+                    style={{
+                      fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
+                      fontWeight: 400,
+                      color: '#ece6da',
+                      maxWidth: 320,
+                    }}
+                  >
+                    {settings.tagline}
+                  </p>
+                </div>
 
-              {/* Right: scroll hint */}
-              <div className="hidden md:flex justify-end">
-                <p
-                  className="text-xs tracking-[0.22em] uppercase"
-                  style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-sans)' }}
-                >
-                  ↓ Scroll
-                </p>
+                {/* Center: CTA */}
+                <div className="flex justify-center">
+                  <Link
+                    href={settings.heroCtaUrl}
+                    className="inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
+                    style={{
+                      background: settings.accent,
+                      color: '#0b0b0c',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
+                  </Link>
+                </div>
+
+                {/* Right: scroll hint */}
+                <div className="flex justify-end">
+                  <p
+                    className="text-xs tracking-[0.22em] uppercase"
+                    style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-sans)' }}
+                  >
+                    ↓ Scroll
+                  </p>
+                </div>
               </div>
             </div>
           </div>
