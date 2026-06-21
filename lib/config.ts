@@ -1,5 +1,5 @@
 import { STORE_INFO } from './store-info'
-import { BRANDS_TICKER } from './brands'
+import { BRANDS, BRANDS_TICKER } from './brands'
 
 export const SITE_CONFIG = {
   brand: {
@@ -45,8 +45,9 @@ export const SITE_CONFIG = {
       text: BRANDS_TICKER,
       separator: '·',
       subtext: BRANDS_TICKER,
-      /** Animation duration in seconds — lower = faster. */
-      speed: 42,
+      /** ~10 s per brand name for comfortable reading pace. Scales automatically
+       *  if brands list grows. (7 brands → 70 s) */
+      speed: BRANDS.length * 10,
       enabled: true,
     },
 

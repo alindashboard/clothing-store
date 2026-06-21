@@ -248,7 +248,8 @@
 ────────────────────────────────────────────────────────────────────────── */
 @keyframes na-scroll {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  /* --na-repeats copies in the track → translate exactly 1 copy's width */
+  to   { transform: translateX(calc(-100% / var(--na-repeats, 2))); }
 }
 
 .na-scroll-track {

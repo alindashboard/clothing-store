@@ -51,7 +51,7 @@ export default async function NewArrivalsPage() {
         {/* ── CAROUSEL ────────────────────────────────────────────────── */}
         {products.length > 0 && (
           <section className="py-10 overflow-hidden">
-            <NewArrivalsCarousel products={products} />
+            <NewArrivalsCarousel products={products} size="compact" />
           </section>
         )}
 
