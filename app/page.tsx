@@ -38,12 +38,24 @@ export default async function HomePage() {
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section
-          className="kaya-hero kaya-hero-glow relative overflow-hidden flex items-center justify-center min-h-[50vh] md:min-h-[680px]"
+          className="kaya-hero relative overflow-hidden flex items-center justify-center min-h-[50vh] md:h-[500px] md:min-h-0"
           style={{ background: '#0b0b0c' }}
         >
-          {/* Faint giant "K" in background */}
+          {/* Desktop: full-bleed background image (logo + visuals baked in) */}
+          <div className="hidden md:block absolute inset-0 z-0">
+            <Image
+              src="/hero-nou-kaya.png"
+              alt="KAYA Studio Outlet"
+              fill
+              priority
+              sizes="100vw"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+            />
+          </div>
+
+          {/* Mobile only: faint giant "K" in background */}
           <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+            className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none"
             aria-hidden="true"
           >
             <span
@@ -61,22 +73,8 @@ export default async function HomePage() {
             </span>
           </div>
 
-          {/* Logo PNG centered — hidden on mobile to reduce hero height */}
-          <div className="relative z-10 hidden md:flex items-center justify-center w-full h-full py-24 px-4">
-            <Image
-              src={settings.heroLogoSrc}
-              alt={SITE_CONFIG.brand.name}
-              width={520}
-              height={640}
-              priority
-              className="w-[min(340px,55vw)] h-auto"
-            />
-          </div>
-
           {/* Bottom row: season label | CTA button | scroll hint */}
-          <div
-            className="absolute bottom-10 left-6 right-6 z-10"
-          >
+          <div className="absolute bottom-10 left-6 right-6 z-10">
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 items-end gap-6">
               {/* Left: season + tagline */}
               <div>
