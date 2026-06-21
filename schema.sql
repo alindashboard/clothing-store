@@ -154,6 +154,20 @@ CREATE TABLE order_items (
 CREATE INDEX idx_order_items_order ON order_items(order_id);
 
 -- =============================================
+-- NEW ARRIVALS (curated list — managed via admin)
+-- =============================================
+CREATE TABLE new_arrivals (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id  UUID        NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  position    INTEGER     NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (product_id)
+);
+
+CREATE INDEX idx_new_arrivals_position ON new_arrivals(position);
+CREATE INDEX idx_new_arrivals_created  ON new_arrivals(created_at DESC);
+
+-- =============================================
 -- CONTACT REQUESTS
 -- =============================================
 CREATE TABLE IF NOT EXISTS contact_requests (
@@ -229,6 +243,10 @@ CREATE POLICY "Order items admin access" ON order_items FOR ALL USING (auth.role
 ALTER TABLE contact_requests ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can submit contact" ON contact_requests FOR INSERT WITH CHECK (true);
 CREATE POLICY "Contact admin access" ON contact_requests FOR ALL USING (auth.role() = 'authenticated');
+
+ALTER TABLE new_arrivals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "New arrivals visible to all" ON new_arrivals FOR SELECT USING (true);
+CREATE POLICY "New arrivals admin write" ON new_arrivals FOR ALL USING (auth.role() = 'authenticated');
 
 -- =============================================
 -- SEED DATA — Categorii

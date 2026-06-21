@@ -14,6 +14,9 @@ import { InstagramSection } from '@/components/layout/instagram-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 import { TESTIMONIALS } from '@/lib/testimonials'
+import { getNewArrivals } from '@/lib/actions/new-arrivals'
+import { AnimatedNewArrivalsText } from '@/components/AnimatedNewArrivalsText'
+import { NewArrivalsCarousel } from '@/components/NewArrivalsCarousel'
 
 export const metadata: Metadata = {
   title: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}`,
@@ -21,14 +24,16 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [categories, landingCategories, featuredProducts, settings] = await Promise.all([
+  const [categories, landingCategories, featuredProducts, settings, newArrivals] = await Promise.all([
     getCategories(),
     getCategoriesForLanding(),
     getProducts({ featured: true, limit: 8 }),
     getSiteSettings(),
+    getNewArrivals(),
   ])
 
   const categoryImages = await getCategoryImages(landingCategories.map((c) => c.id))
+  const newArrivalProducts = newArrivals.map((a) => a.product)
 
   return (
     <>
@@ -129,6 +134,24 @@ export default async function HomePage() {
         {/* ── TICKER ────────────────────────────────────────────────────── */}
         {settings.tickerEnabled && (
           <MarqueeTicker settings={settings} accent={settings.accent} />
+        )}
+
+        {/* ── NEW ARRIVALS ───────────────────────────────────────────────── */}
+        {newArrivalProducts.length > 0 && (
+          <section className="py-14 overflow-hidden">
+            <div className="text-center mb-8 px-4">
+              <AnimatedNewArrivalsText size="lg" />
+            </div>
+            <NewArrivalsCarousel products={newArrivalProducts} />
+            <div className="text-center mt-8">
+              <Link
+                href="/new-arrivals"
+                className="text-xs font-medium tracking-[0.2em] uppercase text-gray-500 hover:text-black transition-colors underline underline-offset-4"
+              >
+                View all new arrivals →
+              </Link>
+            </div>
+          </section>
         )}
 
         {/* ── CATEGORIES ────────────────────────────────────────────────── */}

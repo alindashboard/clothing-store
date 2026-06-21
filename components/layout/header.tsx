@@ -54,6 +54,13 @@ export function Header({ categories }: HeaderProps) {
           >
             All
           </Link>
+          <Link
+            href="/new-arrivals"
+            className="text-xs font-medium tracking-widest uppercase transition-colors"
+            style={{ color: '#c2a04a' }}
+          >
+            New Arrivals
+          </Link>
         </nav>
 
         {/* Cart */}

@@ -46,9 +46,19 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
               <Link
                 href="/products"
                 onClick={onClose}
-                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black"
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
               >
                 All Products
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/new-arrivals"
+                onClick={onClose}
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase"
+                style={{ color: '#c2a04a' }}
+              >
+                New Arrivals
               </Link>
             </li>
           </ul>

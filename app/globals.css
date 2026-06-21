@@ -225,3 +225,37 @@
     rgba(194, 160, 74, 0) 70%
   );
 }
+
+/* ── New Arrivals — text shine + pulse ──────────────────────────────────────
+   na-shine: gold highlight sweeps left-to-right every 5s.
+   na-pulse: very gentle scale breathe (1.0 → 1.03 → 1.0) every 2s.
+   Both applied to the same span via comma-separated animation shorthand.
+   prefers-reduced-motion: kills both.
+────────────────────────────────────────────────────────────────────────── */
+@keyframes na-shine {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes na-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.03); }
+}
+
+/* ── New Arrivals — carousel scroll ─────────────────────────────────────────
+   Identical pattern to kaya-ticker: two copies side-by-side, translate -50%.
+   Speed injected inline as --na-speed (seconds).
+────────────────────────────────────────────────────────────────────────── */
+@keyframes na-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.na-scroll-track {
+  animation: na-scroll var(--na-speed, 32s) linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .na-scroll-track { animation-play-state: paused; }
+}
