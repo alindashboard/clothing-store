@@ -40,3 +40,39 @@ export async function deleteProductImageFromStorage(url: string): Promise<{ erro
   if (error) return { error: error.message }
   return {}
 }
+
+const EVENT_BUCKET = 'event-images'
+
+export async function uploadEventImage(
+  formData: FormData
+): Promise<{ url?: string; error?: string }> {
+  const file = formData.get('file') as File
+  if (!file) return { error: 'No file provided.' }
+  if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
+  if (file.size > MAX_SIZE) return { error: 'File must be under 5MB.' }
+
+  const supabase = createSupabaseAdminClient()
+  const ext = file.name.split('.').pop()
+  const path = `${Date.now()}.${ext}`
+
+  const arrayBuffer = await file.arrayBuffer()
+  const { error } = await supabase.storage.from(EVENT_BUCKET).upload(path, arrayBuffer, {
+    contentType: file.type,
+    upsert: false,
+  })
+
+  if (error) return { error: error.message }
+
+  const { data } = supabase.storage.from(EVENT_BUCKET).getPublicUrl(path)
+  return { url: data.publicUrl }
+}
+
+export async function deleteEventImageFromStorage(url: string): Promise<{ error?: string }> {
+  const supabase = createSupabaseAdminClient()
+  const path = url.split(`${EVENT_BUCKET}/`)[1]
+  if (!path) return { error: 'Invalid URL.' }
+
+  const { error } = await supabase.storage.from(EVENT_BUCKET).remove([path])
+  if (error) return { error: error.message }
+  return {}
+}

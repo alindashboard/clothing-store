@@ -133,6 +133,24 @@ export interface ContactRequest {
   created_at: string
 }
 
+export type EventStatus = 'draft' | 'published'
+
+export interface Event {
+  id: string
+  title: string
+  slug: string
+  description: string | null
+  event_date: string
+  location: string | null
+  is_online: boolean
+  image_url: string | null
+  cta_label: string | null
+  cta_url: string | null
+  status: EventStatus
+  created_at: string
+  updated_at: string
+}
+
 export interface CheckoutFormData {
   email: string
   phone: string

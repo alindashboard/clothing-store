@@ -61,6 +61,12 @@ export function Header({ categories }: HeaderProps) {
           >
             New Arrivals
           </Link>
+          <Link
+            href="/events"
+            className="text-xs font-medium tracking-widest uppercase text-gray-600 hover:text-black transition-colors"
+          >
+            Events
+          </Link>
         </nav>
 
         {/* Cart */}

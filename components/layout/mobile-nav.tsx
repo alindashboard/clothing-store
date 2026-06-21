@@ -61,6 +61,15 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 New Arrivals
               </Link>
             </li>
+            <li>
+              <Link
+                href="/events"
+                onClick={onClose}
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
+              >
+                Events
+              </Link>
+            </li>
           </ul>
         </nav>
 

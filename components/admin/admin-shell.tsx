@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles } from 'lucide-react'
+import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, exact: false },
   { href: '/admin/categories', label: 'Categories', icon: Tag, exact: false },
   { href: '/admin/new-arrivals', label: 'New Arrivals', icon: Sparkles, exact: false },
+  { href: '/admin/events', label: 'Events', icon: CalendarDays, exact: false },
   { href: '/admin/contacts', label: 'Contacts', icon: MessageSquare, exact: false },
 ]
 
