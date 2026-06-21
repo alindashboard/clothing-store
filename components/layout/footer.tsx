@@ -29,7 +29,7 @@ export function Footer() {
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Store</p>
             <ul className="space-y-2">
               <li><Link href="/products" className="text-xs text-gray-300 hover:text-white transition-colors">All Products</Link></li>
-              <li><Link href="/category/new-arrivals" className="text-xs text-gray-300 hover:text-white transition-colors">New Arrivals</Link></li>
+              <li><Link href="/new-arrivals" className="text-xs text-gray-300 hover:text-white transition-colors">New Arrivals</Link></li>
               <li><Link href="/category/sale" className="text-xs text-gray-300 hover:text-white transition-colors">Sale</Link></li>
               <li><Link href="/contact" className="text-xs text-gray-300 hover:text-white transition-colors">Contact</Link></li>
             </ul>

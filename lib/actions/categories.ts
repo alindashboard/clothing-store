@@ -100,3 +100,33 @@ export async function deleteCategory(id: string) {
   revalidatePath('/admin/categories')
   return { success: true }
 }
+
+export async function updateCategoryDirect(
+  id: string,
+  data: {
+    name: string
+    slug: string
+    description: string
+    sort_order: number
+    is_active: boolean
+  }
+): Promise<{ error?: string; data?: Category }> {
+  const supabase = createSupabaseAdminClient()
+  const { data: result, error } = await supabase
+    .from('categories')
+    .update({
+      name: data.name,
+      slug: data.slug || slugify(data.name),
+      description: data.description || null,
+      sort_order: data.sort_order,
+      is_active: data.is_active,
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+  revalidatePath('/admin/categories')
+  revalidatePath('/')
+  return { data: result }
+}

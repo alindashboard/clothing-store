@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import { getAllCategoriesAdmin, createCategory, deleteCategory } from '@/lib/actions/categories'
+import { getAllCategoriesAdmin, createCategory } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { redirect } from 'next/navigation'
 import { SITE_CONFIG } from '@/lib/config'
+import { CategoriesClient } from './categories-client'
 
 export default async function AdminCategoriesPage() {
   const supabase = await createSupabaseServerClient()
@@ -12,7 +13,6 @@ export default async function AdminCategoriesPage() {
 
   const categories = await getAllCategoriesAdmin()
 
-  // Product counts per category
   const adminClient = createSupabaseAdminClient()
   const { data: countRows } = await adminClient
     .from('products')
@@ -30,12 +30,6 @@ export default async function AdminCategoriesPage() {
   async function handleCreate(fd: FormData) {
     'use server'
     await createCategory(fd)
-    redirect('/admin/categories')
-  }
-
-  async function handleDelete(id: string) {
-    'use server'
-    await deleteCategory(id)
     redirect('/admin/categories')
   }
 
@@ -79,7 +73,7 @@ export default async function AdminCategoriesPage() {
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-1.5">Shown on landing</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {landingSlugs.map(s => (
+                  {landingSlugs.map((s) => (
                     <span key={s} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded">
                       {s}
                     </span>
@@ -90,7 +84,7 @@ export default async function AdminCategoriesPage() {
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-1.5">Shoe size categories (37–45)</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {shoeSlugs.map(s => (
+                  {shoeSlugs.map((s) => (
                     <span key={s} className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded">
                       {s}
                     </span>
@@ -101,73 +95,13 @@ export default async function AdminCategoriesPage() {
             </div>
           </div>
 
-          {/* ── Table ── */}
-          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
-            <table className="w-full text-sm min-w-[380px]">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Slug</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Products</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Flags</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Active</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {categories.map((cat) => {
-                  const count   = productCounts[cat.id] ?? 0
-                  const onLand  = landingSlugs.includes(cat.slug)
-                  const isShoe  = shoeSlugs.includes(cat.slug)
-                  return (
-                    <tr key={cat.id} className={`hover:bg-gray-50 ${!cat.is_active ? 'opacity-50' : ''}`}>
-                      <td className="px-4 py-2.5 font-medium">{cat.name}</td>
-                      <td className="px-4 py-2.5 text-gray-400 text-xs font-mono">{cat.slug}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`text-xs font-semibold ${count > 0 ? 'text-green-700' : 'text-gray-300'}`}>
-                          {count}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex gap-1 flex-wrap">
-                          {onLand && (
-                            <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-                              landing
-                            </span>
-                          )}
-                          {isShoe && (
-                            <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-                              shoe sizes
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <span className={`text-xs ${cat.is_active ? 'text-green-600' : 'text-gray-400'}`}>
-                          {cat.is_active ? 'Yes' : 'No'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        <form action={handleDelete.bind(null, cat.id)}>
-                          <button
-                            type="submit"
-                            className="text-xs text-red-400 hover:text-red-600"
-                            disabled={count > 0}
-                            title={count > 0 ? `Cannot delete — ${count} product(s) assigned` : 'Delete'}
-                          >
-                            {count > 0 ? '—' : 'Delete'}
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  )
-                })}
-                {categories.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-400">No categories.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {/* ── Table (client — handles edit/delete modals) ── */}
+          <CategoriesClient
+            categories={categories}
+            productCounts={productCounts}
+            landingSlugs={landingSlugs}
+            shoeSlugs={shoeSlugs}
+          />
         </div>
       </div>
     </div>
