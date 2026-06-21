@@ -85,17 +85,21 @@ export default async function MagazinPage() {
         </section>
 
         {/* ── MAP ─────────────────────────────────────────────────────── */}
-        <section className="w-full" aria-label="Store location map / Hartă locație magazin">
-          <iframe
-            src={STORE_INFO.googleMapsEmbedUrl}
-            width="100%"
-            height="400"
-            style={{ border: 0, display: 'block' }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title={`Map – ${STORE_INFO.name}`}
-          />
+        <section className="py-8" aria-label="Store location map / Hartă locație magazin">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="overflow-hidden rounded-2xl shadow-md border border-gray-100">
+              <iframe
+                src={STORE_INFO.googleMapsEmbedUrl}
+                width="100%"
+                height="400"
+                style={{ border: 0, display: 'block' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Map – ${STORE_INFO.name}`}
+              />
+            </div>
+          </div>
         </section>
 
         {/* ── INFO ────────────────────────────────────────────────────── */}
@@ -207,6 +211,24 @@ export default async function MagazinPage() {
               <WhatsAppIcon className="w-4 h-4" />
               Chat on WhatsApp / Scrie-ne pe WhatsApp
             </a>
+          </div>
+        </section>
+
+        {/* ── IN-STORE CALLOUT ────────────────────────────────────────── */}
+        <section className="max-w-5xl mx-auto px-4 pb-10">
+          <div
+            className="px-6 py-5 rounded-lg"
+            style={{
+              borderLeft: '3px solid #c2a04a',
+              background: 'linear-gradient(to right, rgba(194,160,74,0.07), transparent)',
+            }}
+          >
+            <p className="text-sm font-semibold text-gray-900 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
+              More in store than online
+            </p>
+            <p className="text-sm text-gray-500 leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
+              Many of our pieces are exclusive to the physical store. Visit us to discover the full collection.
+            </p>
           </div>
         </section>
 

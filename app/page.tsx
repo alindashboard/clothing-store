@@ -13,6 +13,7 @@ import { VisitUsSection } from '@/components/layout/visit-us-section'
 import { InstagramSection } from '@/components/layout/instagram-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
+import { TESTIMONIALS } from '@/lib/testimonials'
 
 export const metadata: Metadata = {
   title: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}`,
@@ -214,6 +215,39 @@ export default async function HomePage() {
             <ProductGrid products={featuredProducts} columns={4} />
           </section>
         )}
+
+        {/* ── TESTIMONIALS ──────────────────────────────────────────────── */}
+        <section className="max-w-7xl mx-auto px-4 py-16 pb-20">
+          <h2
+            className="text-2xl md:text-3xl font-light tracking-tight mb-10"
+            style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
+          >
+            What our customers say
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={i}
+                className="bg-gray-50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <p
+                  className="text-lg leading-relaxed text-gray-800 mb-6"
+                  style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)', fontStyle: 'italic' }}
+                >
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div>
+                  <p className="text-sm font-medium text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>
+                    {t.name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
+                    {t.location}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       <VisitUsSection />

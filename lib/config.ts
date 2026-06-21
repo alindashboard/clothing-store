@@ -1,4 +1,5 @@
 import { STORE_INFO } from './store-info'
+import { BRANDS_TICKER } from './brands'
 
 export const SITE_CONFIG = {
   brand: {
@@ -41,9 +42,9 @@ export const SITE_CONFIG = {
 
     /** Scrolling ticker bar below the hero. */
     ticker: {
-      text: 'KAYA Studio Outlet',
-      separator: '✦',
-      subtext: 'New drop every week',
+      text: BRANDS_TICKER,
+      separator: '·',
+      subtext: BRANDS_TICKER,
       /** Animation duration in seconds — lower = faster. */
       speed: 42,
       enabled: true,
