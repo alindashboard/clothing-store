@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 const GALLERY = [
   { src: 'meet-kaya.png', alt: 'Meet Kaya' },
   { src: 'store-background.png', alt: 'Store view' },
-  { src: 'raft1.jpg', alt: 'Fitting room area / Cabine de probă' },
+  { src: 'raft 1.jpg', alt: 'Fitting room area / Cabine de probă' },
   { src: 'produse-2.jpg', alt: 'Accessories display / Display accesorii selectate' },
 ]
 
