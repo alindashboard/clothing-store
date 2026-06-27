@@ -5,6 +5,9 @@ import { createSupabaseAdminClient } from '@/lib/supabase'
 import type { Product, ProductVariant, ProductImage } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
+import { deleteProductImageFromStorage } from './upload'
+
+const PAGE_LIMIT = 48
 
 export async function getProducts(options?: {
   categorySlug?: string
@@ -60,10 +63,16 @@ export async function getProduct(slug: string): Promise<Product | null> {
   return data
 }
 
-export async function getAllProductsAdmin(options?: {
-  categoryId?: string
-}): Promise<Product[]> {
+/** Paginated product fetch for public catalog pages (/products, /category/[slug]). */
+export async function getProductsPage(options?: {
+  categorySlug?: string
+  offset?: number
+  limit?: number
+}): Promise<{ products: Product[]; hasMore: boolean }> {
   const supabase = createSupabaseAdminClient()
+  const limit = options?.limit ?? PAGE_LIMIT
+  const offset = options?.offset ?? 0
+
   let query = supabase
     .from('products')
     .select(`
@@ -72,47 +81,112 @@ export async function getAllProductsAdmin(options?: {
       variants:product_variants(*),
       images:product_images(*)
     `)
+    .eq('is_active', true)
     .order('created_at', { ascending: false })
+    .range(offset, offset + limit) // fetches limit+1 rows to detect hasMore
+
+  if (options?.categorySlug) {
+    const { data: cat } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', options.categorySlug)
+      .single()
+    if (!cat) return { products: [], hasMore: false }
+    query = query.eq('category_id', cat.id)
+  }
+
+  const { data, error } = await query
+  if (error) { console.error(error); return { products: [], hasMore: false } }
+
+  const rows = data ?? []
+  const hasMore = rows.length > limit
+  return { products: hasMore ? rows.slice(0, limit) : rows, hasMore }
+}
+
+/** Server Action called by ProductGridInfinite client component to load next page. */
+export async function loadMoreProducts(options: {
+  categorySlug?: string
+  offset: number
+}): Promise<{ products: Product[]; hasMore: boolean }> {
+  return getProductsPage({ ...options, limit: PAGE_LIMIT })
+}
+
+export async function getAllProductsAdmin(options?: {
+  categoryId?: string
+  page?: number
+  pageSize?: number
+  search?: string
+  status?: 'active' | 'draft' | 'all'
+}): Promise<{ products: Product[]; totalCount: number }> {
+  const supabase = createSupabaseAdminClient()
+  const pageSize = options?.pageSize ?? 50
+  const page = Math.max(1, options?.page ?? 1)
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  let query = supabase
+    .from('products')
+    .select(`
+      *,
+      category:categories(*),
+      variants:product_variants(*),
+      images:product_images(*)
+    `, { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (options?.categoryId) {
     query = query.eq('category_id', options.categoryId)
   }
+  if (options?.search?.trim()) {
+    const term = options.search.trim()
+    query = query.or(`name.ilike.%${term}%,sku_prefix.ilike.%${term}%`)
+  }
+  if (options?.status === 'active') {
+    query = query.eq('is_active', true)
+  } else if (options?.status === 'draft') {
+    query = query.eq('is_active', false)
+  }
 
-  const { data, error } = await query
-  if (error) { console.error(error); return [] }
-  return data ?? []
+  const { data, error, count } = await query
+  if (error) { console.error(error); return { products: [], totalCount: 0 } }
+  return { products: data ?? [], totalCount: count ?? 0 }
 }
 
-/** Returns up to `limit` image URLs per category ID (for landing card carousels). */
+/** Returns up to `limit` image URLs per category (for landing card carousels).
+ *  One small query per category instead of fetching all products at once. */
 export async function getCategoryImages(
   categoryIds: string[],
   limit = 3,
 ): Promise<Record<string, string[]>> {
   if (categoryIds.length === 0) return {}
   const supabase = createSupabaseAdminClient()
-  const { data } = await supabase
-    .from('products')
-    .select('category_id, images:product_images(url, is_primary, sort_order)')
-    .eq('is_active', true)
-    .in('category_id', categoryIds)
-    .order('created_at', { ascending: false })
 
-  if (!data) return {}
+  const entries = await Promise.all(
+    categoryIds.map(async (categoryId) => {
+      const { data } = await supabase
+        .from('products')
+        .select('category_id, images:product_images(url, is_primary, sort_order)')
+        .eq('is_active', true)
+        .eq('category_id', categoryId)
+        .order('created_at', { ascending: false })
+        .limit(limit * 2) // extra rows in case some products have no images
 
-  const result: Record<string, string[]> = {}
-  for (const product of data) {
-    const catId = product.category_id as string
-    if (!catId) continue
-    if (!result[catId]) result[catId] = []
-    if (result[catId].length >= limit) continue
-    const imgs = product.images as { url: string; is_primary: boolean; sort_order: number }[]
-    if (!imgs?.length) continue
-    const sorted = [...imgs].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
-    for (const img of sorted) {
-      if (result[catId].length < limit) result[catId].push(img.url)
-    }
-  }
-  return result
+      const urls: string[] = []
+      for (const product of data ?? []) {
+        if (urls.length >= limit) break
+        const imgs = product.images as { url: string; is_primary: boolean; sort_order: number }[]
+        if (!imgs?.length) continue
+        const sorted = [...imgs].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
+        for (const img of sorted) {
+          if (urls.length < limit) urls.push(img.url)
+        }
+      }
+      return [categoryId, urls] as const
+    })
+  )
+
+  return Object.fromEntries(entries)
 }
 
 export async function getProductAdmin(id: string): Promise<Product | null> {
@@ -193,6 +267,21 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function deleteProduct(id: string) {
   const supabase = createSupabaseAdminClient()
+
+  const { data: images } = await supabase
+    .from('product_images')
+    .select('url')
+    .eq('product_id', id)
+
+  if (images?.length) {
+    await Promise.all(
+      images.map(async (img) => {
+        const result = await deleteProductImageFromStorage(img.url)
+        if (result.error) console.error('Storage cleanup failed for', img.url, ':', result.error)
+      })
+    )
+  }
+
   const { error } = await supabase.from('products').delete().eq('id', id)
   if (error) return { error: error.message }
 

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { ProductGrid } from '@/components/product/product-grid'
-import { getProducts } from '@/lib/actions/products'
+import { ProductGridInfinite } from '@/components/product/product-grid-infinite'
+import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import Link from 'next/link'
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 }
 
 export default async function ProductsPage() {
-  const [categories, products] = await Promise.all([
+  const [categories, { products, hasMore }] = await Promise.all([
     getCategories(),
-    getProducts(),
+    getProductsPage(),
   ])
 
   return (
@@ -28,9 +28,10 @@ export default async function ProductsPage() {
         <div className="flex items-baseline justify-between mb-8">
           <div>
             <h1 className="text-2xl font-light tracking-wider">All Products</h1>
-            <p className="text-sm text-gray-400 mt-1">{products.length} items</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {products.length}{hasMore ? '+' : ''} items
+            </p>
           </div>
-          {/* Category filter */}
           <div className="hidden md:flex items-center gap-4">
             <Link href="/products" className="text-xs tracking-widest uppercase text-black border-b border-black pb-0.5">All</Link>
             {categories.map((cat) => (
@@ -45,7 +46,11 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <ProductGrid products={products} columns={4} />
+        <ProductGridInfinite
+          initialProducts={products}
+          initialHasMore={hasMore}
+          columns={4}
+        />
       </main>
 
       <Footer />

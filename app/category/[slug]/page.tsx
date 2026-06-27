@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { ProductGrid } from '@/components/product/product-grid'
-import { getProducts } from '@/lib/actions/products'
+import { ProductGridInfinite } from '@/components/product/product-grid-infinite'
+import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { SITE_CONFIG } from '@/lib/config'
@@ -29,9 +29,9 @@ export default async function CategoryPage({ params }: Props) {
 
   if (!category) notFound()
 
-  const [categories, products] = await Promise.all([
+  const [categories, { products, hasMore }] = await Promise.all([
     getCategories(),
-    getProducts({ categorySlug: slug }),
+    getProductsPage({ categorySlug: slug }),
   ])
 
   return (
@@ -45,9 +45,16 @@ export default async function CategoryPage({ params }: Props) {
           {category.description && (
             <p className="text-sm text-gray-400 mt-1">{category.description}</p>
           )}
-          <p className="text-sm text-gray-400 mt-1">{products.length} items</p>
+          <p className="text-sm text-gray-400 mt-1">
+            {products.length}{hasMore ? '+' : ''} items
+          </p>
         </div>
-        <ProductGrid products={products} columns={4} />
+        <ProductGridInfinite
+          initialProducts={products}
+          initialHasMore={hasMore}
+          categorySlug={slug}
+          columns={4}
+        />
       </main>
 
       <Footer />

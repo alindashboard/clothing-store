@@ -1,29 +1,46 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
+import { Suspense } from 'react'
+import { redirect } from 'next/navigation'
 import { getAllProductsAdmin } from '@/lib/actions/products'
 import { getAllCategoriesAdmin } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
 import { ProductFilterBar } from '@/components/admin/product-filter-bar'
-import { Suspense } from 'react'
+import { AdminPagination } from '@/components/admin/admin-pagination'
+
+const PAGE_SIZE = 50
 
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoryId?: string }>
+  searchParams: Promise<{
+    categoryId?: string
+    page?: string
+    search?: string
+    status?: string
+  }>
 }) {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const { categoryId } = await searchParams
+  const { categoryId, page: pageParam, search, status } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
-  const [products, categories] = await Promise.all([
-    getAllProductsAdmin({ categoryId }),
+  const [{ products, totalCount }, categories] = await Promise.all([
+    getAllProductsAdmin({
+      categoryId,
+      page,
+      pageSize: PAGE_SIZE,
+      search,
+      status: (status as 'active' | 'draft' | 'all') || 'all',
+    }),
     getAllCategoriesAdmin(),
   ])
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
@@ -37,12 +54,11 @@ export default async function AdminProductsPage({
         </Link>
       </div>
 
-      {/* Category filter */}
       <Suspense>
         <ProductFilterBar
           categories={categories}
           activeCategoryId={categoryId ?? ''}
-          totalCount={products.length}
+          totalCount={totalCount}
         />
       </Suspense>
 
@@ -65,7 +81,14 @@ export default async function AdminProductsPage({
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-12 bg-gray-100 shrink-0">
-                        <Image src={primaryImg?.url ?? '/images/placeholder-product.svg'} alt={product.name} fill sizes="40px" className="object-cover" unoptimized />
+                        <Image
+                          src={primaryImg?.url ?? '/images/placeholder-product.svg'}
+                          alt={product.name}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                          unoptimized={primaryImg?.url?.startsWith('/') ?? true}
+                        />
                       </div>
                       <Link href={`/admin/products/${product.id}`} className="font-medium hover:underline">{product.name}</Link>
                     </div>
@@ -85,10 +108,13 @@ export default async function AdminProductsPage({
               )
             })}
             {products.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No products in this category.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No products found.</td></tr>
             )}
           </tbody>
         </table>
+        <Suspense>
+          <AdminPagination page={page} totalPages={totalPages} />
+        </Suspense>
       </div>
 
       {/* Mobile cards */}
@@ -103,7 +129,14 @@ export default async function AdminProductsPage({
               className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 hover:border-gray-400 transition-colors"
             >
               <div className="relative w-12 h-16 bg-gray-100 shrink-0 rounded overflow-hidden">
-                <Image src={primaryImg?.url ?? '/images/placeholder-product.svg'} alt={product.name} fill sizes="48px" className="object-cover" unoptimized />
+                <Image
+                  src={primaryImg?.url ?? '/images/placeholder-product.svg'}
+                  alt={product.name}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                  unoptimized={primaryImg?.url?.startsWith('/') ?? true}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{product.name}</p>
@@ -120,8 +153,11 @@ export default async function AdminProductsPage({
           )
         })}
         {products.length === 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-400">No products in this category.</div>
+          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-400">No products found.</div>
         )}
+        <Suspense>
+          <AdminPagination page={page} totalPages={totalPages} />
+        </Suspense>
       </div>
     </div>
   )
