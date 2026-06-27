@@ -13,8 +13,19 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function VisitUsSection() {
   return (
-    <section className="bg-stone-50 py-16 px-4">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative bg-stone-50 py-16 px-4">
+      {/* Mobile-only background image */}
+      <div className="absolute inset-0 md:hidden" aria-hidden="true">
+        <Image
+          src="/store-background.png"
+          alt=""
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-stone-50/75" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
           {/* Text + butoane */}
@@ -101,6 +112,7 @@ export function VisitUsSection() {
 
         </div>
       </div>
+
     </section>
   )
 }
