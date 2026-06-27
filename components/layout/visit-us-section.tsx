@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Clock } from 'lucide-react'
 import { STORE_INFO } from '@/lib/store-info'
 
@@ -86,17 +87,15 @@ export function VisitUsSection() {
             </div>
           </div>
 
-          {/* Decorativ */}
-          <div className="hidden md:flex items-center justify-center">
-            <div className="text-center select-none" aria-hidden="true">
-              <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-200" />
-              <p
-                className="text-xs tracking-[0.4em] uppercase text-gray-400 font-light"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                Borgo Podgora
-              </p>
-              <p className="text-xs text-gray-300 mt-1 tracking-wider">Italy · Italia</p>
+          {/* Store image */}
+          <div className="hidden md:block">
+            <div className="relative overflow-hidden rounded-xl shadow-md" style={{ aspectRatio: '4/3', maxHeight: '400px' }}>
+              <Image
+                src="/store-background.png"
+                alt="KAYA Studio Outlet store"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
 

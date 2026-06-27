@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { StoreGallery } from '@/components/magazin/store-gallery'
 import { getCategories } from '@/lib/actions/categories'
 import { STORE_INFO } from '@/lib/store-info'
 import { SITE_CONFIG } from '@/lib/config'
@@ -30,13 +30,6 @@ export const metadata: Metadata = {
   title: `Store / Magazin | ${SITE_CONFIG.brand.name}`,
   description: `Visit ${STORE_INFO.name} at ${STORE_INFO.address}. Open Mon–Fri ${STORE_INFO.schedule.morning} & ${STORE_INFO.schedule.afternoon}.`,
 }
-
-const GALLERY = [
-  { src: 'meet-kaya.png', alt: 'Meet Kaya' },
-  { src: 'store-background.png', alt: 'Store view' },
-  { src: 'raft 1.jpg', alt: 'Fitting room area / Cabine de probă' },
-  { src: 'produse-2.jpg', alt: 'Accessories display / Display accesorii selectate' },
-]
 
 export default async function MagazinPage() {
   const categories = await getCategories()
@@ -81,24 +74,6 @@ export default async function MagazinPage() {
             >
               {STORE_INFO.address}
             </p>
-          </div>
-        </section>
-
-        {/* ── MAP ─────────────────────────────────────────────────────── */}
-        <section className="py-8" aria-label="Store location map / Hartă locație magazin">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="overflow-hidden rounded-2xl shadow-md border border-gray-100">
-              <iframe
-                src={STORE_INFO.googleMapsEmbedUrl}
-                width="100%"
-                height="400"
-                style={{ border: 0, display: 'block' }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Map – ${STORE_INFO.name}`}
-              />
-            </div>
           </div>
         </section>
 
@@ -233,35 +208,37 @@ export default async function MagazinPage() {
         </section>
 
         {/* ── GALLERY ─────────────────────────────────────────────────── */}
-        <section className="max-w-5xl mx-auto px-4 pb-20">
-          <div>
+        <section className="max-w-5xl mx-auto px-4 pb-16">
+          <div className="mb-6">
             <h2
               className="text-2xl font-light tracking-tight text-[#111]"
               style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
             >
               Gallery
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5 mb-6" style={{ fontFamily: 'var(--font-sans)' }}>
+            <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
               Galerie
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {GALLERY.map((item, i) => (
-              <div key={i} className="relative aspect-square bg-gray-100 overflow-hidden">
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-            ))}
+          <StoreGallery />
+        </section>
+
+        {/* ── MAP ─────────────────────────────────────────────────────── */}
+        <section className="pb-20" aria-label="Store location map / Hartă locație magazin">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="overflow-hidden rounded-2xl shadow-md border border-gray-100">
+              <iframe
+                src={STORE_INFO.googleMapsEmbedUrl}
+                width="100%"
+                height="400"
+                style={{ border: 0, display: 'block' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Map – ${STORE_INFO.name}`}
+              />
+            </div>
           </div>
-          <p className="text-xs text-gray-400 mt-3">
-            Store photos coming soon / Fotografii din magazin — în curând.
-          </p>
         </section>
 
       </main>
