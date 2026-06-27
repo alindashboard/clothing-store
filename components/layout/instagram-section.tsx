@@ -14,11 +14,11 @@ function InstagramIcon({ className }: { className?: string }) {
 export function InstagramSection() {
   return (
     <section className="py-16 px-4 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center gap-12 md:gap-20">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-12 md:gap-16">
 
           {/* Text column */}
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <p
               className="text-xs tracking-[0.3em] uppercase mb-3 text-stone-400"
               style={{ fontFamily: 'var(--font-sans)' }}
@@ -47,8 +47,8 @@ export function InstagramSection() {
           </div>
 
           {/* Phone column */}
-          <div className="flex justify-center md:justify-end" style={{ maxWidth: '100%' }}>
-            <div className="w-[240px] md:w-[250px]">
+          <div className="flex justify-center">
+            <div className="w-[240px] md:w-[220px]">
               <PhoneFrame imageSrc="/images/screenshot.jpg" />
             </div>
           </div>
