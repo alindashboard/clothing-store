@@ -32,10 +32,10 @@ export const metadata: Metadata = {
 }
 
 const GALLERY = [
-  { src: '/images/placeholder-product.svg', alt: 'Store interior – entrance area / Interior magazin – zona de intrare' },
-  { src: '/images/placeholder-product.svg', alt: 'Premium clothing display / Colecție expusă – haine premium' },
-  { src: '/images/placeholder-product.svg', alt: 'Fitting room area / Cabine de probă' },
-  { src: '/images/placeholder-product.svg', alt: 'Accessories display / Display accesorii selectate' },
+  { src: '/images/meet-kaya.png', alt: 'Meet Kaya' },
+  { src: '/images/store-background.png', alt: 'Store view' },
+  { src: '/images/raft1.jpg', alt: 'Fitting room area / Cabine de probă' },
+  { src: '/images/produse-2.jpg', alt: 'Accessories display / Display accesorii selectate' },
 ]
 
 export default async function MagazinPage() {
