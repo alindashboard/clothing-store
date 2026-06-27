@@ -60,15 +60,6 @@ export default async function MagazinPage() {
               Our Store
             </h1>
             <p
-              className="mt-2 text-lg font-light italic"
-              style={{
-                fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
-                color: 'rgba(236,230,218,0.55)',
-              }}
-            >
-              Magazinul nostru
-            </p>
-            <p
               className="mt-4 text-sm font-light max-w-xs mx-auto"
               style={{ color: 'rgba(236,230,218,0.45)', fontFamily: 'var(--font-sans)' }}
             >
