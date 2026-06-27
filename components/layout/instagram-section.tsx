@@ -49,7 +49,7 @@ export function InstagramSection() {
           {/* Phone column */}
           <div className="flex justify-center">
             <div className="w-[240px] md:w-[220px]">
-              <PhoneFrame imageSrc="/images/screenshot.jpg" />
+              <PhoneFrame imageSrc="/images/screenshot.png" />
             </div>
           </div>
 
