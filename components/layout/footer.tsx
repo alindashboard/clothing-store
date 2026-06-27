@@ -39,7 +39,7 @@ export function Footer() {
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Info</p>
             <ul className="space-y-2">
-              <li><Link href="/magazin" className="text-xs text-gray-300 hover:text-white transition-colors">Magazin</Link></li>
+              <li><Link href="/store" className="text-xs text-gray-300 hover:text-white transition-colors">Store</Link></li>
               <li><Link href="/terms" className="text-xs text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
               <li><Link href="/privacy" className="text-xs text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>

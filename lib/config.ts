@@ -24,13 +24,13 @@ export const SITE_CONFIG = {
      * Order matters — first slug = first card.
      * To change what appears on landing, update this list (admin UI coming).
      */
-    landingCategorySlugs: ['sneakers', 'seturi', 'tricouri'],
+    landingCategorySlugs: ['sneakers', 'sets', 'shirts'],
 
     /**
      * Category slugs that use numeric shoe sizes (37–45).
      * All other categories default to clothing sizes (S/M/L/XL).
      */
-    shoeCategorySlugs: ['sneakers', 'papuci'],
+    shoeCategorySlugs: ['sneakers', 'footwear'],
 
     /** Curated metallic swatch options shown in the admin accent picker. */
     accentOptions: [

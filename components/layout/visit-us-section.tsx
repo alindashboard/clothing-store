@@ -34,7 +34,7 @@ export function VisitUsSection() {
               className="text-xs tracking-[0.3em] uppercase mb-3"
               style={{ fontFamily: 'var(--font-sans)', color: '#c2a04a' }}
             >
-              Physical Store · Magazin Fizic
+              Physical Store
             </p>
             <h2
               className="text-3xl md:text-4xl font-light tracking-tight text-[#111]"
@@ -46,7 +46,7 @@ export function VisitUsSection() {
               className="text-base font-light italic mt-1 mb-8 text-gray-500"
               style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
             >
-              Te așteptăm în magazin
+              Come visit us in store
             </p>
 
             <div className="space-y-4 mb-8">
@@ -90,7 +90,7 @@ export function VisitUsSection() {
                 WhatsApp
               </a>
               <Link
-                href="/magazin"
+                href="/store"
                 className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-colors"
               >
                 Store Details
