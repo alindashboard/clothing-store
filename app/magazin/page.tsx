@@ -32,10 +32,10 @@ export const metadata: Metadata = {
 }
 
 const GALLERY = [
-  { src: '/images/meet-kaya.png', alt: 'Meet Kaya' },
-  { src: '/images/store-background.png', alt: 'Store view' },
-  { src: '/images/raft1.jpg', alt: 'Fitting room area / Cabine de probă' },
-  { src: '/images/produse-2.jpg', alt: 'Accessories display / Display accesorii selectate' },
+  { src: 'meet-kaya.png', alt: 'Meet Kaya' },
+  { src: 'store-background.png', alt: 'Store view' },
+  { src: 'raft1.jpg', alt: 'Fitting room area / Cabine de probă' },
+  { src: 'produse-2.jpg', alt: 'Accessories display / Display accesorii selectate' },
 ]
 
 export default async function MagazinPage() {
