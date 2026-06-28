@@ -26,10 +26,9 @@ export const metadata: Metadata = {
   },
   description: SITE_CONFIG.brand.tagline,
   robots: { index: true, follow: true },
-  openGraph: {
-    type: 'website',
-    siteName: SITE_CONFIG.brand.name,
-    url: SITE_CONFIG.brand.url,
+  twitter: {
+    card: 'summary_large_image',
+    site: '@kayastudiooutlet',
   },
 }
 

@@ -5,7 +5,7 @@ export const SITE_CONFIG = {
   brand: {
     name: 'KAYA Studio Outlet',
     tagline: 'Premium labels, outlet prices.',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://clothing-store.vercel.app',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kayaoutlet.com',
     logo: '/logo.svg',
     currency: 'EUR',
     currencySymbol: '€',

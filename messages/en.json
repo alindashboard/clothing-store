@@ -32,6 +32,7 @@
     "storeDetails": "Store Details"
   },
   "home": {
+    "heroTitle": "KAYA Studio Outlet — Premium labels, outlet prices",
     "viewAllNewArrivals": "View all new arrivals →",
     "shopByCategory": "Shop by category",
     "collection": "Collection",
@@ -144,6 +145,10 @@
     "success": "Message sent! We'll get back to you soon.",
     "emailLabel": "Email",
     "phoneLabel": "Phone"
+  },
+  "instagram": {
+    "followUs": "Follow us",
+    "tagline": "New drops, behind the scenes, and outfit inspiration — straight to your feed."
   },
   "categories": {
     "sneakers": "Sneakers",

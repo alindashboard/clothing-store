@@ -43,6 +43,7 @@ export default async function HomePage() {
       <Header categories={categories} />
 
       <main className="flex-1">
+        <h1 className="sr-only">{t('heroTitle')}</h1>
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section

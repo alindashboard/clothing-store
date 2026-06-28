@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { PhoneFrame } from './phone-frame'
 import { STORE_INFO } from '@/lib/store-info'
 
@@ -11,7 +12,8 @@ function InstagramIcon({ className }: { className?: string }) {
   )
 }
 
-export function InstagramSection() {
+export async function InstagramSection() {
+  const t = await getTranslations('instagram')
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-5xl mx-auto">
@@ -29,10 +31,10 @@ export function InstagramSection() {
               className="text-3xl md:text-4xl font-light tracking-tight text-[#111]"
               style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
             >
-              Follow us
+              {t('followUs')}
             </h2>
             <p className="text-sm font-light text-gray-500 mt-4 mb-8 leading-relaxed max-w-sm">
-              New drops, behind the scenes, and outfit inspiration — straight to your feed.
+              {t('tagline')}
             </p>
             <a
               href={STORE_INFO.instagram}
