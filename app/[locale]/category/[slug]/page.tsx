@@ -8,17 +8,19 @@ import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { SITE_CONFIG } from '@/lib/config'
+import { getAlternates } from '@/lib/seo/alternates'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
   const supabase = await createSupabaseServerClient()
   const { data: cat } = await supabase.from('categories').select('name').eq('slug', slug).single()
   return {
-    title: cat ? `${cat.name} | ${SITE_CONFIG.brand.name}` : SITE_CONFIG.brand.name,
+    title: cat ? cat.name : SITE_CONFIG.brand.name,
+    alternates: getAlternates(locale, `/category/${slug}`),
   }
 }
 

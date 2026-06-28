@@ -12,11 +12,22 @@ import { getPublishedEvents } from '@/lib/actions/events'
 import { SITE_CONFIG } from '@/lib/config'
 import type { Event } from '@/lib/types'
 
+import { getAlternates } from '@/lib/seo/alternates'
+
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: `Events | ${SITE_CONFIG.brand.name}`,
-  description: 'Giveaways, drops, and in-store happenings.',
+interface MetaProps {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'meta' })
+  return {
+    title: t('events.title'),
+    description: t('events.description'),
+    alternates: getAlternates(locale, '/events'),
+  }
 }
 
 function EventCard({ event, isUpcoming, labels }: {

@@ -8,11 +8,20 @@ import { AnimatedNewArrivalsText } from '@/components/AnimatedNewArrivalsText'
 import { NewArrivalsCarousel } from '@/components/NewArrivalsCarousel'
 import { getNewArrivals } from '@/lib/actions/new-arrivals'
 import { getCategories } from '@/lib/actions/categories'
-import { SITE_CONFIG } from '@/lib/config'
+import { getAlternates } from '@/lib/seo/alternates'
 
-export const metadata: Metadata = {
-  title: `New Arrivals | ${SITE_CONFIG.brand.name}`,
-  description: 'Fresh drops, every week. Discover the latest curated pieces at KAYA Studio Outlet.',
+interface MetaProps {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'meta' })
+  return {
+    title: t('newArrivals.title'),
+    description: t('newArrivals.description'),
+    alternates: getAlternates(locale, '/new-arrivals'),
+  }
 }
 
 export const dynamic = 'force-dynamic'

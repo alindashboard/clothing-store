@@ -2,11 +2,33 @@ import type { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/config'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = SITE_CONFIG.brand.url
+const base = SITE_CONFIG.brand.url
+const locales = ['it', 'en'] as const
 
+type SitemapEntry = MetadataRoute.Sitemap[0]
+
+function localizedEntries(
+  path: string,
+  opts: {
+    changeFrequency?: SitemapEntry['changeFrequency']
+    priority?: number
+    lastModified?: string | Date
+  }
+): MetadataRoute.Sitemap {
+  const langAlts = Object.fromEntries(locales.map((l) => [l, `${base}/${l}${path}`]))
+
+  return locales.map((locale) => ({
+    url: `${base}/${locale}${path}`,
+    ...(opts.lastModified ? { lastModified: opts.lastModified } : {}),
+    changeFrequency: opts.changeFrequency,
+    priority: opts.priority,
+    alternates: { languages: langAlts },
+  }))
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return [{ url: base, changeFrequency: 'daily', priority: 1 }]
+    return localizedEntries('', { changeFrequency: 'daily', priority: 1 })
   }
 
   const supabase = createSupabaseAdminClient()
@@ -16,24 +38,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase.from('categories').select('slug').eq('is_active', true),
   ])
 
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: base, changeFrequency: 'daily', priority: 1 },
-    { url: `${base}/products`, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${base}/contact`, changeFrequency: 'monthly', priority: 0.5 },
+  const staticRoutes: Array<{
+    path: string
+    changeFrequency: SitemapEntry['changeFrequency']
+    priority: number
+  }> = [
+    { path: '',              changeFrequency: 'daily',   priority: 1.0 },
+    { path: '/products',     changeFrequency: 'daily',   priority: 0.9 },
+    { path: '/new-arrivals', changeFrequency: 'daily',   priority: 0.8 },
+    { path: '/events',       changeFrequency: 'weekly',  priority: 0.7 },
+    { path: '/store',        changeFrequency: 'monthly', priority: 0.6 },
+    { path: '/contact',      changeFrequency: 'monthly', priority: 0.5 },
   ]
 
-  const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => ({
-    url: `${base}/product/${p.slug}`,
-    lastModified: p.updated_at,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  const staticEntries = staticRoutes.flatMap(({ path, changeFrequency, priority }) =>
+    localizedEntries(path, { changeFrequency, priority })
+  )
 
-  const categoryRoutes: MetadataRoute.Sitemap = (categories ?? []).map((c) => ({
-    url: `${base}/category/${c.slug}`,
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+  const productEntries = (products ?? []).flatMap((p) =>
+    localizedEntries(`/product/${p.slug}`, {
+      lastModified: p.updated_at,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    })
+  )
 
-  return [...staticRoutes, ...productRoutes, ...categoryRoutes]
+  const categoryEntries = (categories ?? []).flatMap((c) =>
+    localizedEntries(`/category/${c.slug}`, {
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    })
+  )
+
+  return [...staticEntries, ...productEntries, ...categoryEntries]
 }

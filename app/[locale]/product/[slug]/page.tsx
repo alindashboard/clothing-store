@@ -11,6 +11,7 @@ import { ProductBadge } from '@/components/product/product-badge'
 import { getProduct } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
+import { getAlternates } from '@/lib/seo/alternates'
 import { ProductDetailClient } from './product-detail-client'
 
 interface Props {
@@ -18,13 +19,14 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { locale, slug } = await params
   const product = await getProduct(slug)
   if (!product) return { title: SITE_CONFIG.brand.name }
 
   return {
-    title: product.meta_title || `${product.name} | ${SITE_CONFIG.brand.name}`,
+    title: product.meta_title || product.name,
     description: product.meta_description || product.short_description || undefined,
+    alternates: getAlternates(locale, `/product/${slug}`),
   }
 }
 

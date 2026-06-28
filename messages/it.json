@@ -146,6 +146,28 @@
     "emailLabel": "Email",
     "phoneLabel": "Telefono"
   },
+  "meta": {
+    "products": {
+      "title": "Tutti i prodotti",
+      "description": "Sfoglia la nostra collezione completa di marchi premium a prezzi outlet."
+    },
+    "newArrivals": {
+      "title": "Nuovi Arrivi",
+      "description": "Novità ogni settimana. Scopri i nuovi arrivi di KAYA Studio Outlet."
+    },
+    "events": {
+      "title": "Eventi",
+      "description": "Giveaway, drop ed eventi in negozio."
+    },
+    "store": {
+      "title": "Il Negozio",
+      "description": "Visita KAYA Studio Outlet. Orari di apertura, indirizzo e come raggiungerci."
+    },
+    "contact": {
+      "title": "Contatto",
+      "description": "Hai domande? Siamo qui per aiutarti."
+    }
+  },
   "instagram": {
     "followUs": "Seguici",
     "tagline": "Nuove collezioni, dietro le quinte e outfit da copiare — direttamente nel tuo feed."

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
+import { getAlternates } from '@/lib/seo/alternates'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { MarqueeTicker } from '@/components/layout/marquee-ticker'
@@ -19,9 +20,17 @@ import { getNewArrivals } from '@/lib/actions/new-arrivals'
 import { AnimatedNewArrivalsText } from '@/components/AnimatedNewArrivalsText'
 import { NewArrivalsCarousel } from '@/components/NewArrivalsCarousel'
 
-export const metadata: Metadata = {
-  title: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}`,
-  description: SITE_CONFIG.brand.tagline,
+interface MetaProps {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
+  const { locale } = await params
+  return {
+    title: { absolute: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}` },
+    description: SITE_CONFIG.brand.tagline,
+    alternates: getAlternates(locale, ''),
+  }
 }
 
 export default async function HomePage() {

@@ -1,10 +1,22 @@
+import type { Metadata } from 'next'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
+import { getAlternates } from '@/lib/seo/alternates'
 
-export const metadata = { title: `Privacy Policy | ${SITE_CONFIG.brand.name}` }
+interface MetaProps {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
+  const { locale } = await params
+  return {
+    title: { absolute: `Privacy Policy | ${SITE_CONFIG.brand.name}` },
+    alternates: getAlternates(locale, '/privacy'),
+  }
+}
 
 export default async function PrivacyPage() {
   const categories = await getCategories()
