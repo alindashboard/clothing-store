@@ -22,6 +22,7 @@ function getDistinctColors(variants: ProductVariant[]) {
 
 export function VariantSelector({ variants, onSelect, onColorChange }: VariantSelectorProps) {
   const t = useTranslations('product')
+  const tCommon = useTranslations('common')
   const activeVariants = variants.filter((v) => v.is_active)
   const distinctColors = getDistinctColors(activeVariants)
 
@@ -88,7 +89,7 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
                 key={v.id}
                 onClick={() => !outOfStock && setSelectedSize(v.size)}
                 disabled={outOfStock}
-                title={outOfStock ? t('outOfStock', { ns: 'common' }) : undefined}
+                title={outOfStock ? tCommon('outOfStock') : undefined}
                 className={`min-w-[44px] h-11 px-3 border text-sm font-medium transition-all relative ${
                   outOfStock
                     ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
