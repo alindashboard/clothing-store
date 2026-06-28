@@ -116,7 +116,7 @@ export default async function HomePage() {
                   </p>
                 </div>
 
-                <div className="flex justify-center">
+                {/* <div className="flex justify-center">
                   <Link
                     href={settings.heroCtaUrl}
                     className="inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
@@ -128,7 +128,7 @@ export default async function HomePage() {
                   >
                     {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
                   </Link>
-                </div>
+                </div> */}
 
                 <div className="flex justify-end">
                   <p
