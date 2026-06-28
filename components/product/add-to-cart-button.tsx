@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ShoppingBag, Check } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
+import { useTranslations } from 'next-intl'
 import type { Product, ProductVariant } from '@/lib/types'
 import { toast } from 'sonner'
 
@@ -15,6 +16,7 @@ interface AddToCartButtonProps {
 export function AddToCartButton({ product, variant, allOutOfStock = false }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false)
   const { addItem, openCart } = useCartStore()
+  const t = useTranslations('common')
 
   const isOutOfStock = allOutOfStock || (variant ? variant.stock_quantity <= 0 : false)
   const noVariantSelected = !allOutOfStock && !variant
@@ -46,17 +48,17 @@ export function AddToCartButton({ product, variant, allOutOfStock = false }: Add
     }, 800)
   }
 
-  let label = 'Add to Cart'
+  let label = t('addToCart')
   let disabled = false
 
   if (isOutOfStock) {
-    label = 'Out of Stock'
+    label = t('outOfStock')
     disabled = true
   } else if (noVariantSelected) {
-    label = 'Select size'
+    label = t('selectSize')
     disabled = true
   } else if (added) {
-    label = 'Added!'
+    label = t('added')
   }
 
   return (

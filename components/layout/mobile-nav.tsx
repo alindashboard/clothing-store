@@ -1,11 +1,13 @@
 'use client'
 
-import Link from 'next/link'
 import { X, ShoppingBag, User } from 'lucide-react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import type { Category } from '@/lib/types'
 import { useCartStore } from '@/lib/store/cart'
 import { SITE_CONFIG } from '@/lib/config'
+import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
+import { LanguageSwitcher } from './language-switcher'
 
 interface MobileNavProps {
   isOpen: boolean
@@ -16,6 +18,7 @@ interface MobileNavProps {
 export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
   const { getItemCount, openCart } = useCartStore()
   const count = getItemCount()
+  const t = useTranslations('nav')
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
@@ -48,7 +51,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 onClick={onClose}
                 className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
               >
-                All Products
+                {t('allProducts')}
               </Link>
             </li>
             <li>
@@ -58,7 +61,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 className="block py-2.5 text-sm font-medium tracking-wider uppercase"
                 style={{ color: '#c2a04a' }}
               >
-                New Arrivals
+                {t('newArrivals')}
               </Link>
             </li>
             <li>
@@ -67,19 +70,22 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 onClick={onClose}
                 className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
               >
-                Events
+                {t('events')}
               </Link>
             </li>
           </ul>
         </nav>
 
         <div className="px-5 py-4 border-t border-gray-100 space-y-2">
+          <div className="py-2">
+            <LanguageSwitcher />
+          </div>
           <button
             onClick={() => { onClose(); openCart() }}
             className="flex items-center gap-3 w-full py-2 text-sm text-gray-700 hover:text-black"
           >
             <ShoppingBag className="w-4 h-4" />
-            Cart {count > 0 && `(${count})`}
+            {t('cart')} {count > 0 && `(${count})`}
           </button>
           <Link
             href="/admin"
@@ -87,7 +93,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
             className="flex items-center gap-3 py-2 text-sm text-gray-400 hover:text-gray-700"
           >
             <User className="w-4 h-4" />
-            Admin
+            {t('admin')}
           </Link>
         </div>
       </SheetContent>

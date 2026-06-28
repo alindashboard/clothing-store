@@ -1,24 +1,25 @@
 'use client'
 
-import Link from 'next/link'
 import { X } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useCartStore } from '@/lib/store/cart'
 import { CartItemRow } from './cart-item'
 import { CartSummary } from './cart-summary'
-import { SITE_CONFIG } from '@/lib/config'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, getTotal, getItemCount } = useCartStore()
   const total = getTotal()
   const count = getItemCount()
+  const t = useTranslations('cart')
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && closeCart()}>
       <SheetContent side="right" className="flex flex-col w-full sm:max-w-md p-0" showCloseButton={false}>
         <SheetHeader className="px-5 py-4 border-b border-gray-100 flex flex-row items-center justify-between">
           <SheetTitle className="text-base font-semibold">
-            Cart {count > 0 && <span className="text-gray-400 font-normal">({count})</span>}
+            {t('title')} {count > 0 && <span className="text-gray-400 font-normal">({count})</span>}
           </SheetTitle>
           <button onClick={closeCart} className="p-1 hover:opacity-60 transition-opacity">
             <X className="w-5 h-5" />
@@ -27,13 +28,13 @@ export function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-5">
-            <p className="text-gray-500 text-sm">Your cart is empty.</p>
+            <p className="text-gray-500 text-sm">{t('empty')}</p>
             <Link
               href="/products"
               onClick={closeCart}
               className="text-sm font-medium underline underline-offset-4"
             >
-              Continue Shopping
+              {t('continueShopping')}
             </Link>
           </div>
         ) : (
@@ -53,14 +54,14 @@ export function CartDrawer() {
                   onClick={closeCart}
                   className="block w-full h-11 bg-black text-white text-sm font-semibold tracking-wider uppercase flex items-center justify-center hover:bg-gray-800 transition-colors"
                 >
-                  Checkout
+                  {t('checkout')}
                 </Link>
                 <Link
                   href="/cart"
                   onClick={closeCart}
                   className="block w-full h-11 border border-gray-300 text-sm font-medium flex items-center justify-center hover:border-black transition-colors"
                 >
-                  View Cart
+                  {t('viewCart')}
                 </Link>
               </div>
             </div>

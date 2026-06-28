@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import { MessageCircle, Building2, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +22,7 @@ interface CheckoutFormProps {
 export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProps) {
   const router = useRouter()
   const { clearCart } = useCartStore()
+  const t = useTranslations('checkout')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [billingSame, setBillingSame] = useState(true)
@@ -61,7 +63,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
       const message = encodeURIComponent(
         [
-          `${SITE_CONFIG.contact.whatsappOrderMessage}`,
+          t('whatsappMessage'),
           `Order: ${result.orderNumber}`,
           ...items.map((i) => `- ${i.productName} (${i.variantColor} / ${i.variantSize}) × ${i.quantity} — ${formatPrice(i.price * i.quantity)}`),
           `Total: ${formatPrice(subtotal + shippingCost)}`,

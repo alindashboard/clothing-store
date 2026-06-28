@@ -1,10 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, ShoppingBag } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { MobileNav } from './mobile-nav'
+import { LanguageSwitcher } from './language-switcher'
+import { Link } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import type { Category } from '@/lib/types'
 import { SITE_CONFIG } from '@/lib/config'
 
@@ -16,6 +18,7 @@ export function Header({ categories }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { getItemCount, openCart } = useCartStore()
   const count = getItemCount()
+  const t = useTranslations('nav')
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
@@ -24,7 +27,7 @@ export function Header({ categories }: HeaderProps) {
         <button
           className="lg:hidden p-2 -ml-2"
           onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
+          aria-label={t('openMenu')}
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -52,36 +55,41 @@ export function Header({ categories }: HeaderProps) {
             href="/products"
             className="text-xs font-medium tracking-widest uppercase text-gray-600 hover:text-black transition-colors"
           >
-            All
+            {t('all')}
           </Link>
           <Link
             href="/new-arrivals"
             className="text-xs font-medium tracking-widest uppercase transition-colors"
             style={{ color: '#c2a04a' }}
           >
-            New Arrivals
+            {t('newArrivals')}
           </Link>
           <Link
             href="/events"
             className="text-xs font-medium tracking-widest uppercase text-gray-600 hover:text-black transition-colors"
           >
-            Events
+            {t('events')}
           </Link>
         </nav>
 
-        {/* Cart */}
-        <button
-          onClick={openCart}
-          className="relative p-2 -mr-2"
-          aria-label={`Cart (${count} items)`}
-        >
-          <ShoppingBag className="w-5 h-5" />
-          {count > 0 && (
-            <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {count > 9 ? '9+' : count}
-            </span>
-          )}
-        </button>
+        {/* Right: language switcher + cart */}
+        <div className="flex items-center gap-3">
+          <div className="hidden lg:flex">
+            <LanguageSwitcher />
+          </div>
+          <button
+            onClick={openCart}
+            className="relative p-2 -mr-2"
+            aria-label={`${t('cart')} (${count})`}
+          >
+            <ShoppingBag className="w-5 h-5" />
+            {count > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {count > 9 ? '9+' : count}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       <MobileNav

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import type { ProductVariant } from '@/lib/types'
 
 interface VariantSelectorProps {
@@ -20,6 +21,7 @@ function getDistinctColors(variants: ProductVariant[]) {
 }
 
 export function VariantSelector({ variants, onSelect, onColorChange }: VariantSelectorProps) {
+  const t = useTranslations('product')
   const activeVariants = variants.filter((v) => v.is_active)
   const distinctColors = getDistinctColors(activeVariants)
 
@@ -51,7 +53,7 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
       {distinctColors.length > 0 && (
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">
-            Color: <span className="font-normal text-gray-500">{selectedColor}</span>
+            {t('color')}: <span className="font-normal text-gray-500">{selectedColor}</span>
           </p>
           <div className="flex gap-2 flex-wrap">
             {distinctColors.map((v) => (
@@ -74,8 +76,8 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
       {/* Size selector */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-gray-700">Size</p>
-          <button className="text-xs text-gray-400 underline hover:text-gray-600">Size guide</button>
+          <p className="text-sm font-medium text-gray-700">{t('size')}</p>
+          <button className="text-xs text-gray-400 underline hover:text-gray-600">{t('sizeGuide')}</button>
         </div>
         <div className="flex flex-wrap gap-2">
           {sizesForColor.map((v) => {
@@ -86,7 +88,7 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
                 key={v.id}
                 onClick={() => !outOfStock && setSelectedSize(v.size)}
                 disabled={outOfStock}
-                title={outOfStock ? 'Out of stock' : undefined}
+                title={outOfStock ? t('outOfStock', { ns: 'common' }) : undefined}
                 className={`min-w-[44px] h-11 px-3 border text-sm font-medium transition-all relative ${
                   outOfStock
                     ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
@@ -107,7 +109,7 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
         {/* Low stock warning */}
         {selectedSize && sizesForColor.find((v) => v.size === selectedSize && v.stock_quantity > 0 && v.stock_quantity <= v.low_stock_threshold) && (
           <p className="text-xs text-amber-600 mt-2">
-            Only {sizesForColor.find((v) => v.size === selectedSize)?.stock_quantity} left in stock
+            {t('lowStock', { count: sizesForColor.find((v) => v.size === selectedSize)?.stock_quantity })}
           </p>
         )}
       </div>

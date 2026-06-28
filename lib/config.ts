@@ -64,7 +64,7 @@ export const SITE_CONFIG = {
     email: STORE_INFO.email,
     phone: STORE_INFO.phone,
     whatsapp: '393931427143',
-    whatsappOrderMessage: 'Hello, I would like to place an order / Bună ziua, aș dori să plasez o comandă:',
+    whatsappOrderMessage: 'Hello, I would like to place an order:',
   },
   shipping: {
     freeShippingThreshold: 150,

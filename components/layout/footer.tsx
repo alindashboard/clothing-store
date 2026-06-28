@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
 
@@ -12,8 +13,10 @@ function InstagramIcon({ className }: { className?: string }) {
   )
 }
 
-export function Footer() {
+export async function Footer() {
   const { brand, contact, social } = SITE_CONFIG
+  const t = await getTranslations('footer')
+
   return (
     <footer className="bg-black text-white mt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -26,28 +29,28 @@ export function Footer() {
 
           {/* Store */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Store</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('store')}</p>
             <ul className="space-y-2">
-              <li><Link href="/products" className="text-xs text-gray-300 hover:text-white transition-colors">All Products</Link></li>
-              <li><Link href="/new-arrivals" className="text-xs text-gray-300 hover:text-white transition-colors">New Arrivals</Link></li>
-              <li><Link href="/category/sale" className="text-xs text-gray-300 hover:text-white transition-colors">Sale</Link></li>
-              <li><Link href="/contact" className="text-xs text-gray-300 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/products" className="text-xs text-gray-300 hover:text-white transition-colors">{t('allProducts')}</Link></li>
+              <li><Link href="/new-arrivals" className="text-xs text-gray-300 hover:text-white transition-colors">{t('newArrivals')}</Link></li>
+              <li><Link href="/category/sale" className="text-xs text-gray-300 hover:text-white transition-colors">{t('sale')}</Link></li>
+              <li><Link href="/contact" className="text-xs text-gray-300 hover:text-white transition-colors">{t('contact')}</Link></li>
             </ul>
           </div>
 
-          {/* Policy */}
+          {/* Info */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Info</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('info')}</p>
             <ul className="space-y-2">
-              <li><Link href="/store" className="text-xs text-gray-300 hover:text-white transition-colors">Store</Link></li>
-              <li><Link href="/terms" className="text-xs text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link href="/privacy" className="text-xs text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/store" className="text-xs text-gray-300 hover:text-white transition-colors">{t('storeLink')}</Link></li>
+              <li><Link href="/terms" className="text-xs text-gray-300 hover:text-white transition-colors">{t('terms')}</Link></li>
+              <li><Link href="/privacy" className="text-xs text-gray-300 hover:text-white transition-colors">{t('privacy')}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">Contact</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('contact')}</p>
             <ul className="space-y-2">
               <li>
                 <a href={`mailto:${contact.email}`} className="text-xs text-gray-300 hover:text-white transition-colors">
@@ -86,8 +89,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 items-center">
-          <p className="text-xs text-gray-500">© {new Date().getFullYear()} {brand.name}. All rights reserved.</p>
-          <Link href="/admin" className="text-xs text-gray-700 hover:text-gray-500 transition-colors">Admin</Link>
+          <p className="text-xs text-gray-500">© {new Date().getFullYear()} {brand.name}. {t('allRightsReserved')}</p>
+          <a href="/admin" className="text-xs text-gray-700 hover:text-gray-500 transition-colors">Admin</a>
         </div>
       </div>
     </footer>

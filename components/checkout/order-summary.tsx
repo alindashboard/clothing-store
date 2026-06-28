@@ -1,6 +1,8 @@
+'use client'
+
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { formatPrice } from '@/lib/utils'
-import { SITE_CONFIG } from '@/lib/config'
 import type { CartItem } from '@/lib/store/cart'
 
 interface OrderSummaryProps {
@@ -10,9 +12,12 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ items, subtotal, shippingCost }: OrderSummaryProps) {
+  const t = useTranslations('cart')
+  const tCommon = useTranslations('common')
+
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-700">Order Summary</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-700">{t('orderSummary')}</h2>
 
       <div className="divide-y divide-gray-100">
         {items.map((item) => (
@@ -41,18 +46,18 @@ export function OrderSummary({ items, subtotal, shippingCost }: OrderSummaryProp
 
       <div className="space-y-2 pt-2 border-t border-gray-200">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Subtotal</span>
+          <span className="text-gray-500">{t('subtotal')}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Shipping</span>
-          <span>{shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}</span>
+          <span className="text-gray-500">{t('shipping')}</span>
+          <span>{shippingCost === 0 ? tCommon('free') : formatPrice(shippingCost)}</span>
         </div>
         <div className="flex justify-between font-semibold text-base pt-2 border-t border-gray-200">
-          <span>Total</span>
+          <span>{t('total')}</span>
           <span>{formatPrice(subtotal + shippingCost)}</span>
         </div>
-        <p className="text-xs text-gray-400">Taxes included</p>
+        <p className="text-xs text-gray-400">{t('taxesIncluded')}</p>
       </div>
     </div>
   )

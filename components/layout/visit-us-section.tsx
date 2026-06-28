@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { MapPin, Clock } from 'lucide-react'
 import { STORE_INFO } from '@/lib/store-info'
@@ -11,7 +12,9 @@ function WhatsAppIcon({ className }: { className?: string }) {
   )
 }
 
-export function VisitUsSection() {
+export async function VisitUsSection() {
+  const t = await getTranslations('store')
+
   return (
     <section className="relative bg-stone-50 py-16 px-4">
       {/* Mobile-only background image */}
@@ -28,25 +31,25 @@ export function VisitUsSection() {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
-          {/* Text + butoane */}
+          {/* Text + buttons */}
           <div>
             <p
               className="text-xs tracking-[0.3em] uppercase mb-3"
               style={{ fontFamily: 'var(--font-sans)', color: '#c2a04a' }}
             >
-              Physical Store
+              {t('physicalStore')}
             </p>
             <h2
               className="text-3xl md:text-4xl font-light tracking-tight text-[#111]"
               style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
             >
-              Visit Us
+              {t('visitUs')}
             </h2>
             <p
               className="text-base font-light italic mt-1 mb-8 text-gray-500"
               style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
             >
-              Come visit us in store
+              {t('subtitle')}
             </p>
 
             <div className="space-y-4 mb-8">
@@ -59,14 +62,14 @@ export function VisitUsSection() {
                 <Clock className="w-4 h-4 mt-1 shrink-0 text-gray-400" aria-hidden="true" />
                 <div className="space-y-1">
                   <p>
-                    <span className="font-medium text-gray-800">{STORE_INFO.schedule.weekdaysLabel}:</span>
+                    <span className="font-medium text-gray-800">{t('weekdays')}:</span>
                   </p>
-                  <p className="pl-0">
+                  <p>
                     {STORE_INFO.schedule.morning}{' '}
                     <span className="text-gray-400 mx-1">·</span>{' '}
                     {STORE_INFO.schedule.afternoon}
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">{STORE_INFO.schedule.weekend}</p>
+                  <p className="text-gray-400 text-xs mt-1">{t('weekend')}</p>
                 </div>
               </div>
             </div>
@@ -78,7 +81,7 @@ export function VisitUsSection() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium bg-black text-white hover:bg-gray-800 transition-colors"
               >
-                Get Directions →
+                {t('getDirections')} →
               </a>
               <a
                 href={STORE_INFO.whatsappUrl}
@@ -93,7 +96,7 @@ export function VisitUsSection() {
                 href="/store"
                 className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-colors"
               >
-                Store Details
+                {t('storeDetails')}
               </Link>
             </div>
           </div>
@@ -112,7 +115,6 @@ export function VisitUsSection() {
 
         </div>
       </div>
-
     </section>
   )
 }

@@ -7,10 +7,10 @@ export const STORE_INFO = {
   instagram: 'https://instagram.com/kayastudiooutlet',
   instagramHandle: '@kayastudiooutlet',
   schedule: {
-    weekdaysLabel: 'Mon–Fri / Lun–Vin',
+    weekdaysLabel: 'Mon–Fri',
     morning: '09:00 – 13:00',
     afternoon: '15:30 – 20:00',
-    weekend: 'Sat–Sun: Closed / Sâm–Dum: Închis',
+    weekend: 'Sat–Sun: Closed',
   },
   googleMapsUrl: 'https://maps.app.goo.gl/YLabzRgEobEZFBde7',
   googleMapsEmbedUrl:

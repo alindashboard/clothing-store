@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Product } from '@/lib/types'
 import { ProductCard } from './product-card'
 import { loadMoreProducts } from '@/lib/actions/products'
@@ -24,6 +25,7 @@ export function ProductGridInfinite({
   const sentinelRef = useRef<HTMLDivElement>(null)
   const offsetRef = useRef(initialProducts.length)
   const loadingRef = useRef(false)
+  const t = useTranslations('common')
 
   useEffect(() => {
     if (!hasMore || !sentinelRef.current) return
@@ -34,10 +36,7 @@ export function ProductGridInfinite({
         if (!entries[0].isIntersecting || loadingRef.current) return
         loadingRef.current = true
         startTransition(async () => {
-          const result = await loadMoreProducts({
-            categorySlug,
-            offset: offsetRef.current,
-          })
+          const result = await loadMoreProducts({ categorySlug, offset: offsetRef.current })
           setProducts((prev) => [...prev, ...result.products])
           offsetRef.current += result.products.length
           setHasMore(result.hasMore)
@@ -58,7 +57,7 @@ export function ProductGridInfinite({
   }[columns]
 
   if (products.length === 0) {
-    return <div className="py-20 text-center text-gray-400">No products found.</div>
+    return <div className="py-20 text-center text-gray-400">{t('noProductsFound')}</div>
   }
 
   return (
@@ -79,7 +78,7 @@ export function ProductGridInfinite({
 
       {!hasMore && (
         <p className="text-center text-[10px] tracking-[0.25em] uppercase text-gray-300 py-10">
-          End of collection
+          {t('endOfCollection')}
         </p>
       )}
     </div>
