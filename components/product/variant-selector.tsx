@@ -110,7 +110,7 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
         {/* Low stock warning */}
         {selectedSize && sizesForColor.find((v) => v.size === selectedSize && v.stock_quantity > 0 && v.stock_quantity <= v.low_stock_threshold) && (
           <p className="text-xs text-amber-600 mt-2">
-            {t('lowStock', { count: sizesForColor.find((v) => v.size === selectedSize)?.stock_quantity })}
+            {t('lowStock', { count: sizesForColor.find((v) => v.size === selectedSize)?.stock_quantity ?? 0 })}
           </p>
         )}
       </div>
