@@ -23,15 +23,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(slug)
   if (!product) return { title: SITE_CONFIG.brand.name }
 
+  const images = product.images ?? []
+  const firstImage = images.find((i) => i.is_primary) ?? images[0]
+  const ogImageUrl = firstImage?.url ?? `${SITE_CONFIG.brand.url}/og-image.jpg`
+
   return {
     title: product.meta_title || product.name,
     description: product.meta_description || product.short_description || undefined,
     alternates: getAlternates(locale, `/product/${slug}`),
+    openGraph: {
+      type: 'website',
+      title: product.meta_title || product.name,
+      description: product.meta_description || product.short_description || undefined,
+      images: [{ url: ogImageUrl, width: 1200, height: 1200, alt: product.name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogImageUrl],
+    },
+    other: {
+      'og:price:amount': String(product.base_price),
+      'og:price:currency': 'EUR',
+    },
   }
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { slug } = await params
+  const { locale, slug } = await params
   const [product, categories, t] = await Promise.all([
     getProduct(slug),
     getCategories(),
@@ -45,24 +63,54 @@ export default async function ProductPage({ params }: Props) {
   const activeVariants = variants.filter((v) => v.is_active)
   const isOutOfStock = activeVariants.length > 0 && activeVariants.every((v) => v.stock_quantity <= 0)
 
-  const jsonLd = {
+  const siteUrl = SITE_CONFIG.brand.url
+  const productUrl = `${siteUrl}/${locale}/product/${slug}`
+
+  const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.description || product.short_description,
     sku: product.sku_prefix,
+    brand: { '@type': 'Brand', name: SITE_CONFIG.brand.name },
+    url: productUrl,
+    image: images.map((i) => i.url),
     offers: {
       '@type': 'Offer',
       price: product.base_price,
       priceCurrency: 'EUR',
       availability: isOutOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+      url: productUrl,
+      seller: { '@type': 'Organization', name: SITE_CONFIG.brand.name },
     },
-    image: images.map((i) => i.url),
+  }
+
+  const breadcrumbItems: { name: string; item: string }[] = [
+    { name: 'Home', item: `${siteUrl}/${locale}` },
+  ]
+  if (product.category) {
+    breadcrumbItems.push({
+      name: product.category.name,
+      item: `${siteUrl}/${locale}/category/${product.category.slug}`,
+    })
+  }
+  breadcrumbItems.push({ name: product.name, item: productUrl })
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((crumb, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: crumb.name,
+      item: crumb.item,
+    })),
   }
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <AnnouncementBar />
       <Header categories={categories} />
 

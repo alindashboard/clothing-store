@@ -48,8 +48,52 @@ export default async function StorePage() {
     getTranslations('store'),
   ])
 
+  const siteUrl = SITE_CONFIG.brand.url
+  const storeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ClothingStore',
+    name: STORE_INFO.name,
+    url: siteUrl,
+    telephone: STORE_INFO.phone,
+    email: STORE_INFO.email,
+    priceRange: '€€',
+    image: `${siteUrl}/og-image.jpg`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Str. Acque Alte, 12',
+      addressLocality: 'Borgo Podgora',
+      postalCode: '04100',
+      addressRegion: 'LT',
+      addressCountry: 'IT',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: STORE_INFO.coordinates.latitude,
+      longitude: STORE_INFO.coordinates.longitude,
+    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '09:00',
+        closes: '13:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '15:30',
+        closes: '20:00',
+      },
+    ],
+    sameAs: [STORE_INFO.instagram],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
+      />
       <AnnouncementBar />
       <Header categories={categories} />
 

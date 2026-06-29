@@ -12,6 +12,10 @@ export const STORE_INFO = {
     afternoon: '15:30 – 20:00',
     weekend: 'Sat–Sun: Closed',
   },
+  coordinates: {
+    latitude: 41.4833,
+    longitude: 12.8667,
+  },
   googleMapsUrl: 'https://maps.app.goo.gl/YLabzRgEobEZFBde7',
   googleMapsEmbedUrl:
     'https://maps.google.com/maps?q=Str.+Acque+Alte+12,+04100+Borgo+Podgora+LT,+Italy&hl=en&z=16&output=embed',

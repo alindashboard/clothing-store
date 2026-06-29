@@ -5,6 +5,7 @@ import { getBrandAccent } from '@/lib/brand-accent'
 import { CartDrawer } from '@/components/cart/cart-drawer'
 import { routing } from '@/i18n/routing'
 import { SITE_CONFIG } from '@/lib/config'
+import { STORE_INFO } from '@/lib/store-info'
 import { notFound } from 'next/navigation'
 
 interface Props {
@@ -43,8 +44,34 @@ export default async function LocaleLayout({ children, params }: Props) {
     getBrandAccent(),
   ])
 
+  const siteUrl = SITE_CONFIG.brand.url
+
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_CONFIG.brand.name,
+    url: siteUrl,
+    logo: `${siteUrl}/kaya-logo.png`,
+    sameAs: [STORE_INFO.instagram],
+  }
+
+  const webSiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_CONFIG.brand.name,
+    url: siteUrl,
+  }
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
       <div
         style={{ '--brand-accent': accent } as React.CSSProperties}
         className="contents"
