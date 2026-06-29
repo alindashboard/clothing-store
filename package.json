@@ -5,10 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "email:dev": "email dev --dir emails"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@react-email/components": "^0.0.36",
+    "react-email": "^4.0.10",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
     "class-variance-authority": "^0.7.1",

@@ -5,7 +5,7 @@ import type { Order, CheckoutFormData } from '@/lib/types'
 import type { CartItem } from '@/lib/store/cart'
 import { revalidatePath } from 'next/cache'
 import { SITE_CONFIG } from '@/lib/config'
-import { sendOrderConfirmation, sendOrderNotification } from '@/lib/email'
+import { sendOrderConfirmation, sendNewOrderNotification, type OrderEmailData } from '@/lib/email/send'
 
 export async function getOrdersAdmin(options?: {
   status?: string
@@ -154,12 +154,37 @@ export async function createOrder(
   }
 
   // Send emails (don't block on failure)
-  try {
-    await sendOrderConfirmation(order, cartItems)
-    await sendOrderNotification(order, cartItems)
-  } catch (e) {
-    console.error('Email send failed:', e)
+  const emailData: OrderEmailData = {
+    orderNumber: order.order_number,
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+    customerPhone: order.customer_phone,
+    locale: 'it',
+    items: cartItems.map((item) => ({
+      name: item.productName,
+      size: item.variantSize,
+      color: item.variantColor,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+    subtotal: order.subtotal,
+    shippingCost: order.shipping_cost,
+    total: order.total,
+    currency: order.currency,
+    shippingAddress: {
+      line1: order.shipping_address_line1,
+      line2: order.shipping_address_line2,
+      city: order.shipping_city,
+      state: order.shipping_state,
+      postalCode: order.shipping_postal_code,
+      country: order.shipping_country,
+    },
+    shippingMethod: `Standard · ${SITE_CONFIG.shipping.estimatedDays.standard} giorni lavorativi`,
   }
+  await Promise.allSettled([
+    sendOrderConfirmation(emailData),
+    sendNewOrderNotification(emailData),
+  ])
 
   revalidatePath('/admin/orders')
   return { orderId: order.id, orderNumber: order.order_number }
