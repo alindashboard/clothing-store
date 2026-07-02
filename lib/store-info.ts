@@ -13,8 +13,8 @@ export const STORE_INFO = {
     weekend: 'Sat–Sun: Closed',
   },
   coordinates: {
-    latitude: 41.4833,
-    longitude: 12.8667,
+    latitude: 41.516361,
+    longitude: 12.8536982,
   },
   googleMapsUrl: 'https://maps.app.goo.gl/YLabzRgEobEZFBde7',
   googleMapsEmbedUrl:
