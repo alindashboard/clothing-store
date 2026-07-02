@@ -1,107 +1,49 @@
-# Site Template — Next.js 16 + Supabase + Resend
+# KAYA Studio Outlet — `kayaoutlet.com`
 
-Template generic pentru site-uri cu sistem de rezervări, galerie de produse/servicii și panou de administrare.
-
-**Stack:** Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · shadcn/ui · Supabase · Resend · Vercel
+Magazin online pentru KAYA Studio Outlet, un outlet de modă premium din Borgo Podgora (Latina), Italia. Site-ul combină catalog de produse cu variante, coș de cumpărături, checkout prin WhatsApp/transfer bancar, panou de administrare și un modul de evenimente.
 
 ---
 
-## Pornire rapidă
+## Stack
 
-### Setup automat (recomandat)
+- **Next.js 16** App Router · React 19 · TypeScript
+- **Tailwind CSS v4** — tokeni de design în `globals.css @theme inline`
+- **shadcn/ui** (base-nova) · lucide-react
+- **Supabase** — auth (admin), DB (produse, comenzi, evenimente), storage (imagini)
+- **Resend** — email tranzacțional (confirmare comandă)
+- **next-intl** — bilingv IT (implicit) + EN
+- **Zustand** — state coș de cumpărături
+- **Vercel** — hosting, push-to-deploy pe `main`
 
-Un singur script face tot: creează proiectul Supabase, aplică schema, preia cheile API, configurează `.env.local` și face deploy pe Vercel.
+---
 
-**Prima dată (o singură dată pe mașină):**
+## Setup local
+
+### Variabile de mediu
+
 ```bash
-npm install -g supabase vercel
-supabase login   # deschide browserul pentru autentificare
-vercel login
+cp .env.local.example .env.local  # dacă există; altfel creează manual
 ```
 
-**Pentru fiecare proiect nou:**
+Completează în `.env.local`:
+
+```
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+RESEND_API_KEY=...
+```
+
+### Pornire
+
 ```bash
-git clone https://github.com/alindashboard/site-template.git nume-proiect
-cd nume-proiect
 npm install
-vercel link      # leagă directorul de proiectul Vercel
-./scripts/setup.sh nume-proiect
+npm run dev        # http://localhost:3000
+npm run email:dev  # preview template-uri email (port 3001)
 ```
 
-> **Windows:** rulează în **Git Bash**, nu în PowerShell.
-
-Scriptul afișează la final parola DB — salveaz-o în 1Password.
-
----
-
-### Setup manual (alternativă)
-
-<details>
-<summary>Extinde dacă preferi pași manuali</summary>
-
-#### 1. Clonează și instalează
-
-```bash
-git clone https://github.com/alindashboard/site-template.git my-project
-cd my-project
-npm install
-```
-
-#### 2. Creează proiect Supabase
-
-1. [supabase.com](https://supabase.com) → **New project**
-2. **SQL Editor** → copiază și rulează `supabase/schema.sql`
-3. **Storage** → **New bucket** → `items` (Public)
-4. **Authentication** → **Users** → **Add user** (adminul tău)
-
-#### 3. Configurează variabilele de mediu
-
-```bash
-cp .env.local.example .env.local
-# Completează cu valorile din Supabase → Settings → API
-```
-
-#### 4. Setează env vars în Vercel
-
-```bash
-vercel env add NEXT_PUBLIC_SUPABASE_URL production
-vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
-vercel env add SUPABASE_SERVICE_ROLE_KEY production
-vercel --prod
-```
-
-</details>
-
----
-
-### Personalizează site-ul
-
-Editează `lib/config.ts` cu datele clientului:
-
-```ts
-export const SITE_CONFIG = {
-  url: 'https://domeniultau.ro',
-  business: {
-    name: 'Numele Afacerii',
-    phone: '+40700000000',
-    // ...
-  },
-  itemLabel: {
-    singular: 'cameră',   // sau 'mașină', 'apartament', 'birou'
-    plural: 'camere',
-    priceUnit: 'noapte',  // sau 'zi', 'ora'
-  },
-  // ...
-}
-```
-
-### Dev local
-
-```bash
-npm run dev
-```
-
-Deschide [http://localhost:3000](http://localhost:3000).
+> **Schema DB:** aplică fișierele din `supabase/migrations/` în ordine. Nu folosi `supabase/schema.sql` — acela e schema generică de template, neaplicabilă acestui proiect.
 
 ---
 
@@ -109,86 +51,77 @@ Deschide [http://localhost:3000](http://localhost:3000).
 
 ```
 app/
-  page.tsx                  # Landing page (hero, listing, contact)
-  items/[id]/               # Pagina detaliu item + formular rezervare
-  rezervare-confirmata/     # Pagina de confirmare după rezervare
-  admin/
-    dashboard/              # Tabel rezervări (approve/reject/cancel)
-    items/                  # CRUD items cu upload imagini
-    contact/                # Formulare contact primite
+  [locale]/              # Toate rutele publice (IT/EN via next-intl)
+    page.tsx             # Homepage: hero, categorii, new arrivals, brands
+    products/            # Listing produse
+    product/[slug]/      # Pagina produs + variante + add to cart
+    category/[slug]/     # Produse filtrate pe categorie
+    new-arrivals/        # Pagina New Arrivals
+    cart/                # Coș de cumpărături
+    checkout/            # Formular checkout + confirmare
+    events/              # Listing evenimente
+    contact/             # Formular contact
+    store/               # Pagina magazin fizic cu hartă
+    privacy/ · terms/    # Pagini legale
+
+  admin/                 # Panou administrare (autentificat via Supabase)
+    page.tsx             # Dashboard cu statistici
+    products/            # CRUD produse + variante + upload imagini
+    categories/          # CRUD categorii
+    orders/              # Vizualizare + gestionare comenzi
+    new-arrivals/        # Curatare listă New Arrivals
+    events/              # CRUD evenimente
+    contacts/            # Formulare contact primite
+
+  api/
+    test-email/          # Endpoint test trimitere email (dev only)
 
 components/
-  Navbar.tsx                # Header sticky cu logo și telefon
-  ItemCard.tsx              # Card pentru un item în listing
-  ItemGrid.tsx              # Grid cu filtre
-  ItemImageGallery.tsx      # Galerie imagini cu thumbnails
-  BookingForm.tsx           # Formular rezervare cu calendar
-  ContactForm.tsx           # Formular contact
+  layout/                # Header, footer, nav mobil, ticker, announcement bar
+  product/               # ProductCard, ProductGrid, VariantSelector, Gallery
+  cart/                  # CartDrawer, CartItem, CartSummary
+  checkout/              # CheckoutForm, OrderSummary
+  admin/                 # AdminShell, ProductForm, VariantManager, ImageUploader
 
 lib/
-  config.ts                 # ← EDITEAZĂ ASTA PRIMUL
-  email.ts                  # Template-uri email (Resend)
-  supabase.ts               # Clienți Supabase (browser + admin)
-  supabase-server.ts        # Client server (SSR)
+  config.ts              # ← configurare principală (brand, checkout, features)
+  store-info.ts          # Date contact și program magazin fizic
+  brands.ts              # Lista branduri pentru ticker
 
 supabase/
-  schema.sql                # Schema completă + RLS policies
+  migrations/            # Schema reală a proiectului (aplică în ordine)
+  schema.sql             # ⚠ Schema template generică — NU aplica în producție
 ```
 
 ---
 
-## Cum adaugi un item nou
+## Configurare brand
 
-1. Accesează `/admin/items` (după autentificare)
-2. Click **Adaugă** → completează formularul
-3. Adaugă fotografii (principal + suplimentare)
-4. Item-ul apare imediat pe pagina principală
-
----
-
-## Cum gestionezi rezervările
-
-- `/admin/dashboard` — toate rezervările, filtrate pe status
-- **Pending** → poți aproba sau respinge
-- **Approved** → poți respinge sau anula
-- Clienții primesc email automat la rezervare (necesită domeniu verificat în Resend)
+Editează `lib/config.ts` pentru:
+- URL site, monedă, accent color
+- Praguri livrare gratuită și costuri transport
+- Activare/dezactivare metode de checkout
+- Sluguri categorii afișate pe homepage
+- Categorii cu mărimi de încălțăminte vs îmbrăcăminte
 
 ---
 
-## Deploy pe Vercel
+## Deploy
 
-```bash
-npm install -g vercel
-vercel
-```
+Push pe `main` → Vercel face deploy automat.
 
-Adaugă variabilele din `.env.local` în **Vercel → Settings → Environment Variables**.
+Asigură-te că variabilele de mediu sunt setate în **Vercel → Settings → Environment Variables**, inclusiv `NEXT_PUBLIC_SITE_URL=https://kayaoutlet.com`.
 
 ---
 
-## Personalizare avansată
+## Admin
 
-### Schimbă culorile
+Accesează `/admin/login` cu contul Supabase configurat. Autentificarea este gestionată de `proxy.ts` (echivalentul `middleware.ts` în Next.js 16).
 
-În `lib/config.ts`:
-```ts
-branding: {
-  primaryColor: '#2563eb',  // albastru implicit
-  accentColor: '#16a34a',
-}
-```
-
-### Dezactivează funcționalități
-
-```ts
-features: {
-  reservations: true,   // pune false dacă nu vrei sistem de rezervări
-  contactForm: true,
-  gallery: true,
-  whatsapp: false,      // ascunde butonul WhatsApp
-}
-```
-
-### SEO local business
-
-Editează `app/page.tsx` — blocul `localBusinessJsonLd` — cu coordonatele și tipul afacerii tale.
+Funcționalități admin:
+- Adaugă/editează/șterge produse cu variante și imagini multiple
+- Gestionează categorii și ordinea lor
+- Procesează comenzi primite prin WhatsApp/transfer bancar
+- Curatează lista New Arrivals (poziție manuală)
+- Publică/ascunde evenimente
+- Vizualizează formularele de contact
