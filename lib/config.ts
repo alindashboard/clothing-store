@@ -20,6 +20,16 @@ export const SITE_CONFIG = {
     accent: '#c2a04a',           // champagne gold — metallic brand default
 
     /**
+     * Dark-chrome accent — used only by the always-dark header/footer and the
+     * homepage's dark landing sections (per "Kaya Outlet Landing (Final)" design).
+     * Deliberately distinct from `accent` above: that one stays the documented
+     * brand gold (#c2a04a) for admin-configurable / light-page contexts (product,
+     * category, cart, checkout). This one is the lighter, warmer gold (#D9B679)
+     * the landing design was built around — do not use it outside dark surfaces.
+     */
+    darkAccent: '#D9B679',
+
+    /**
      * Category slugs shown on the homepage landing grid.
      * Order matters — first slug = first card.
      * To change what appears on landing, update this list (admin UI coming).

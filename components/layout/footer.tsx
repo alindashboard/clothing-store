@@ -18,48 +18,68 @@ export async function Footer() {
   const t = await getTranslations('footer')
 
   return (
-    <footer className="bg-black text-white mt-20">
+    <footer className="bg-[#0A0A0A] text-[#EDE9E1] mt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <p className="text-sm font-semibold tracking-[0.2em] uppercase mb-3">{brand.name}</p>
-            <p className="text-xs text-gray-400 leading-relaxed">{brand.tagline}</p>
+            <p
+              className="text-sm font-bold tracking-[0.2em] uppercase mb-3"
+              style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+            >
+              {brand.name}
+            </p>
+            <p className="text-xs text-[#6b6862] leading-relaxed">{brand.tagline}</p>
           </div>
 
           {/* Store */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('store')}</p>
+            <p
+              className="text-xs font-semibold tracking-widest uppercase text-[#8C8577] mb-3"
+              style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('store')}
+            </p>
             <ul className="space-y-2">
-              <li><Link href="/products" className="text-xs text-gray-300 hover:text-white transition-colors">{t('allProducts')}</Link></li>
-              <li><Link href="/new-arrivals" className="text-xs text-gray-300 hover:text-white transition-colors">{t('newArrivals')}</Link></li>
-              <li><Link href="/category/sale" className="text-xs text-gray-300 hover:text-white transition-colors">{t('sale')}</Link></li>
-              <li><Link href="/contact" className="text-xs text-gray-300 hover:text-white transition-colors">{t('contact')}</Link></li>
+              <li><Link href="/products" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('allProducts')}</Link></li>
+              <li><Link href="/new-arrivals" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('newArrivals')}</Link></li>
+              <li><Link href="/category/sale" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('sale')}</Link></li>
+              <li><Link href="/contact" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('contact')}</Link></li>
             </ul>
           </div>
 
           {/* Info */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('info')}</p>
+            <p
+              className="text-xs font-semibold tracking-widest uppercase text-[#8C8577] mb-3"
+              style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('info')}
+            </p>
             <ul className="space-y-2">
-              <li><Link href="/store" className="text-xs text-gray-300 hover:text-white transition-colors">{t('storeLink')}</Link></li>
-              <li><Link href="/terms" className="text-xs text-gray-300 hover:text-white transition-colors">{t('terms')}</Link></li>
-              <li><Link href="/privacy" className="text-xs text-gray-300 hover:text-white transition-colors">{t('privacy')}</Link></li>
+              <li><Link href="/store" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('storeLink')}</Link></li>
+              <li><Link href="/terms" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('terms')}</Link></li>
+              <li><Link href="/privacy" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('privacy')}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-3">{t('contact')}</p>
+            <p
+              className="text-xs font-semibold tracking-widest uppercase text-[#8C8577] mb-3"
+              style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('contact')}
+            </p>
             <ul className="space-y-2">
               <li>
-                <a href={`mailto:${contact.email}`} className="text-xs text-gray-300 hover:text-white transition-colors">
+                <a href={`mailto:${contact.email}`} className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">
                   {contact.email}
                 </a>
               </li>
               {contact.phone && (
                 <li>
-                  <a href={`tel:${contact.phone}`} className="text-xs text-gray-300 hover:text-white transition-colors">
+                  <a href={`tel:${contact.phone}`} className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">
                     {contact.phone}
                   </a>
                 </li>
@@ -72,14 +92,14 @@ export async function Footer() {
                     href={social.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-xs text-[#8C8577] hover:text-[#EDE9E1] transition-colors"
                   >
                     <InstagramIcon className="w-3.5 h-3.5" />
                     {STORE_INFO.instagramHandle}
                   </a>
                 )}
                 {social.facebook && (
-                  <a href={social.facebook} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-white transition-colors">
+                  <a href={social.facebook} target="_blank" rel="noopener noreferrer" className="text-xs text-[#8C8577] hover:text-[#EDE9E1] transition-colors">
                     Facebook
                   </a>
                 )}
@@ -88,9 +108,9 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 items-center">
-          <p className="text-xs text-gray-500">© {new Date().getFullYear()} {brand.name}. {t('allRightsReserved')}</p>
-          <a href="/admin" className="text-xs text-gray-700 hover:text-gray-500 transition-colors">Admin</a>
+        <div className="border-t border-[#201f1c] mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 items-center">
+          <p className="text-xs text-[#5a5852]">© {new Date().getFullYear()} {brand.name}. {t('allRightsReserved')}</p>
+          <a href="/admin" className="text-xs text-[#3d3b37] hover:text-[#6b6862] transition-colors">Admin</a>
         </div>
       </div>
     </footer>

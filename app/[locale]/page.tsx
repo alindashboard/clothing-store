@@ -51,13 +51,13 @@ export default async function HomePage() {
       <AnnouncementBar />
       <Header categories={categories} />
 
-      <main className="flex-1">
+      <main className="flex-1 bg-[#141412]">
         <h1 className="sr-only">{t('heroTitle')}</h1>
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
         <section
           className="kaya-hero relative overflow-hidden"
-          style={{ background: '#0b0b0c' }}
+          style={{ background: '#141412' }}
         >
           {/* Mobile layout */}
           <div className="md:hidden flex flex-col items-center pt-8 pb-10 px-6 text-center relative">
@@ -121,7 +121,7 @@ export default async function HomePage() {
                 <div>
                   <p
                     className="text-xs mb-3 tracking-[0.3em] uppercase"
-                    style={{ color: settings.accent, fontFamily: 'var(--font-sans)' }}
+                    style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
                   >
                     {settings.heroSeasonLabel}
                   </p>
@@ -138,24 +138,48 @@ export default async function HomePage() {
                   </p>
                 </div>
 
-                {/* <div className="flex justify-center">
+                <div className="flex justify-center">
                   <Link
                     href={settings.heroCtaUrl}
-                    className="inline-flex items-center gap-3 text-xs font-medium tracking-[0.24em] uppercase px-10 py-4 transition-opacity hover:opacity-80"
-                    style={{
-                      background: settings.accent,
-                      color: '#0b0b0c',
-                      fontFamily: 'var(--font-sans)',
-                    }}
+                    className="inline-flex items-center gap-4 group"
                   >
-                    {settings.heroCtaText} <span style={{ fontSize: 15 }}>→</span>
+                    <span
+                      className="relative px-6 py-3.5 text-xs font-semibold tracking-[0.24em] uppercase transition-opacity group-hover:opacity-80"
+                      style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+                    >
+                      <span
+                        className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2"
+                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                      />
+                      <span
+                        className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2"
+                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                      />
+                      <span
+                        className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2"
+                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                      />
+                      <span
+                        className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2"
+                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                      />
+                      {settings.heroCtaText}
+                    </span>
+                    <span
+                      className="w-[42px] h-[42px] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1"
+                      style={{ background: SITE_CONFIG.brand.darkAccent }}
+                    >
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#141412" strokeWidth="2.4" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </span>
                   </Link>
-                </div> */}
+                </div>
 
                 <div className="flex justify-end">
                   <p
                     className="text-xs tracking-[0.22em] uppercase"
-                    style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-sans)' }}
+                    style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
                   >
                     ↓ Scroll
                   </p>
@@ -167,7 +191,7 @@ export default async function HomePage() {
 
         {/* ── TICKER ────────────────────────────────────────────────────── */}
         {settings.tickerEnabled && (
-          <MarqueeTicker settings={settings} accent={settings.accent} />
+          <MarqueeTicker settings={settings} accent={SITE_CONFIG.brand.darkAccent} />
         )}
 
         {/* ── NEW ARRIVALS ───────────────────────────────────────────────── */}
@@ -180,7 +204,8 @@ export default async function HomePage() {
             <div className="text-center mt-8">
               <Link
                 href="/new-arrivals"
-                className="text-xs font-medium tracking-[0.2em] uppercase text-gray-500 hover:text-black transition-colors underline underline-offset-4"
+                className="text-xs font-medium tracking-[0.2em] uppercase transition-opacity hover:opacity-80"
+                style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('viewAllNewArrivals')}
               </Link>
@@ -192,8 +217,17 @@ export default async function HomePage() {
         {landingCategories.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 py-16">
             <div className="flex items-end justify-between mb-8">
-              <h2 className="text-2xl md:text-4xl font-light tracking-tight">{t('shopByCategory')}</h2>
-              <Link href="/products" className="text-xs tracking-widest uppercase text-gray-500 hover:text-black transition-colors hidden md:block">
+              <h2
+                className="text-2xl md:text-4xl font-black tracking-tight text-[#EDE9E1]"
+                style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+              >
+                {t('shopByCategory')}
+              </h2>
+              <Link
+                href="/products"
+                className="text-xs tracking-widest uppercase hidden md:block transition-opacity hover:opacity-80"
+                style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+              >
                 {t('allProducts')}
               </Link>
             </div>
@@ -231,11 +265,11 @@ export default async function HomePage() {
                   <div
                     className="absolute top-4 left-4 z-20 text-xs tracking-widest uppercase px-2.5 py-1.5"
                     style={{
-                      color: settings.accent,
-                      border: `1px solid ${settings.accent}40`,
+                      color: SITE_CONFIG.brand.darkAccent,
+                      border: `1px solid ${SITE_CONFIG.brand.darkAccent}40`,
                       background: 'rgba(11,11,12,0.6)',
                       backdropFilter: 'blur(4px)',
-                      fontFamily: 'var(--font-sans)',
+                      fontFamily: 'var(--font-grotesk, var(--font-sans))',
                     }}
                   >
                     0{i + 1}
@@ -243,13 +277,18 @@ export default async function HomePage() {
                   <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
                     <p
                       className="text-xs tracking-widest uppercase mb-2 opacity-70"
-                      style={{ color: settings.accent }}
+                      style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
                     >
                       {t('collection')}
                     </p>
                     <div className="flex items-end justify-between">
-                      <p className="text-white text-2xl font-light">{cat.name}</p>
-                      <span className="text-white opacity-60 group-hover:opacity-100 transition-opacity">→</span>
+                      <p
+                        className="text-[#EDE9E1] text-2xl font-bold"
+                        style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+                      >
+                        {cat.name}
+                      </p>
+                      <span className="text-[#EDE9E1] opacity-60 group-hover:opacity-100 transition-opacity">→</span>
                     </div>
                   </div>
                 </Link>
@@ -262,20 +301,29 @@ export default async function HomePage() {
         {featuredProducts.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 py-8 pb-20">
             <div className="flex items-baseline justify-between mb-8">
-              <h2 className="text-xl font-light tracking-wider">{t('featured')}</h2>
-              <Link href="/products" className="text-xs tracking-widest uppercase text-gray-500 hover:text-black transition-colors">
+              <h2
+                className="text-xl font-black tracking-wider text-[#EDE9E1]"
+                style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+              >
+                {t('featured')}
+              </h2>
+              <Link
+                href="/products"
+                className="text-xs tracking-widest uppercase transition-opacity hover:opacity-80"
+                style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+              >
                 {t('viewAllFeatured')}
               </Link>
             </div>
-            <ProductGrid products={featuredProducts} columns={4} />
+            <ProductGrid products={featuredProducts} columns={4} variant="dark" />
           </section>
         )}
 
         {/* ── TESTIMONIALS ──────────────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-16 pb-20">
           <h2
-            className="text-2xl md:text-3xl font-light tracking-tight mb-10"
-            style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
+            className="text-2xl md:text-3xl font-black tracking-tight mb-10 text-[#EDE9E1]"
+            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
           >
             {t('testimonials')}
           </h2>
@@ -283,19 +331,25 @@ export default async function HomePage() {
             {TESTIMONIALS.map((testimonial, i) => (
               <div
                 key={i}
-                className="bg-gray-50 rounded-2xl p-8 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                className="bg-[#1B1917] border border-[#2B2924] rounded-none p-8 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5"
               >
-                <p
-                  className="text-lg leading-relaxed text-gray-800 mb-6"
-                  style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)', fontStyle: 'italic' }}
+                <div
+                  className="text-5xl leading-none mb-3"
+                  style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-archivo, var(--font-sans))' }}
                 >
-                  &ldquo;{testimonial.quote}&rdquo;
+                  &ldquo;
+                </div>
+                <p
+                  className="text-sm leading-relaxed text-[#c7c3b8] mb-6 italic"
+                  style={{ fontFamily: 'var(--font-sans)' }}
+                >
+                  {testimonial.quote}
                 </p>
                 <div>
-                  <p className="text-sm font-medium text-gray-900" style={{ fontFamily: 'var(--font-sans)' }}>
+                  <p className="text-sm font-medium text-[#EDE9E1]" style={{ fontFamily: 'var(--font-sans)' }}>
                     {testimonial.name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
+                  <p className="text-xs text-[#8C8577] mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
                     {testimonial.location}
                   </p>
                 </div>

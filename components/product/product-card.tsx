@@ -9,6 +9,8 @@ import { ProductBadge } from './product-badge'
 
 interface ProductCardProps {
   product: Product
+  /** 'dark' = for use on dark surfaces (e.g. homepage dark sections). */
+  variant?: 'light' | 'dark'
 }
 
 function getDistinctColors(variants: ProductVariant[]) {
@@ -27,7 +29,7 @@ function getAvailableSizes(variants: ProductVariant[], colorFilter?: string) {
   )
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, variant = 'light' }: ProductCardProps) {
   const { variants = [], images = [] } = product
   const primaryImage = images.find((i) => i.is_primary) ?? images[0]
   const secondaryImage = images.find((i) => !i.is_primary && i !== primaryImage)
@@ -54,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 mb-3">
+      <div className={`relative aspect-[3/4] overflow-hidden mb-3 ${variant === 'dark' ? 'bg-[#1B1917]' : 'bg-gray-50'}`}>
         <Image
           src={imageUrl}
           alt={primaryImage?.alt_text ?? product.name}
@@ -95,12 +97,13 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        <p className="text-sm font-medium text-gray-900 leading-snug">{product.name}</p>
+        <p className={`text-sm font-medium leading-snug ${variant === 'dark' ? 'text-[#EDE9E1]' : 'text-gray-900'}`}>{product.name}</p>
 
         <PriceDisplay
           price={displayPrice}
           compareAtPrice={product.compare_at_price}
           size="sm"
+          variant={variant}
         />
 
         {/* Available sizes */}
@@ -111,8 +114,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 key={v.id}
                 className={`text-[10px] px-1.5 py-0.5 border ${
                   v.stock_quantity <= 0
-                    ? 'border-gray-200 text-gray-300 line-through'
-                    : 'border-gray-300 text-gray-600'
+                    ? variant === 'dark'
+                      ? 'border-[#201f1c] text-[#4a4843] line-through'
+                      : 'border-gray-200 text-gray-300 line-through'
+                    : variant === 'dark'
+                      ? 'border-[#2B2924] text-[#8C8577]'
+                      : 'border-gray-300 text-gray-600'
                 }`}
               >
                 {v.size}

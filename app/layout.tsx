@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
+import { DM_Sans, Cormorant_Garamond, Archivo, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/config'
 import { Toaster } from '@/components/ui/sonner'
@@ -16,6 +16,21 @@ const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['300', '400'],
   style: ['normal', 'italic'],
+})
+
+// Dark-chrome/landing typography (KAYA Outlet Landing design) — scoped to
+// header/footer/homepage dark sections only via inline var(--font-archivo)
+// / var(--font-grotesk). The rest of the site keeps DM Sans + Cormorant.
+const archivo = Archivo({
+  variable: '--font-archivo',
+  subsets: ['latin'],
+  weight: ['500', '700', '900'],
+})
+
+const spaceGrotesk = Space_Grotesk({
+  variable: '--font-grotesk',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -40,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${dmSans.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${cormorant.variable} ${archivo.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-[#111111]">
         {children}

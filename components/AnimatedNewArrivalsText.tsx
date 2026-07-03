@@ -21,7 +21,7 @@ export function AnimatedNewArrivalsText({ size }: Props) {
   return (
     <span
       style={{
-        fontFamily: 'var(--font-sans)',
+        fontFamily: 'var(--font-archivo, var(--font-sans))',
         fontWeight: 900,
         fontSize,
         letterSpacing: '0.06em',
@@ -30,7 +30,7 @@ export function AnimatedNewArrivalsText({ size }: Props) {
         lineHeight: 1,
         /* Shine: animated gradient reveals a gold highlight sweep */
         background:
-          'linear-gradient(90deg, #111 30%, #c2a04a 44%, #f5efdf 50%, #c2a04a 56%, #111 70%)',
+          'linear-gradient(90deg, #141412 30%, #D9B679 44%, #EDE9E1 50%, #D9B679 56%, #141412 70%)',
         backgroundSize: '300% 100%',
         WebkitBackgroundClip: 'text',
         backgroundClip: 'text',

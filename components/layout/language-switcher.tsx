@@ -25,20 +25,20 @@ export function LanguageSwitcher() {
         onClick={() => switchLocale('it')}
         className={`px-1.5 py-0.5 transition-colors ${
           locale === 'it'
-            ? 'text-black'
-            : 'text-gray-400 hover:text-gray-700'
+            ? 'text-[#EDE9E1]'
+            : 'text-[#8C8577] hover:text-[#c7c3b8]'
         }`}
         aria-pressed={locale === 'it'}
       >
         IT
       </button>
-      <span className="text-gray-200 select-none">|</span>
+      <span className="text-[#2B2924] select-none">|</span>
       <button
         onClick={() => switchLocale('en')}
         className={`px-1.5 py-0.5 transition-colors ${
           locale === 'en'
-            ? 'text-black'
-            : 'text-gray-400 hover:text-gray-700'
+            ? 'text-[#EDE9E1]'
+            : 'text-[#8C8577] hover:text-[#c7c3b8]'
         }`}
         aria-pressed={locale === 'en'}
       >

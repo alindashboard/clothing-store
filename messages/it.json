@@ -19,7 +19,7 @@
     "online": "Online"
   },
   "announcement": {
-    "freeShipping": "Spedizione gratuita per ordini superiori a {threshold}"
+    "freeShipping": "Spedizione gratuita per ordini superiori a <gold>{threshold}</gold>"
   },
   "nav": {
     "all": "Tutto",

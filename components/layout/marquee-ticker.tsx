@@ -17,28 +17,20 @@ interface MarqueeTickerProps {
 export function MarqueeTicker({ settings, accent }: MarqueeTickerProps) {
   const { tickerText, tickerSeparator, tickerSubtext, tickerSpeed } = settings
 
-  // One "unit" = text ✦ subtext ✦ — repeated inside each block for density.
+  // One "unit" = text · subtext · — repeated inside each block for density.
   const unit = (
     <>
-      <span className="metal-silver" style={{ marginRight: 32 }}>
-        {tickerText}
-      </span>
-      <span style={{ color: accent, marginRight: 32, WebkitTextFillColor: accent }}>
-        {tickerSeparator}
-      </span>
-      <span className="metal-silver" style={{ marginRight: 32 }}>
-        {tickerSubtext}
-      </span>
-      <span style={{ color: accent, marginRight: 32, WebkitTextFillColor: accent }}>
-        {tickerSeparator}
-      </span>
+      <span style={{ color: '#7d7a72', marginRight: 32 }}>{tickerText}</span>
+      <span style={{ color: accent, marginRight: 32 }}>{tickerSeparator}</span>
+      <span style={{ color: '#7d7a72', marginRight: 32 }}>{tickerSubtext}</span>
+      <span style={{ color: accent, marginRight: 32 }}>{tickerSeparator}</span>
     </>
   )
 
   return (
     <div
-      className="overflow-hidden bg-black border-y"
-      style={{ borderColor: 'rgba(236,230,218,0.12)', padding: '14px 0' }}
+      className="overflow-hidden bg-[#0A0A0A] border-y"
+      style={{ borderColor: '#2B2924', padding: '15px 0' }}
       aria-hidden="true"
     >
       {/* Track: two identical blocks for seamless loop */}
@@ -52,11 +44,11 @@ export function MarqueeTicker({ settings, accent }: MarqueeTickerProps) {
             <span
               key={i}
               style={{
-                fontFamily: '"Cormorant Garamond", Georgia, "Times New Roman", serif',
-                fontWeight: 600,
-                fontSize: 22,
+                fontFamily: 'var(--font-grotesk, var(--font-sans))',
+                fontWeight: 500,
+                fontSize: 12,
                 lineHeight: 1,
-                letterSpacing: '0.12em',
+                letterSpacing: '0.15em',
                 textTransform: 'uppercase',
                 display: 'inline-block',
               }}
@@ -71,11 +63,11 @@ export function MarqueeTicker({ settings, accent }: MarqueeTickerProps) {
             <span
               key={i}
               style={{
-                fontFamily: '"Cormorant Garamond", Georgia, "Times New Roman", serif',
-                fontWeight: 600,
-                fontSize: 22,
+                fontFamily: 'var(--font-grotesk, var(--font-sans))',
+                fontWeight: 500,
+                fontSize: 12,
                 lineHeight: 1,
-                letterSpacing: '0.12em',
+                letterSpacing: '0.15em',
                 textTransform: 'uppercase',
                 display: 'inline-block',
               }}

@@ -6,9 +6,15 @@ export async function AnnouncementBar() {
   const threshold = SITE_CONFIG.shipping.freeShippingThreshold
   const t = await getTranslations('announcement')
   return (
-    <div className="bg-black text-white text-center py-2 px-4">
-      <p className="text-xs tracking-widest uppercase">
-        {t('freeShipping', { threshold: formatPrice(threshold) })}
+    <div className="bg-[#0A0A0A] text-center py-2.5 px-4">
+      <p
+        className="text-[10px] tracking-[0.25em] uppercase text-[#8C8577]"
+        style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+      >
+        {t.rich('freeShipping', {
+          threshold: formatPrice(threshold),
+          gold: (chunks) => <span style={{ color: SITE_CONFIG.brand.darkAccent }}>{chunks}</span>,
+        })}
       </p>
     </div>
   )

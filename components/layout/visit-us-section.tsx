@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { MapPin, Clock } from 'lucide-react'
 import { STORE_INFO } from '@/lib/store-info'
+import { SITE_CONFIG } from '@/lib/config'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -14,9 +15,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export async function VisitUsSection() {
   const t = await getTranslations('store')
+  const accent = SITE_CONFIG.brand.darkAccent
 
   return (
-    <section className="relative bg-stone-50 py-16 px-4">
+    <section className="relative bg-[#1B1917] py-16 px-4">
       {/* Mobile-only background image */}
       <div className="absolute inset-0 md:hidden" aria-hidden="true">
         <Image
@@ -25,7 +27,7 @@ export async function VisitUsSection() {
           fill
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-stone-50/75" />
+        <div className="absolute inset-0 bg-[#1B1917]/85" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
@@ -35,41 +37,41 @@ export async function VisitUsSection() {
           <div>
             <p
               className="text-xs tracking-[0.3em] uppercase mb-3"
-              style={{ fontFamily: 'var(--font-sans)', color: '#c2a04a' }}
+              style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))', color: accent }}
             >
               {t('physicalStore')}
             </p>
             <h2
-              className="text-3xl md:text-4xl font-light tracking-tight text-[#111]"
-              style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
+              className="text-3xl md:text-4xl font-black tracking-tight text-[#EDE9E1]"
+              style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
             >
               {t('visitUs')}
             </h2>
             <p
-              className="text-base font-light italic mt-1 mb-8 text-gray-500"
-              style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
+              className="text-sm mt-1 mb-8 text-[#8C8577]"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               {t('subtitle')}
             </p>
 
             <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3 text-sm text-gray-600">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" aria-hidden="true" />
+              <div className="flex items-start gap-3 text-sm text-[#c7c3b8]">
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: accent }} aria-hidden="true" />
                 <span>{STORE_INFO.address}</span>
               </div>
 
-              <div className="flex items-start gap-3 text-sm text-gray-600">
-                <Clock className="w-4 h-4 mt-1 shrink-0 text-gray-400" aria-hidden="true" />
+              <div className="flex items-start gap-3 text-sm text-[#c7c3b8]">
+                <Clock className="w-4 h-4 mt-1 shrink-0" style={{ color: accent }} aria-hidden="true" />
                 <div className="space-y-1">
                   <p>
-                    <span className="font-medium text-gray-800">{t('weekdays')}:</span>
+                    <span className="font-medium text-[#EDE9E1]">{t('weekdays')}:</span>
                   </p>
                   <p>
                     {STORE_INFO.schedule.morning}{' '}
-                    <span className="text-gray-400 mx-1">·</span>{' '}
+                    <span className="text-[#6b6862] mx-1">·</span>{' '}
                     {STORE_INFO.schedule.afternoon}
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">{t('weekend')}</p>
+                  <p className="text-[#6b6862] text-xs mt-1">{t('weekend')}</p>
                 </div>
               </div>
             </div>
@@ -79,7 +81,8 @@ export async function VisitUsSection() {
                 href={STORE_INFO.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium bg-black text-white hover:bg-gray-800 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium transition-opacity hover:opacity-80"
+                style={{ background: accent, color: '#141412', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('getDirections')} →
               </a>
@@ -87,14 +90,16 @@ export async function VisitUsSection() {
                 href={STORE_INFO.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-black text-black hover:bg-black hover:text-white transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-[#EDE9E1] text-[#EDE9E1] hover:bg-[#EDE9E1] hover:text-[#141412] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 <WhatsAppIcon className="w-3.5 h-3.5" />
                 WhatsApp
               </a>
               <Link
                 href="/store"
-                className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3.5 text-xs tracking-[0.2em] uppercase font-medium border border-[#2B2924] text-[#8C8577] hover:border-[#EDE9E1] hover:text-[#EDE9E1] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('storeDetails')}
               </Link>
@@ -103,12 +108,13 @@ export async function VisitUsSection() {
 
           {/* Store image */}
           <div className="hidden md:block">
-            <div className="relative overflow-hidden rounded-xl shadow-md" style={{ aspectRatio: '4/3', maxHeight: '400px' }}>
+            <div className="relative overflow-hidden" style={{ aspectRatio: '4/3', maxHeight: '400px' }}>
               <Image
                 src="/store-background.png"
                 alt="KAYA Studio Outlet store"
                 fill
                 className="object-cover"
+                style={{ filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
               />
             </div>
           </div>

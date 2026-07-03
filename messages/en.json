@@ -19,7 +19,7 @@
     "online": "Online"
   },
   "announcement": {
-    "freeShipping": "Free shipping on orders over {threshold}"
+    "freeShipping": "Free shipping on orders over <gold>{threshold}</gold>"
   },
   "nav": {
     "all": "All",

@@ -19,12 +19,18 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
   const { getItemCount, openCart } = useCartStore()
   const count = getItemCount()
   const t = useTranslations('nav')
+  const accent = SITE_CONFIG.brand.darkAccent
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent side="left" className="flex flex-col w-72 p-0" showCloseButton={false}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <Link href="/" onClick={onClose} className="text-base font-semibold tracking-widest uppercase">
+      <SheetContent side="left" className="flex flex-col w-72 p-0 bg-[#141412] border-[#2B2924] text-[#EDE9E1]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2B2924]">
+          <Link
+            href="/"
+            onClick={onClose}
+            className="text-base font-bold tracking-widest uppercase"
+            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+          >
             {SITE_CONFIG.brand.name}
           </Link>
           <button onClick={onClose} className="p-1">
@@ -39,7 +45,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 <Link
                   href={`/category/${cat.slug}`}
                   onClick={onClose}
-                  className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
+                  className="block py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] border-b border-[#201f1c] hover:border-[#2B2924] transition-colors"
+                  style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
                 >
                   {cat.name}
                 </Link>
@@ -49,7 +56,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
               <Link
                 href="/products"
                 onClick={onClose}
-                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] border-b border-[#201f1c] hover:border-[#2B2924] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('allProducts')}
               </Link>
@@ -59,7 +67,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                 href="/new-arrivals"
                 onClick={onClose}
                 className="block py-2.5 text-sm font-medium tracking-wider uppercase"
-                style={{ color: '#c2a04a' }}
+                style={{ color: accent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('newArrivals')}
               </Link>
@@ -68,7 +76,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
               <Link
                 href="/events"
                 onClick={onClose}
-                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] border-b border-[#201f1c] hover:border-[#2B2924] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('events')}
               </Link>
@@ -77,7 +86,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
               <Link
                 href="/store"
                 onClick={onClose}
-                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-gray-800 hover:text-black border-b border-gray-50 hover:border-gray-200 transition-colors"
+                className="block py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] border-b border-[#201f1c] hover:border-[#2B2924] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
                 {t('store')}
               </Link>
@@ -85,13 +95,13 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
           </ul>
         </nav>
 
-        <div className="px-5 py-4 border-t border-gray-100 space-y-2">
+        <div className="px-5 py-4 border-t border-[#2B2924] space-y-2">
           <div className="py-2">
             <LanguageSwitcher />
           </div>
           <button
             onClick={() => { onClose(); openCart() }}
-            className="flex items-center gap-3 w-full py-2 text-sm text-gray-700 hover:text-black"
+            className="flex items-center gap-3 w-full py-2 text-sm text-[#c7c3b8] hover:text-[#EDE9E1]"
           >
             <ShoppingBag className="w-4 h-4" />
             {t('cart')} {count > 0 && `(${count})`}
@@ -99,7 +109,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
           <Link
             href="/admin"
             onClick={onClose}
-            className="flex items-center gap-3 py-2 text-sm text-gray-400 hover:text-gray-700"
+            className="flex items-center gap-3 py-2 text-sm text-[#6b6862] hover:text-[#8C8577]"
           >
             <User className="w-4 h-4" />
             {t('admin')}

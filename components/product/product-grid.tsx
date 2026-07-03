@@ -6,9 +6,11 @@ interface ProductGridProps {
   title?: string
   subtitle?: string
   columns?: 2 | 3 | 4
+  /** 'dark' = for use on dark surfaces (e.g. homepage dark sections). */
+  variant?: 'light' | 'dark'
 }
 
-export function ProductGrid({ products, title, subtitle, columns = 4 }: ProductGridProps) {
+export function ProductGrid({ products, title, subtitle, columns = 4, variant = 'light' }: ProductGridProps) {
   const colClass = {
     2: 'grid-cols-2',
     3: 'grid-cols-2 md:grid-cols-3',
@@ -34,7 +36,7 @@ export function ProductGrid({ products, title, subtitle, columns = 4 }: ProductG
       )}
       <div className={`grid ${colClass} gap-x-4 gap-y-10`}>
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} variant={variant} />
         ))}
       </div>
     </div>
