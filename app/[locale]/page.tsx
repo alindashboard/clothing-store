@@ -60,17 +60,27 @@ export default async function HomePage() {
           style={{ background: '#0b0b0c' }}
         >
           {/* Mobile layout */}
-          <div className="md:hidden flex flex-col items-center pt-8 pb-10 px-6 text-center relative z-10">
+          <div className="md:hidden flex flex-col items-center pt-8 pb-10 px-6 text-center relative">
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/hero-mobile-kaya.webp"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                style={{ objectFit: 'cover', objectPosition: 'center bottom' }}
+              />
+            </div>
             <Image
               src="/kaya-logo.png"
               alt="KAYA Studio Outlet"
-              width={996}
-              height={1253}
+              width={1024}
+              height={1478}
               priority
-              className="w-[60vw] max-w-[200px] h-auto"
+              className="relative z-10 w-[60vw] max-w-[200px] h-auto"
             />
             <p
-              className="mt-6 text-base font-light"
+              className="relative z-10 mt-6 text-base font-light"
               style={{
                 fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
                 fontStyle: 'italic',
@@ -85,12 +95,24 @@ export default async function HomePage() {
           <div className="hidden md:block relative h-[500px]">
             <div className="absolute inset-0 z-0">
               <Image
-                src="/hero-nou-kaya.png"
-                alt="KAYA Studio Outlet"
+                src="/hero-bg-kaya.webp"
+                alt=""
                 fill
                 priority
                 sizes="100vw"
                 style={{ objectFit: 'cover', objectPosition: 'center' }}
+              />
+            </div>
+
+            {/* Overlaid logo (background image is logo-free by design) */}
+            <div className="absolute inset-0 z-10 flex items-center justify-center">
+              <Image
+                src="/kaya-logo.png"
+                alt="KAYA Studio Outlet"
+                width={1024}
+                height={1478}
+                priority
+                className="h-[340px] w-auto"
               />
             </div>
 

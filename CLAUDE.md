@@ -55,6 +55,12 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   default locale. No bare `/` routes for public pages.
 - Admin login redirects to `/admin/dashboard` on success, but the actual admin home
   is `app/admin/page.tsx`. Verify redirect target if adding admin pages.
+- Hero backgrounds (`hero-bg-kaya.webp` desktop, `hero-mobile-kaya.webp` mobile) are
+  logo-free by design — the logo (`/kaya-logo.png`, transparent PNG) is overlaid in JSX.
+  Favicon comes from `app/icon.png` / `app/apple-icon.png` (Next file conventions).
+  Don't reintroduce backgrounds with the logo baked in.
+- Supabase env vars are NOT in `.env.local` (only the Vercel OIDC token is) — local
+  SSR of public pages 500s; verify rendering on Vercel previews instead.
 
 ## Design
 

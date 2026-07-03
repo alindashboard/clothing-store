@@ -6,7 +6,7 @@ export const SITE_CONFIG = {
     name: 'KAYA Studio Outlet',
     tagline: 'Premium labels, outlet prices.',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://kayaoutlet.com',
-    logo: '/logo.svg',
+    logo: '/kaya-logo.png',
     currency: 'EUR',
     currencySymbol: '€',
     locale: 'en',
