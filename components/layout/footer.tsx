@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
+import { KayaMark } from './kaya-mark'
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -23,13 +24,10 @@ export async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <p
-              className="text-sm font-bold tracking-[0.2em] uppercase mb-3"
-              style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
-            >
-              {brand.name}
-            </p>
-            <p className="text-xs text-[#6b6862] leading-relaxed">{brand.tagline}</p>
+            <div className="mb-3">
+              <KayaMark size={30} textClassName="text-base" />
+            </div>
+            <p className="text-xs text-[#6b6862] leading-relaxed max-w-[220px]">{brand.tagline}</p>
           </div>
 
           {/* Store */}

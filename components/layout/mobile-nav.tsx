@@ -8,6 +8,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './language-switcher'
+import { KayaMark } from './kaya-mark'
 
 interface MobileNavProps {
   isOpen: boolean
@@ -25,13 +26,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="left" className="flex flex-col w-72 p-0 bg-[#141412] border-[#2B2924] text-[#EDE9E1]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2B2924]">
-          <Link
-            href="/"
-            onClick={onClose}
-            className="text-base font-bold tracking-widest uppercase"
-            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
-          >
-            {SITE_CONFIG.brand.name}
+          <Link href="/" onClick={onClose} aria-label={SITE_CONFIG.brand.name}>
+            <KayaMark size={30} textClassName="text-base" />
           </Link>
           <button onClick={onClose} className="p-1">
             <X className="w-5 h-5" />

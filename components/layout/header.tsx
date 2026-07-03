@@ -9,6 +9,7 @@ import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import type { Category } from '@/lib/types'
 import { SITE_CONFIG } from '@/lib/config'
+import { KayaMark } from './kaya-mark'
 
 interface HeaderProps {
   categories: Category[]
@@ -36,10 +37,10 @@ export function Header({ categories }: HeaderProps) {
         {/* Logo */}
         <Link
           href="/"
-          className="text-sm font-bold tracking-[0.2em] uppercase text-[#EDE9E1] absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0"
-          style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
+          className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0"
+          aria-label={SITE_CONFIG.brand.name}
         >
-          {SITE_CONFIG.brand.name}
+          <KayaMark size={36} textClassName="text-[19px]" />
         </Link>
 
         {/* Desktop nav */}
