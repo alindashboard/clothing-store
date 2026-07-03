@@ -70,6 +70,12 @@ export function Header({ categories }: HeaderProps) {
           >
             {t('events')}
           </Link>
+          <Link
+            href="/store"
+            className="text-xs font-medium tracking-widest uppercase text-gray-600 hover:text-black transition-colors"
+          >
+            {t('store')}
+          </Link>
         </nav>
 
         {/* Right: language switcher + cart */}
