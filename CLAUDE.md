@@ -63,17 +63,18 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   SSR of public pages 500s; verify rendering on Vercel previews instead.
 - Header + Footer (shared on every page), the homepage, the **product detail
   page** (`/product/[slug]`), the **category/listing page** (`/category/[slug]`),
-  and the **store page** (`/store`) are **always dark** (`#141412`/`#0A0A0A`,
-  cream `#EDE9E1` text) per the "Kaya Outlet Landing (Final)", "Kaya Product
-  Page", "Kaya Category Page", and "Kaya Store Page" Claude Design files —
-  `/products` (all-products) and cart/checkout page bodies still stay on the
-  original light theme (no design for those yet; ask before converting them).
+  the **store page** (`/store`), and the **events page** (`/events`) are
+  **always dark** (`#141412`/`#0A0A0A`, cream `#EDE9E1` text) per the "Kaya
+  Outlet Landing (Final)", "Kaya Product Page", "Kaya Category Page", "Kaya
+  Store Page", and "Kaya Events Page" Claude Design files — `/products`
+  (all-products) and cart/checkout page bodies still stay on the original
+  light theme (no design for those yet; ask before converting them).
   `/products` and `/category/[slug]` share `ProductGridInfinite` — it takes the
   same `variant: 'light' | 'dark'` prop pattern, default `'light'`, so
   `/products` is unaffected by the category page going dark.
   `lib/config.ts → brand.darkAccent` (`#D9B679`) is the gold used in dark
-  chrome/landing/PDP/category/store only; `brand.accent` (`#c2a04a`) remains
-  the admin-configurable accent for light pages — don't conflate the two.
+  chrome/landing/PDP/category/store/events only; `brand.accent` (`#c2a04a`)
+  remains the admin-configurable accent for light pages — don't conflate the two.
   `ProductCard`/`PriceDisplay`/`ProductGrid`/`ProductGridInfinite`/`ProductBadge`
   take a `variant: 'light' | 'dark'` prop for this reason (default `'light'`,
   used `'dark'` on the homepage Featured grid, the PDP related-products grid,
@@ -81,11 +82,12 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `ProductGallery`/`VariantSelector`/`AddToCartButton` are PDP-only and are
   hardcoded dark (no variant prop — add one only if a light consumer shows up).
   `StoreGallery` (used only on `/store`) is likewise hardcoded dark.
-  The corner-bracket CTA button (four absolutely-positioned gold border spans)
-  now appears in three places — homepage hero, `AddToCartButton`, and `/store`'s
-  CTAs (`CornerBrackets` helper, local to `store/page.tsx`) — duplicated rather
-  than extracted into a shared component so far; extract if a fourth need shows
-  up.
+  The corner-bracket CTA decoration (four absolutely-positioned gold border
+  spans) is shared via `components/layout/corner-brackets.tsx` — used by
+  `/store`'s CTAs and `/events`' RSVP links. The homepage hero CTA and
+  `AddToCartButton` still inline their own copy (different sizing/disabled-state
+  color logic) — migrate those to the shared component if they ever need to
+  change in lockstep with the others.
   Archivo (`--font-archivo`) and Space Grotesk (`--font-grotesk`) are loaded for
   this dark chrome/landing/PDP only — DM Sans/Cormorant Garamond stay the site's
   base typography elsewhere.

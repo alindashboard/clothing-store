@@ -70,6 +70,7 @@
     "noArrivals": "No new arrivals at the moment — check back soon."
   },
   "events": {
+    "title": "Events",
     "heroDesc": "Giveaways, drops, and in-store happenings.",
     "upcoming": "Upcoming",
     "past": "Past",
