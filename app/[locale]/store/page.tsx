@@ -7,7 +7,7 @@ import { StoreGallery } from '@/components/store/store-gallery'
 import { getCategories } from '@/lib/actions/categories'
 import { STORE_INFO } from '@/lib/store-info'
 import { SITE_CONFIG } from '@/lib/config'
-import { MapPin, Phone, Mail, Clock } from 'lucide-react'
+import { MapPin, Phone, Mail } from 'lucide-react'
 import { getAlternates } from '@/lib/seo/alternates'
 
 interface MetaProps {
@@ -24,16 +24,6 @@ export async function generateMetadata({ params }: MetaProps): Promise<Metadata>
   }
 }
 
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -42,10 +32,23 @@ function WhatsAppIcon({ className }: { className?: string }) {
   )
 }
 
+/** Corner-bracket decoration used by the landing hero CTA, AddToCartButton, and this page's CTAs. */
+function CornerBrackets({ color = '#D9B679', size = 10 }: { color?: string; size?: number }) {
+  return (
+    <>
+      <span className="absolute top-0 left-0" style={{ width: size, height: size, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
+      <span className="absolute top-0 right-0" style={{ width: size, height: size, borderTop: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+      <span className="absolute bottom-0 left-0" style={{ width: size, height: size, borderBottom: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
+      <span className="absolute bottom-0 right-0" style={{ width: size, height: size, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+    </>
+  )
+}
+
 export default async function StorePage() {
-  const [categories, t] = await Promise.all([
+  const [categories, t, tProduct] = await Promise.all([
     getCategories(),
     getTranslations('store'),
+    getTranslations('product'),
   ])
 
   const siteUrl = SITE_CONFIG.brand.url
@@ -97,188 +100,176 @@ export default async function StorePage() {
       <AnnouncementBar />
       <Header categories={categories} />
 
-      <main className="flex-1">
+      <main className="bg-[#141412] flex-1">
+        {/* Breadcrumb */}
+        <div
+          className="max-w-7xl mx-auto px-4 pt-6 text-xs tracking-wide"
+          style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))', color: '#6b6862' }}
+        >
+          <span>{tProduct('breadcrumbHome')}</span>
+          <span className="mx-2" style={{ color: '#3a3833' }}>/</span>
+          <span style={{ color: '#c7c3b8' }}>{t('ourStore')}</span>
+        </div>
 
         {/* Hero */}
-        <section
-          className="relative flex items-center justify-center py-20 px-4"
-          style={{ background: '#0b0b0c', minHeight: 260 }}
-        >
-          <div className="text-center z-10">
-            <p
-              className="text-xs tracking-[0.35em] uppercase mb-4"
-              style={{ fontFamily: 'var(--font-sans)', color: '#c2a04a' }}
-            >
-              KAYA Studio Outlet
-            </p>
-            <h1
-              className="text-4xl md:text-5xl font-light tracking-tight text-white"
-              style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
-            >
-              {t('ourStore')}
-            </h1>
-            <p
-              className="mt-4 text-sm font-light max-w-xs mx-auto"
-              style={{ color: 'rgba(236,230,218,0.45)', fontFamily: 'var(--font-sans)' }}
-            >
-              {STORE_INFO.address}
-            </p>
+        <section className="max-w-7xl mx-auto px-4 pt-7 pb-11 md:pb-14 mb-9 md:mb-16 border-b" style={{ borderColor: '#2B2924' }}>
+          <p
+            className="text-[10px] md:text-xs tracking-[0.3em] uppercase mb-2.5 md:mb-3.5"
+            style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+          >
+            {SITE_CONFIG.brand.name}
+          </p>
+          <h1
+            className="font-black uppercase leading-none text-[#EDE9E1] mb-3.5 md:mb-4.5"
+            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))', fontSize: 'clamp(34px, 4.5vw, 56px)', letterSpacing: '-0.02em' }}
+          >
+            {t('ourStore')}
+          </h1>
+          <div className="flex items-start gap-2.5">
+            <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: SITE_CONFIG.brand.darkAccent }} aria-hidden="true" />
+            <span className="text-sm" style={{ color: '#a9a598' }}>{STORE_INFO.address}</span>
           </div>
         </section>
 
-        {/* Info */}
-        <section className="max-w-5xl mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Contact + Hours */}
+        <section className="max-w-7xl mx-auto px-4 pb-11 md:pb-14 grid grid-cols-1 md:grid-cols-2 gap-9 md:gap-16">
+          {/* Contact */}
+          <div>
+            <p
+              className="font-semibold text-xs tracking-[2px] mb-5 md:mb-6"
+              style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('contactTitle').toUpperCase()}
+            </p>
 
-            {/* Contact */}
-            <div className="space-y-6">
-              <div>
-                <h2
-                  className="text-2xl font-light tracking-tight text-[#111]"
-                  style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
-                >
-                  {t('contactTitle')}
-                </h2>
-                <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
-                  {t('contactSubtitle')}
-                </p>
-              </div>
-
-              <div className="flex items-start gap-3 text-sm text-gray-600">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" aria-hidden="true" />
-                <span>{STORE_INFO.address}</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <Phone className="w-4 h-4 shrink-0 text-gray-400" aria-hidden="true" />
-                <a href={`tel:${STORE_INFO.phone}`} className="text-gray-700 hover:text-black transition-colors underline underline-offset-2">
-                  {STORE_INFO.phone}
-                </a>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <Mail className="w-4 h-4 shrink-0 text-gray-400" aria-hidden="true" />
-                <a href={`mailto:${STORE_INFO.email}`} className="text-gray-700 hover:text-black transition-colors underline underline-offset-2">
-                  {STORE_INFO.email}
-                </a>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <InstagramIcon className="w-4 h-4 shrink-0 text-gray-400" />
-                <a href={STORE_INFO.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-black transition-colors underline underline-offset-2">
-                  {STORE_INFO.instagramHandle}
-                </a>
-              </div>
+            <div className="flex gap-3.5 mb-5">
+              <MapPin className="w-[18px] h-[18px] mt-0.5 shrink-0" style={{ color: SITE_CONFIG.brand.darkAccent }} aria-hidden="true" />
+              <span className="text-sm leading-relaxed" style={{ color: '#c7c3b8' }}>{STORE_INFO.address}</span>
             </div>
 
-            {/* Opening hours */}
-            <div className="space-y-6">
-              <div>
-                <h2
-                  className="text-2xl font-light tracking-tight text-[#111]"
-                  style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
-                >
-                  {t('openingHours')}
-                </h2>
-                <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
-                  {t('scheduleSubtitle')}
-                </p>
-              </div>
+            <div className="flex gap-3.5 mb-5">
+              <Phone className="w-[18px] h-[18px] mt-0.5 shrink-0" style={{ color: SITE_CONFIG.brand.darkAccent }} aria-hidden="true" />
+              <a href={`tel:${STORE_INFO.phone}`} className="text-sm hover:opacity-80 transition-opacity" style={{ color: '#c7c3b8' }}>
+                {STORE_INFO.phone}
+              </a>
+            </div>
 
-              <div className="flex items-start gap-3 text-sm text-gray-600">
-                <Clock className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" aria-hidden="true" />
-                <div className="space-y-2 w-full">
-                  <div>
-                    <p className="font-medium text-gray-800">{t('weekdays')}</p>
-                    <p className="mt-0.5">
-                      {STORE_INFO.schedule.morning}
-                      <span className="text-gray-400 mx-2">·</span>
-                      {STORE_INFO.schedule.afternoon}
-                    </p>
-                  </div>
-                  <p className="text-gray-400 text-xs pt-1 border-t border-gray-100">
-                    {t('weekend')}
-                  </p>
-                </div>
-              </div>
+            <div className="flex gap-3.5">
+              <Mail className="w-[18px] h-[18px] mt-0.5 shrink-0" style={{ color: SITE_CONFIG.brand.darkAccent }} aria-hidden="true" />
+              <a href={`mailto:${STORE_INFO.email}`} className="text-sm hover:opacity-80 transition-opacity" style={{ color: '#c7c3b8' }}>
+                {STORE_INFO.email}
+              </a>
             </div>
           </div>
 
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
-            <a
-              href={STORE_INFO.googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-10 py-4 text-xs tracking-[0.24em] uppercase font-medium bg-black text-white hover:bg-gray-800 transition-colors"
+          {/* Opening hours */}
+          <div>
+            <p
+              className="font-semibold text-xs tracking-[2px] mb-5 md:mb-6"
+              style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
             >
-              <MapPin className="w-4 h-4" aria-hidden="true" />
-              {t('getDirections')}
-            </a>
-            <a
-              href={STORE_INFO.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-10 py-4 text-xs tracking-[0.24em] uppercase font-medium border border-black text-black hover:bg-black hover:text-white transition-colors"
-            >
-              <WhatsAppIcon className="w-4 h-4" />
-              {t('chatWhatsapp')}
-            </a>
+              {t('openingHours').toUpperCase()}
+            </p>
+            <div className="flex justify-between py-3.5 border-b" style={{ borderColor: '#2B2924' }}>
+              <span className="text-sm" style={{ color: '#c7c3b8' }}>{t('weekdays')}</span>
+              <span className="text-[13px]" style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}>
+                {STORE_INFO.schedule.morning} · {STORE_INFO.schedule.afternoon}
+              </span>
+            </div>
+            <div className="py-3.5">
+              <span className="text-sm" style={{ color: '#6b6862' }}>{t('weekend')}</span>
+            </div>
           </div>
+        </section>
+
+        {/* CTAs */}
+        <section className="max-w-7xl mx-auto px-4 pb-11 md:pb-16 flex flex-col sm:flex-row gap-3">
+          <a
+            href={STORE_INFO.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative px-7 py-4 text-center hover:opacity-80 transition-opacity"
+          >
+            <CornerBrackets />
+            <span
+              className="font-semibold text-xs tracking-[1.5px]"
+              style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('getDirections')} →
+            </span>
+          </a>
+          <a
+            href={STORE_INFO.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative px-7 py-4 flex items-center justify-center gap-2.5 hover:opacity-80 transition-opacity"
+          >
+            <CornerBrackets />
+            <WhatsAppIcon className="w-[15px] h-[15px] text-[#EDE9E1]" />
+            <span
+              className="font-semibold text-xs tracking-[1.5px]"
+              style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {t('whatsapp').toUpperCase()}
+            </span>
+          </a>
         </section>
 
         {/* In-store callout */}
-        <section className="max-w-5xl mx-auto px-4 pb-10">
-          <div
-            className="px-6 py-5 rounded-lg"
-            style={{
-              borderLeft: '3px solid #c2a04a',
-              background: 'linear-gradient(to right, rgba(194,160,74,0.07), transparent)',
-            }}
-          >
-            <p className="text-sm font-semibold text-gray-900 mb-1" style={{ fontFamily: 'var(--font-sans)' }}>
-              {t('moreInStoreTitle')}
-            </p>
-            <p className="text-sm text-gray-500 leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
-              {t('moreInStoreDesc')}
-            </p>
+        <section className="max-w-7xl mx-auto px-4 pb-16 md:pb-20">
+          <div className="flex items-center gap-7 p-8 md:p-10" style={{ border: `1px solid ${SITE_CONFIG.brand.darkAccent}` }}>
+            <div
+              className="font-black leading-none shrink-0 hidden sm:block"
+              style={{ fontFamily: 'var(--font-archivo, var(--font-sans))', fontSize: '44px', color: SITE_CONFIG.brand.darkAccent }}
+            >
+              ＋
+            </div>
+            <div>
+              <p
+                className="font-black uppercase mb-2 text-lg"
+                style={{ fontFamily: 'var(--font-archivo, var(--font-sans))', color: '#EDE9E1', letterSpacing: '-0.01em' }}
+              >
+                {t('moreInStoreTitle')}
+              </p>
+              <p className="text-sm leading-relaxed max-w-[640px]" style={{ color: '#a9a598' }}>
+                {t('moreInStoreDesc')}
+              </p>
+            </div>
           </div>
         </section>
 
         {/* Gallery */}
-        <section className="max-w-5xl mx-auto px-4 pb-16">
-          <div className="mb-6">
-            <h2
-              className="text-2xl font-light tracking-tight text-[#111]"
-              style={{ fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)' }}
-            >
-              {t('gallery')}
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
-              {t('inStore')}
-            </p>
-          </div>
+        <section className="max-w-7xl mx-auto px-4 pb-16 md:pb-20">
+          <p
+            className="text-xs tracking-[0.3em] uppercase mb-6"
+            style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+          >
+            {t('gallery')}
+          </p>
           <StoreGallery />
         </section>
 
         {/* Map */}
-        <section className="pb-20" aria-label="Store location map">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="overflow-hidden rounded-2xl shadow-md border border-gray-100">
-              <iframe
-                src={STORE_INFO.googleMapsEmbedUrl}
-                width="100%"
-                height="400"
-                style={{ border: 0, display: 'block' }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Map – ${STORE_INFO.name}`}
-              />
-            </div>
+        <section className="max-w-7xl mx-auto px-4 pb-16 md:pb-20" aria-label="Store location map">
+          <p
+            className="text-xs tracking-[0.3em] uppercase mb-6"
+            style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+          >
+            {t('findUs')}
+          </p>
+          <div className="h-[220px] md:h-[420px] overflow-hidden" style={{ border: '1px solid #2B2924' }}>
+            <iframe
+              src={STORE_INFO.googleMapsEmbedUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Map – ${STORE_INFO.name}`}
+            />
           </div>
         </section>
-
       </main>
 
       <Footer />
