@@ -11,6 +11,8 @@ interface Props {
   initialHasMore: boolean
   categorySlug?: string
   columns?: 2 | 3 | 4
+  /** 'dark' = for use on dark surfaces (e.g. the category page). */
+  variant?: 'light' | 'dark'
 }
 
 export function ProductGridInfinite({
@@ -18,6 +20,7 @@ export function ProductGridInfinite({
   initialHasMore,
   categorySlug,
   columns = 4,
+  variant = 'light',
 }: Props) {
   const [products, setProducts] = useState(initialProducts)
   const [hasMore, setHasMore] = useState(initialHasMore)
@@ -57,27 +60,39 @@ export function ProductGridInfinite({
   }[columns]
 
   if (products.length === 0) {
-    return <div className="py-20 text-center text-gray-400">{t('noProductsFound')}</div>
+    return (
+      <div className={`py-20 text-center ${variant === 'dark' ? 'text-[#8C8577]' : 'text-gray-400'}`}>
+        {t('noProductsFound')}
+      </div>
+    )
   }
 
   return (
     <div>
       <div className={`grid ${colClass} gap-x-4 gap-y-10`}>
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} variant={variant} />
         ))}
       </div>
 
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-12">
           {isPending && (
-            <span className="block w-5 h-5 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+            <span
+              className={`block w-5 h-5 border-2 rounded-full animate-spin ${
+                variant === 'dark' ? 'border-[#2B2924] border-t-[#D9B679]' : 'border-gray-300 border-t-gray-700'
+              }`}
+            />
           )}
         </div>
       )}
 
       {!hasMore && (
-        <p className="text-center text-[10px] tracking-[0.25em] uppercase text-gray-300 py-10">
+        <p
+          className={`text-center text-[10px] tracking-[0.25em] uppercase py-10 ${
+            variant === 'dark' ? 'text-[#5a5852]' : 'text-gray-300'
+          }`}
+        >
           {t('endOfCollection')}
         </p>
       )}
