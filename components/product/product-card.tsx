@@ -68,9 +68,9 @@ export function ProductCard({ product, variant = 'light' }: ProductCardProps) {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {isOutOfStock && <ProductBadge type="out-of-stock" />}
-          {!isOutOfStock && product.is_new && <ProductBadge type="new" />}
-          {!isOutOfStock && product.compare_at_price && <ProductBadge type="sale" />}
+          {isOutOfStock && <ProductBadge type="out-of-stock" variant={variant} />}
+          {!isOutOfStock && product.is_new && <ProductBadge type="new" variant={variant} />}
+          {!isOutOfStock && product.compare_at_price && <ProductBadge type="sale" variant={variant} />}
         </div>
       </div>
 

@@ -87,7 +87,12 @@
     "items": "items",
     "badgeNew": "NEW",
     "badgeSale": "SALE",
-    "badgeOutOfStock": "OUT OF STOCK"
+    "badgeOutOfStock": "OUT OF STOCK",
+    "breadcrumbHome": "Home",
+    "sku": "SKU",
+    "relatedTitle": "You might also like",
+    "availableInStore": "Available in-store — Borgo Podgora location",
+    "total": "Total"
   },
   "footer": {
     "store": "Store",

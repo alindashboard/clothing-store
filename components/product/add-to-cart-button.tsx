@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag, Check } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useTranslations } from 'next-intl'
 import type { Product, ProductVariant } from '@/lib/types'
@@ -11,9 +10,11 @@ interface AddToCartButtonProps {
   product: Product
   variant: ProductVariant | null
   allOutOfStock?: boolean
+  /** 'compact' = smaller corner brackets/padding, for the mobile sticky bar. */
+  size?: 'default' | 'compact'
 }
 
-export function AddToCartButton({ product, variant, allOutOfStock = false }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variant, allOutOfStock = false, size = 'default' }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false)
   const { addItem, openCart } = useCartStore()
   const t = useTranslations('common')
@@ -61,20 +62,41 @@ export function AddToCartButton({ product, variant, allOutOfStock = false }: Add
     label = t('added')
   }
 
+  const ready = !disabled
+  const cornerSize = size === 'compact' ? 9 : 12
+  const cornerColor = ready ? '#D9B679' : '#3a3833'
+
   return (
     <button
       onClick={handleAdd}
       disabled={disabled}
-      className={`w-full h-12 flex items-center justify-center gap-2 font-semibold text-sm tracking-wider uppercase transition-all ${
-        disabled
-          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          : added
-          ? 'bg-green-600 text-white'
-          : 'bg-black text-white hover:bg-gray-800'
+      className={`relative w-full box-border text-center transition-colors ${
+        size === 'compact' ? 'py-[15px]' : 'py-5'
       }`}
+      style={{ background: ready ? '#D9B679' : 'transparent', cursor: disabled ? 'not-allowed' : 'pointer' }}
     >
-      {added ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-      {label}
+      <span
+        className="absolute top-0 left-0"
+        style={{ width: cornerSize, height: cornerSize, borderTop: `2px solid ${cornerColor}`, borderLeft: `2px solid ${cornerColor}` }}
+      />
+      <span
+        className="absolute top-0 right-0"
+        style={{ width: cornerSize, height: cornerSize, borderTop: `2px solid ${cornerColor}`, borderRight: `2px solid ${cornerColor}` }}
+      />
+      <span
+        className="absolute bottom-0 left-0"
+        style={{ width: cornerSize, height: cornerSize, borderBottom: `2px solid ${cornerColor}`, borderLeft: `2px solid ${cornerColor}` }}
+      />
+      <span
+        className="absolute bottom-0 right-0"
+        style={{ width: cornerSize, height: cornerSize, borderBottom: `2px solid ${cornerColor}`, borderRight: `2px solid ${cornerColor}` }}
+      />
+      <span
+        className={`font-semibold uppercase ${size === 'compact' ? 'text-[11px] tracking-[1.5px]' : 'text-[13px] tracking-[2px]'}`}
+        style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))', color: ready ? '#141412' : '#6b6862' }}
+      >
+        {label}
+      </span>
     </button>
   )
 }

@@ -87,7 +87,12 @@
     "items": "articoli",
     "badgeNew": "NUOVO",
     "badgeSale": "SALDI",
-    "badgeOutOfStock": "ESAURITO"
+    "badgeOutOfStock": "ESAURITO",
+    "breadcrumbHome": "Home",
+    "sku": "SKU",
+    "relatedTitle": "Potrebbero piacerti anche",
+    "availableInStore": "Disponibile in negozio — sede di Borgo Podgora",
+    "total": "Totale"
   },
   "footer": {
     "store": "Negozio",

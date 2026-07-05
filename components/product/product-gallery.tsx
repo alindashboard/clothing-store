@@ -20,11 +20,12 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
   const [active, setActive] = useState<ProductImage | undefined>(primary)
 
   const current = active ?? primary ?? { url: '/images/placeholder-product.svg', alt_text: productName }
+  const activeId = (active ?? primary)?.id
 
   return (
     <div className="flex flex-col gap-3">
       {/* Main image */}
-      <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden">
+      <div className="relative aspect-[4/5] bg-[#1B1917] overflow-hidden">
         <Image
           src={current.url}
           alt={current.alt_text ?? productName}
@@ -32,27 +33,47 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
           priority
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
+          style={{ objectPosition: '50% 30%', filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
           unoptimized={current.url.startsWith('/')}
         />
+
+        {/* Mobile: dot indicators over the image */}
+        {display.length > 1 && (
+          <div className="md:hidden absolute bottom-3.5 inset-x-0 flex justify-center gap-1.5">
+            {display.map((img) => (
+              <button
+                key={img.id}
+                onClick={() => setActive(img)}
+                aria-label={img.alt_text ?? productName}
+                className="w-1.5 h-1.5 rounded-full transition-colors"
+                style={{ background: activeId === img.id ? '#D9B679' : '#3a3833' }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Thumbnails */}
+      {/* Desktop: thumbnail grid */}
       {display.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="hidden md:grid grid-cols-4 gap-3">
           {display.map((img) => (
             <button
               key={img.id}
               onClick={() => setActive(img)}
-              className={`relative w-20 h-24 shrink-0 overflow-hidden border-2 transition-all ${
-                (active ?? primary)?.id === img.id ? 'border-black' : 'border-transparent hover:border-gray-300'
-              }`}
+              className="relative aspect-[3/4] overflow-hidden box-border transition-all"
+              style={{ border: `1.5px solid ${activeId === img.id ? '#D9B679' : 'transparent'}` }}
             >
               <Image
                 src={img.url}
                 alt={img.alt_text ?? productName}
                 fill
-                sizes="80px"
+                sizes="140px"
                 className="object-cover"
+                style={{
+                  objectPosition: '50% 30%',
+                  opacity: activeId === img.id ? 1 : 0.55,
+                  filter: 'contrast(1.1) brightness(0.95) saturate(1.05)',
+                }}
                 unoptimized={img.url.startsWith('/')}
               />
             </button>

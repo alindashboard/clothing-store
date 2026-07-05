@@ -61,17 +61,22 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Don't reintroduce backgrounds with the logo baked in.
 - Supabase env vars are NOT in `.env.local` (only the Vercel OIDC token is) — local
   SSR of public pages 500s; verify rendering on Vercel previews instead.
-- Header + Footer (shared on every page) and the homepage are **always dark**
-  (`#141412`/`#0A0A0A`, cream `#EDE9E1` text) per the "Kaya Outlet Landing (Final)"
-  Claude Design file — product/category/cart/checkout page bodies stay on the
-  original light theme. `lib/config.ts → brand.darkAccent` (`#D9B679`) is the
-  gold used in dark chrome/landing only; `brand.accent` (`#c2a04a`) remains the
+- Header + Footer (shared on every page), the homepage, and the **product detail
+  page** (`/product/[slug]`) are **always dark** (`#141412`/`#0A0A0A`, cream
+  `#EDE9E1` text) per the "Kaya Outlet Landing (Final)" and "Kaya Product Page"
+  Claude Design files — category/cart/checkout page bodies still stay on the
+  original light theme (no design for those yet; ask before converting them).
+  `lib/config.ts → brand.darkAccent` (`#D9B679`) is the gold used in dark
+  chrome/landing/PDP only; `brand.accent` (`#c2a04a`) remains the
   admin-configurable accent for light pages — don't conflate the two.
-  `ProductCard`/`PriceDisplay`/`ProductGrid` take a `variant: 'light' | 'dark'`
-  prop for this reason (default `'light'`, unchanged everywhere but the homepage
-  Featured grid). Archivo (`--font-archivo`) and Space Grotesk (`--font-grotesk`)
-  are loaded for this dark chrome/landing only — DM Sans/Cormorant Garamond stay
-  the site's base typography elsewhere.
+  `ProductCard`/`PriceDisplay`/`ProductGrid`/`ProductBadge` take a
+  `variant: 'light' | 'dark'` prop for this reason (default `'light'`, used
+  `'dark'` on the homepage Featured grid and the PDP related-products grid).
+  `ProductGallery`/`VariantSelector`/`AddToCartButton` are PDP-only and are
+  hardcoded dark (no variant prop — add one only if a light consumer shows up).
+  Archivo (`--font-archivo`) and Space Grotesk (`--font-grotesk`) are loaded for
+  this dark chrome/landing/PDP only — DM Sans/Cormorant Garamond stay the site's
+  base typography elsewhere.
 
 ## Design
 
