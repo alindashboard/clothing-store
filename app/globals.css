@@ -201,42 +201,10 @@
   .kaya-ticker-track { animation-play-state: paused; }
 }
 
-/* ── Hero background ────────────────────────────────────────────────────────
-   Polished-concrete radial gradient echoing the store interior.
-   The ::after glow is the gold pool from the floor lights.
-────────────────────────────────────────────────────────────────────────── */
-.kaya-hero {
-  background: radial-gradient(
-    135% 95% at 50% -12%,
-    #26262b 0%,
-    #131315 46%,
-    #0b0b0c 78%
-  );
-}
-
-.kaya-hero-glow::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    55% 38% at 50% 102%,
-    rgba(194, 160, 74, 0.16),
-    rgba(194, 160, 74, 0) 70%
-  );
-}
-
-/* ── New Arrivals — text shine + pulse ──────────────────────────────────────
-   na-shine: gold highlight sweeps left-to-right every 5s.
+/* ── New Arrivals — heading pulse ────────────────────────────────────────
    na-pulse: very gentle scale breathe (1.0 → 1.03 → 1.0) every 2s.
-   Both applied to the same span via comma-separated animation shorthand.
-   prefers-reduced-motion: kills both.
+   prefers-reduced-motion: kills it.
 ────────────────────────────────────────────────────────────────────────── */
-@keyframes na-shine {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
-}
-
 @keyframes na-pulse {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.03); }

@@ -55,137 +55,80 @@ export default async function HomePage() {
         <h1 className="sr-only">{t('heroTitle')}</h1>
 
         {/* ── HERO ──────────────────────────────────────────────────────── */}
-        <section
-          className="kaya-hero relative overflow-hidden"
-          style={{ background: '#141412' }}
-        >
-          {/* Mobile layout */}
-          <div className="md:hidden flex flex-col items-center pt-8 pb-10 px-6 text-center relative">
-            <div className="absolute inset-0 z-0">
-              <Image
-                src="/hero-mobile-kaya.webp"
-                alt=""
-                fill
-                priority
-                sizes="100vw"
-                style={{ objectFit: 'cover', objectPosition: 'center bottom' }}
-              />
-            </div>
+        <section className="relative overflow-hidden h-[85vh] min-h-[560px] md:h-[90vh]">
+          <div className="absolute inset-0 z-0">
             <Image
-              src="/kaya-logo.png"
-              alt="KAYA Studio Outlet"
-              width={1024}
-              height={1478}
+              src="/produse-2.jpg"
+              alt=""
+              fill
               priority
-              className="relative z-10 w-[60vw] max-w-[200px] h-auto"
-            />
-            <p
-              className="relative z-10 mt-6 text-base font-light"
+              sizes="100vw"
               style={{
-                fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
-                fontStyle: 'italic',
-                color: 'rgba(236,230,218,0.55)',
+                objectFit: 'cover',
+                objectPosition: '38% 42%',
+                filter: 'contrast(1.15) brightness(0.5) saturate(1.05)',
+              }}
+            />
+          </div>
+          <div
+            className="absolute inset-0 z-0"
+            style={{ background: 'linear-gradient(90deg, rgba(10,10,9,0.55) 0%, rgba(10,10,9,0.1) 55%)' }}
+          />
+
+          <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-16">
+            <p
+              className="text-[11px] md:text-[13px] font-medium tracking-[0.3em] uppercase mb-3 md:mb-[18px]"
+              style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+            >
+              {settings.heroSeasonLabel}
+            </p>
+            <h2
+              className="font-black text-[#EDE9E1] max-w-[90%] md:max-w-[640px]"
+              style={{
+                fontFamily: 'var(--font-archivo, var(--font-sans))',
+                fontSize: 'clamp(34px, 8vw, 68px)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.02,
               }}
             >
-              {settings.tagline}
-            </p>
-          </div>
+              {t('heroHeadline')}
+            </h2>
 
-          {/* Desktop layout */}
-          <div className="hidden md:block relative h-[500px]">
-            <div className="absolute inset-0 z-0">
-              <Image
-                src="/hero-bg-kaya.webp"
-                alt=""
-                fill
-                priority
-                sizes="100vw"
-                style={{ objectFit: 'cover', objectPosition: 'center' }}
-              />
-            </div>
-
-            {/* Overlaid logo (background image is logo-free by design) */}
-            <div className="absolute inset-0 z-10 flex items-center justify-center">
-              <Image
-                src="/kaya-logo.png"
-                alt="KAYA Studio Outlet"
-                width={1024}
-                height={1478}
-                priority
-                className="h-[340px] w-auto"
-              />
-            </div>
-
-            <div className="absolute bottom-10 left-6 right-6 z-10">
-              <div className="max-w-6xl mx-auto grid grid-cols-3 items-end gap-6">
-                <div>
-                  <p
-                    className="text-xs mb-3 tracking-[0.3em] uppercase"
-                    style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-                  >
-                    {settings.heroSeasonLabel}
-                  </p>
-                  <p
-                    className="text-lg leading-snug"
-                    style={{
-                      fontFamily: 'var(--font-serif, "Cormorant Garamond", Georgia, serif)',
-                      fontWeight: 400,
-                      color: '#ece6da',
-                      maxWidth: 320,
-                    }}
-                  >
-                    {settings.tagline}
-                  </p>
-                </div>
-
-                <div className="flex justify-center">
-                  <Link
-                    href={settings.heroCtaUrl}
-                    className="inline-flex items-center gap-4 group"
-                  >
-                    <span
-                      className="relative px-6 py-3.5 text-xs font-semibold tracking-[0.24em] uppercase transition-opacity group-hover:opacity-80"
-                      style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-                    >
-                      <span
-                        className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2"
-                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
-                      />
-                      <span
-                        className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2"
-                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
-                      />
-                      <span
-                        className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2"
-                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
-                      />
-                      <span
-                        className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2"
-                        style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
-                      />
-                      {settings.heroCtaText}
-                    </span>
-                    <span
-                      className="w-[42px] h-[42px] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1"
-                      style={{ background: SITE_CONFIG.brand.darkAccent }}
-                    >
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#141412" strokeWidth="2.4" aria-hidden="true">
-                        <path d="M5 12h14M13 6l6 6-6 6" />
-                      </svg>
-                    </span>
-                  </Link>
-                </div>
-
-                <div className="flex justify-end">
-                  <p
-                    className="text-xs tracking-[0.22em] uppercase"
-                    style={{ color: 'rgba(236,230,218,0.55)', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-                  >
-                    ↓ Scroll
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Link
+              href={settings.heroCtaUrl}
+              className="inline-flex items-center gap-4 group mt-8 md:mt-11 w-fit"
+            >
+              <span
+                className="relative px-5 py-3 md:px-6 md:py-3.5 text-[11px] md:text-xs font-semibold tracking-[0.24em] uppercase transition-opacity group-hover:opacity-80"
+                style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+              >
+                <span
+                  className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2"
+                  style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                />
+                <span
+                  className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2"
+                  style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                />
+                <span
+                  className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2"
+                  style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                />
+                <span
+                  className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2"
+                  style={{ borderColor: SITE_CONFIG.brand.darkAccent }}
+                />
+                {settings.heroCtaText}
+              </span>
+              <span
+                className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-1"
+                style={{ background: SITE_CONFIG.brand.darkAccent }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#141412" strokeWidth="2.4" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </Link>
           </div>
         </section>
 
