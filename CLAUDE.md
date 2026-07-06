@@ -63,15 +63,17 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   SSR of public pages 500s; verify rendering on Vercel previews instead.
 - Header + Footer (shared on every page), the homepage, the **product detail
   page** (`/product/[slug]`), the **category/listing page** (`/category/[slug]`),
-  the **store page** (`/store`), and the **events page** (`/events`) are
-  **always dark** (`#141412`/`#0A0A0A`, cream `#EDE9E1` text) per the "Kaya
-  Outlet Landing (Final)", "Kaya Product Page", "Kaya Category Page", "Kaya
-  Store Page", and "Kaya Events Page" Claude Design files — `/products`
-  (all-products) and cart/checkout page bodies still stay on the original
+  the **store page** (`/store`), the **events page** (`/events`), and the
+  **all-products page** (`/products`) are **always dark** (`#141412`/`#0A0A0A`,
+  cream `#EDE9E1` text) per the "Kaya Outlet Landing (Final)", "Kaya Product
+  Page", "Kaya Category Page", "Kaya Store Page", and "Kaya Events Page"
+  Claude Design files — cart/checkout page bodies still stay on the original
   light theme (no design for those yet; ask before converting them).
   `/products` and `/category/[slug]` share `ProductGridInfinite` — it takes the
-  same `variant: 'light' | 'dark'` prop pattern, default `'light'`, so
-  `/products` is unaffected by the category page going dark.
+  same `variant: 'light' | 'dark'` prop pattern, default `'light'`; `/products`
+  now passes `variant="dark"` and reuses the same breadcrumb/eyebrow/header
+  layout as `/category/[slug]`, with a category filter row (`product.filterAll`
+  / `product.shopEyebrow` translation keys) instead of a single category name.
   `lib/config.ts → brand.darkAccent` (`#D9B679`) is the gold used in dark
   chrome/landing/PDP/category/store/events only; `brand.accent` (`#c2a04a`)
   remains the admin-configurable accent for light pages — don't conflate the two.
@@ -91,6 +93,15 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Archivo (`--font-archivo`) and Space Grotesk (`--font-grotesk`) are loaded for
   this dark chrome/landing/PDP only — DM Sans/Cormorant Garamond stay the site's
   base typography elsewhere.
+
+- `AnnouncementBar` and `Footer` are async Server Components (`getTranslations`
+  from `next-intl/server`) — never import/render them directly inside a
+  `'use client'` page. `/cart` and `/checkout` used to do this and crashed with
+  "getTranslations is not supported in Client Components". Pattern: keep the
+  page itself an async Server Component that fetches data and renders
+  AnnouncementBar/Header/Footer, and push interactive state (Zustand, hooks,
+  `useTranslations`) into a separate `*-page-client.tsx` child component
+  (see `components/cart/cart-page-client.tsx`, `components/checkout/checkout-page-client.tsx`).
 
 ## Design
 

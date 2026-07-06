@@ -97,7 +97,9 @@
     "relatedTitle": "You might also like",
     "availableInStore": "Available in-store — Borgo Podgora location",
     "total": "Total",
-    "categoryEyebrow": "Collection"
+    "categoryEyebrow": "Collection",
+    "shopEyebrow": "Shop",
+    "filterAll": "All"
   },
   "footer": {
     "store": "Store",
