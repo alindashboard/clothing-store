@@ -21,6 +21,9 @@
   "announcement": {
     "freeShipping": "Spedizione gratuita per ordini superiori a <gold>{threshold}</gold>"
   },
+  "wipBanner": {
+    "message": "Sito in aggiornamento — i prodotti verranno caricati nel corso di questa settimana."
+  },
   "nav": {
     "all": "Tutto",
     "allProducts": "Tutti i prodotti",

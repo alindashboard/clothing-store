@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { getBrandAccent } from '@/lib/brand-accent'
 import { CartDrawer } from '@/components/cart/cart-drawer'
+import { WipBanner } from '@/components/layout/wip-banner'
 import { routing } from '@/i18n/routing'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
@@ -76,6 +77,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         style={{ '--brand-accent': accent } as React.CSSProperties}
         className="contents"
       >
+        <WipBanner />
         {children}
         <CartDrawer />
       </div>

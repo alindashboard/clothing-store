@@ -92,6 +92,7 @@ export const SITE_CONFIG = {
     enableNewsletter: false,
     enableWishlist: false,
     enableReviews: false,
+    showWipBanner: true,
   },
   social: {
     instagram: STORE_INFO.instagram,

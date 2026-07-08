@@ -21,6 +21,9 @@
   "announcement": {
     "freeShipping": "Free shipping on orders over <gold>{threshold}</gold>"
   },
+  "wipBanner": {
+    "message": "Site under construction — products will be uploaded during this week."
+  },
   "nav": {
     "all": "All",
     "allProducts": "All Products",
