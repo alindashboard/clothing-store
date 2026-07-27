@@ -48,10 +48,10 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - Admin, cart, and checkout routes must be `noindex`.
 - **Never hardcode Supabase keys in scripts.** `scripts/seed-products.mjs` shipped a
   plaintext `service_role` key in this public repo from 2026-06-01 to 2026-07-27
-  (fixed in `400cb9c`). The project has since moved to the new `sb_secret_*` /
-  `sb_publishable_*` keys — but the leaked legacy JWT stays valid until legacy keys
-  are **disabled** in Supabase Dashboard → Settings → API. Scripts read credentials
-  from env only: `node --env-file=.env.local scripts/<name>.mjs`.
+  (fixed in `400cb9c`). Resolved: the project moved to `sb_secret_*` /
+  `sb_publishable_*` keys and **legacy keys were disabled 2026-07-27** — the leaked
+  JWT now returns 401, so it is dead even though it stays in git history. Scripts
+  read credentials from env only: `node --env-file=.env.local scripts/<name>.mjs`.
 - The catalog was bulk-imported from store photos as **placeholder products**
   (`name: "Produs NNN"`, `base_price: 0`, no category, no variants) — the owner
   fills each one in from the admin. The `Incomplete` filter on `/admin/products`
@@ -203,8 +203,6 @@ RESEND_API_KEY                # Resend API key for transactional email
 
 ### Open items (as of 2026-07-27)
 
-- **Disable legacy Supabase API keys** — the leaked `service_role` JWT is valid
-  until this is done in the dashboard. Highest-priority item.
 - **111 placeholder products** need real name/price/category/variants — owner fills
   them in from `/admin/products` using the `Incomplete` filter.
 - **One product must be re-shot**: `IMG_6822`/`IMG_6823` were its only photos and
