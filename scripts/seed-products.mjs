@@ -10,9 +10,14 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const SUPABASE_URL   = 'https://snsjjyvleuirivsiytre.supabase.co'
-const SERVICE_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc2pqeXZsZXVpcml2c2l5dHJlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTg5NTE1MCwiZXhwIjoyMDk1NDcxMTUwfQ.o3DXTULRYpwaxdcutzajQ3eSdhgE8eS2Y6j0KxPuUI4'
+const SUPABASE_URL   = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_KEY    = process.env.SUPABASE_SERVICE_ROLE_KEY
 const BUCKET         = 'product-images'
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars. Run with: node --env-file=.env.local scripts/seed-products.mjs')
+  process.exit(1)
+}
 const PHOTOS_ROOT    = 'C:\\Users\\Admin\\Desktop\\haine\\poze'
 
 const HEADERS = {
