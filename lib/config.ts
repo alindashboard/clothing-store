@@ -30,13 +30,6 @@ export const SITE_CONFIG = {
     darkAccent: '#D9B679',
 
     /**
-     * Category slugs shown on the homepage landing grid.
-     * Order matters — first slug = first card.
-     * To change what appears on landing, update this list (admin UI coming).
-     */
-    landingCategorySlugs: ['sneakers', 'sets', 'shirts'],
-
-    /**
      * Category slugs that use numeric shoe sizes (37–45).
      * All other categories default to clothing sizes (S/M/L/XL).
      */

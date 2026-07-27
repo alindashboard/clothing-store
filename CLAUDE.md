@@ -53,6 +53,11 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Pipeline lives in `scripts/` (`group-photos` → `build-final-groups` →
   `convert-to-webp` → `import-placeholder-products`); it reads credentials from
   env only, and `scripts/output/` + the photo folder are gitignored (hundreds of MB).
+- Landing-grid categories are **DB-driven**: `categories.show_on_landing` (toggle in
+  `/admin/categories`), ordered by `sort_order` — which the up/down arrows in that
+  table own. `brand.landingCategorySlugs` is gone; `brand.shoeCategorySlugs` stays
+  (it drives numeric vs clothing sizes). Category sort_order is renumbered 1..N on
+  every reorder, so never hand-write values.
 - `ProductForm` guards unsaved edits via `useUnsavedChanges` — a capture-phase
   click listener cancels link navigation and `beforeunload` covers reload/close.
   Dirty state is recomputed from the live form, so undoing an edit clears it.

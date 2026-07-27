@@ -24,8 +24,7 @@ export default async function AdminCategoriesPage() {
     if (row.category_id) productCounts[row.category_id] = (productCounts[row.category_id] ?? 0) + 1
   }
 
-  const landingSlugs = SITE_CONFIG.brand.landingCategorySlugs
-  const shoeSlugs    = SITE_CONFIG.brand.shoeCategorySlugs
+  const shoeSlugs = SITE_CONFIG.brand.shoeCategorySlugs
 
   async function handleCreate(fd: FormData) {
     'use server'
@@ -71,14 +70,10 @@ export default async function AdminCategoriesPage() {
             <div className="mt-6 pt-4 border-t border-gray-100 space-y-3">
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-1.5">Shown on landing</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {landingSlugs.map((s) => (
-                    <span key={s} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-[10px] text-gray-400 mt-1">Edit in <code className="bg-gray-100 px-1">lib/config.ts → brand.landingCategorySlugs</code></p>
+                <p className="text-[11px] text-gray-400 leading-relaxed">
+                  Toggle the <strong>Landing</strong> checkbox in the table. Cards appear in the
+                  same order as the list, so use the arrows to arrange them.
+                </p>
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-500 mb-1.5">Shoe size categories (37–45)</p>
@@ -98,7 +93,6 @@ export default async function AdminCategoriesPage() {
           <CategoriesClient
             categories={categories}
             productCounts={productCounts}
-            landingSlugs={landingSlugs}
             shoeSlugs={shoeSlugs}
           />
         </div>

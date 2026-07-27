@@ -6,6 +6,7 @@ export interface Category {
   parent_id: string | null
   sort_order: number
   is_active: boolean
+  show_on_landing: boolean
   created_at: string
 }
 

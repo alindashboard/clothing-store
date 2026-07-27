@@ -19,20 +19,18 @@ export async function getCategories(): Promise<Category[]> {
   return data ?? []
 }
 
-/** Categories shown on the homepage landing grid, in config-defined order. */
+/** Categories shown on the homepage landing grid, in admin-defined order. */
 export async function getCategoriesForLanding(): Promise<Category[]> {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase
     .from('categories')
     .select('*')
     .eq('is_active', true)
-    .in('slug', SITE_CONFIG.brand.landingCategorySlugs)
+    .eq('show_on_landing', true)
+    .order('sort_order', { ascending: true })
 
   if (error) return []
-
-  // Preserve the order defined in config
-  const order = SITE_CONFIG.brand.landingCategorySlugs
-  return (data ?? []).sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug))
+  return data ?? []
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
@@ -76,6 +74,20 @@ export async function createCategory(formData: FormData) {
   revalidatePath('/admin/categories')
   revalidatePath('/')
   return { data }
+}
+
+/** Shows/hides a category on the homepage landing grid. */
+export async function setCategoryOnLanding(id: string, show: boolean) {
+  const supabase = createSupabaseAdminClient()
+  const { error } = await supabase
+    .from('categories')
+    .update({ show_on_landing: show })
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/admin/categories')
+  revalidatePath('/')
+  return { success: true }
 }
 
 /** Rewrites sort_order to match the given id order (1-based, gap-free). */

@@ -5,17 +5,16 @@ import { useRouter } from 'next/navigation'
 import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category } from '@/lib/types'
-import { updateCategoryDirect, deleteCategory, reorderCategories } from '@/lib/actions/categories'
+import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding } from '@/lib/actions/categories'
 import { slugify } from '@/lib/utils'
 
 interface Props {
   categories: Category[]
   productCounts: Record<string, number>
-  landingSlugs: string[]
   shoeSlugs: string[]
 }
 
-export function CategoriesClient({ categories: initial, productCounts, landingSlugs, shoeSlugs }: Props) {
+export function CategoriesClient({ categories: initial, productCounts, shoeSlugs }: Props) {
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>(initial)
   const [editTarget, setEditTarget] = useState<Category | null>(null)
@@ -76,6 +75,21 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
     router.refresh()
   }
 
+  async function handleToggleLanding(cat: Category) {
+    const next = !cat.show_on_landing
+    const previous = categories
+    setCategories((prev) => prev.map((c) => (c.id === cat.id ? { ...c, show_on_landing: next } : c)))
+
+    const res = await setCategoryOnLanding(cat.id, next)
+    if (res.error) {
+      setCategories(previous)
+      toast.error(res.error)
+      return
+    }
+    toast.success(next ? `${cat.name} shown on landing` : `${cat.name} removed from landing`)
+    router.refresh()
+  }
+
   /** Swaps a category with its neighbour and persists the whole new order. */
   async function handleMove(index: number, direction: -1 | 1) {
     const target = index + direction
@@ -117,7 +131,7 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
     <>
       {/* ── Table ───────────────────────────────────────────────── */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
-        <table className="w-full text-sm min-w-[460px]">
+        <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-100">
               <th className="text-left pl-4 pr-1 py-3 text-xs font-medium text-gray-500">#</th>
@@ -125,6 +139,7 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Name</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Slug</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Products</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Landing</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Flags</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Active</th>
               <th className="px-4 py-3" />
@@ -133,7 +148,6 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
           <tbody className="divide-y divide-gray-50">
             {categories.map((cat, index) => {
               const count  = productCounts[cat.id] ?? 0
-              const onLand = landingSlugs.includes(cat.slug)
               const isShoe = shoeSlugs.includes(cat.slug)
               return (
                 <tr key={cat.id} className={`hover:bg-gray-50 ${!cat.is_active ? 'opacity-50' : ''}`}>
@@ -166,12 +180,24 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
                     </span>
                   </td>
                   <td className="px-4 py-2.5">
+                    <label
+                      className={`flex items-center gap-1.5 ${cat.is_active ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                      title={cat.is_active ? 'Show this category on the homepage' : 'Inactive categories never show on the homepage'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={cat.show_on_landing}
+                        disabled={!cat.is_active}
+                        onChange={() => handleToggleLanding(cat)}
+                        className="w-3.5 h-3.5"
+                      />
+                      <span className="text-[11px] text-gray-500">
+                        {cat.show_on_landing ? 'Shown' : '—'}
+                      </span>
+                    </label>
+                  </td>
+                  <td className="px-4 py-2.5">
                     <div className="flex gap-1 flex-wrap">
-                      {onLand && (
-                        <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-                          landing
-                        </span>
-                      )}
                       {isShoe && (
                         <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded whitespace-nowrap">
                           shoe sizes
@@ -207,7 +233,7 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
             })}
             {categories.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-gray-400">No categories.</td>
+                <td colSpan={9} className="px-4 py-6 text-center text-gray-400">No categories.</td>
               </tr>
             )}
           </tbody>
