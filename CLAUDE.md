@@ -46,6 +46,17 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - Slugs: keep digits (model years, etc.) — they improve uniqueness and SEO. When
   migrating URLs, use 308 permanent redirects from old paths.
 - Admin, cart, and checkout routes must be `noindex`.
+- The catalog was bulk-imported from store photos as **placeholder products**
+  (`name: "Produs NNN"`, `base_price: 0`, no category, no variants) — the owner
+  fills each one in from the admin. The `Incomplete` filter on `/admin/products`
+  keys off `base_price = 0`; drop that filter once the catalog is real.
+  Pipeline lives in `scripts/` (`group-photos` → `build-final-groups` →
+  `convert-to-webp` → `import-placeholder-products`); it reads credentials from
+  env only, and `scripts/output/` + the photo folder are gitignored (hundreds of MB).
+- `ProductForm` guards unsaved edits via `useUnsavedChanges` — a capture-phase
+  click listener cancels link navigation and `beforeunload` covers reload/close.
+  Dirty state is recomputed from the live form, so undoing an edit clears it.
+  Browser Back is *not* covered (App Router can't block a popstate after the fact).
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.

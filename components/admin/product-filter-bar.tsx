@@ -14,6 +14,8 @@ const STATUS_OPTIONS = [
   { label: 'All', value: '' },
   { label: 'Active', value: 'active' },
   { label: 'Draft', value: 'draft' },
+  // Placeholders from the bulk photo import — price still at 0, nothing filled in yet.
+  { label: 'Incomplete', value: 'incomplete' },
 ]
 
 export function ProductFilterBar({ categories, activeCategoryId, totalCount }: ProductFilterBarProps) {

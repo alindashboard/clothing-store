@@ -116,7 +116,7 @@ export async function getAllProductsAdmin(options?: {
   page?: number
   pageSize?: number
   search?: string
-  status?: 'active' | 'draft' | 'all'
+  status?: 'active' | 'draft' | 'incomplete' | 'all'
 }): Promise<{ products: Product[]; totalCount: number }> {
   const supabase = createSupabaseAdminClient()
   const pageSize = options?.pageSize ?? 50
@@ -146,6 +146,9 @@ export async function getAllProductsAdmin(options?: {
     query = query.eq('is_active', true)
   } else if (options?.status === 'draft') {
     query = query.eq('is_active', false)
+  } else if (options?.status === 'incomplete') {
+    // Bulk-imported placeholders still waiting for real data (price left at 0).
+    query = query.eq('base_price', 0)
   }
 
   const { data, error, count } = await query

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { useUnsavedChanges } from './use-unsaved-changes'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -18,14 +19,79 @@ interface ProductFormProps {
   categories: Category[]
 }
 
+const UNSAVED_MESSAGE = 'You have unsaved changes. Leave this page and discard them?'
+
+/** Text/number inputs whose values live in the DOM rather than in React state. */
+const TEXT_FIELDS = [
+  'name',
+  'slug',
+  'short_description',
+  'description',
+  'base_price',
+  'compare_at_price',
+  'sku_prefix',
+  'meta_title',
+  'meta_description',
+] as const
+
 export function ProductForm({ product, categories }: ProductFormProps) {
   const router = useRouter()
+  const formRef = useRef<HTMLFormElement>(null)
   const [loading, setLoading] = useState(false)
+  const [dirty, setDirty] = useState(false)
   const [slug, setSlug] = useState(product?.slug ?? '')
   const [isActive, setIsActive] = useState(product?.is_active ?? true)
   const [isFeatured, setIsFeatured] = useState(product?.is_featured ?? false)
   const [isNew, setIsNew] = useState(product?.is_new ?? false)
   const [categoryId, setCategoryId] = useState<string>(product?.category_id ?? '')
+
+  const initial = useMemo(
+    () => ({
+      name: product?.name ?? '',
+      slug: product?.slug ?? '',
+      short_description: product?.short_description ?? '',
+      description: product?.description ?? '',
+      base_price: product?.base_price != null ? String(product.base_price) : '',
+      compare_at_price: product?.compare_at_price != null ? String(product.compare_at_price) : '',
+      sku_prefix: product?.sku_prefix ?? '',
+      meta_title: product?.meta_title ?? '',
+      meta_description: product?.meta_description ?? '',
+      is_active: product?.is_active ?? true,
+      is_featured: product?.is_featured ?? false,
+      is_new: product?.is_new ?? false,
+      category_id: product?.category_id ?? '',
+    }),
+    [product],
+  )
+
+  /* Recomputed from the live form rather than tracked per-keystroke, so typing a
+     change and undoing it leaves the form clean again. Variant/image managers sit
+     inside this <form> but own no named inputs, so they never mark it dirty. */
+  const recomputeDirty = useCallback(
+    (next?: Partial<typeof initial>) => {
+      const form = formRef.current
+      if (!form) return
+      const fd = new FormData(form)
+      const current = {
+        ...Object.fromEntries(TEXT_FIELDS.map((f) => [f, String(fd.get(f) ?? '')])),
+        is_active: isActive,
+        is_featured: isFeatured,
+        is_new: isNew,
+        category_id: categoryId,
+        ...next,
+      }
+      setDirty(Object.keys(initial).some((k) => current[k as keyof typeof initial] !== initial[k as keyof typeof initial]))
+    },
+    [initial, isActive, isFeatured, isNew, categoryId],
+  )
+
+  useUnsavedChanges(dirty && !loading, UNSAVED_MESSAGE)
+
+  function handleDiscard() {
+    if (dirty && !window.confirm(UNSAVED_MESSAGE)) return
+    setDirty(false)
+    router.push('/admin/products')
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -44,6 +110,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
 
     if (result.error) { toast.error(result.error); setLoading(false); return }
 
+    setDirty(false) // saved — stop guarding before we navigate away
     toast.success(product ? 'Product updated' : 'Product created')
     if (product) {
       router.push('/admin/products')
@@ -54,7 +121,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onInput={() => recomputeDirty()}
+      className="space-y-8"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main fields */}
         <div className="lg:col-span-2 space-y-6">
@@ -136,7 +208,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 <Label>Category</Label>
                 <select
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  onChange={(e) => { setCategoryId(e.target.value); recomputeDirty({ category_id: e.target.value }) }}
                   className="w-full h-10 border border-input bg-background px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
                 >
                   <option value="">No category</option>
@@ -198,15 +270,15 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600">Status</h2>
 
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-4 h-4" />
+              <input type="checkbox" checked={isActive} onChange={(e) => { setIsActive(e.target.checked); recomputeDirty({ is_active: e.target.checked }) }} className="w-4 h-4" />
               <span className="text-sm">Active (visible on site)</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-4 h-4" />
+              <input type="checkbox" checked={isFeatured} onChange={(e) => { setIsFeatured(e.target.checked); recomputeDirty({ is_featured: e.target.checked }) }} className="w-4 h-4" />
               <span className="text-sm">Featured (on homepage)</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={isNew} onChange={(e) => setIsNew(e.target.checked)} className="w-4 h-4" />
+              <input type="checkbox" checked={isNew} onChange={(e) => { setIsNew(e.target.checked); recomputeDirty({ is_new: e.target.checked }) }} className="w-4 h-4" />
               <span className="text-sm">New (badge + new arrivals)</span>
             </label>
           </section>
@@ -220,6 +292,17 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {product ? 'Save Changes' : 'Create Product'}
             </button>
+            <button
+              type="button"
+              onClick={handleDiscard}
+              disabled={loading}
+              className="w-full h-11 bg-white text-gray-700 border border-gray-300 font-medium text-sm hover:border-gray-500 hover:text-black transition-colors disabled:opacity-50"
+            >
+              {dirty ? 'Discard Changes' : 'Cancel'}
+            </button>
+            {dirty && (
+              <p className="text-xs text-amber-600 text-center">Unsaved changes</p>
+            )}
             {product && (
               <p className="text-xs text-gray-400 text-center">
                 Add variants and images after creating the product.

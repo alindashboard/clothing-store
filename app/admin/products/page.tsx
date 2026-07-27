@@ -35,7 +35,7 @@ export default async function AdminProductsPage({
       page,
       pageSize: PAGE_SIZE,
       search,
-      status: (status as 'active' | 'draft' | 'all') || 'all',
+      status: (status as 'active' | 'draft' | 'incomplete' | 'all') || 'all',
     }),
     getAllCategoriesAdmin(),
   ])
