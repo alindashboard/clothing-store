@@ -46,6 +46,12 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - Slugs: keep digits (model years, etc.) — they improve uniqueness and SEO. When
   migrating URLs, use 308 permanent redirects from old paths.
 - Admin, cart, and checkout routes must be `noindex`.
+- **Never hardcode Supabase keys in scripts.** `scripts/seed-products.mjs` shipped a
+  plaintext `service_role` key in this public repo from 2026-06-01 to 2026-07-27
+  (fixed in `400cb9c`). The project has since moved to the new `sb_secret_*` /
+  `sb_publishable_*` keys — but the leaked legacy JWT stays valid until legacy keys
+  are **disabled** in Supabase Dashboard → Settings → API. Scripts read credentials
+  from env only: `node --env-file=.env.local scripts/<name>.mjs`.
 - The catalog was bulk-imported from store photos as **placeholder products**
   (`name: "Produs NNN"`, `base_price: 0`, no category, no variants) — the owner
   fills each one in from the admin. The `Incomplete` filter on `/admin/products`
@@ -194,3 +200,15 @@ RESEND_API_KEY                # Resend API key for transactional email
 - Facebook / TikTok handles (currently empty in config)
 - Brand logo assets in `/public/brands/` (ticker uses text fallback for now)
 - Admin dashboard redirect target (`/admin/dashboard` vs `/admin`)
+
+### Open items (as of 2026-07-27)
+
+- **Disable legacy Supabase API keys** — the leaked `service_role` JWT is valid
+  until this is done in the dashboard. Highest-priority item.
+- **111 placeholder products** need real name/price/category/variants — owner fills
+  them in from `/admin/products` using the `Incomplete` filter.
+- **One product must be re-shot**: `IMG_6822`/`IMG_6823` were its only photos and
+  both are unrecoverable (broken HEIC depth map), so it was never imported.
+  `IMG_6857` and `IMG_7043` are also corrupt but their products kept one good photo.
+- Landing grid currently shows 2 cards (Sneakers, Shirts) — `Sets` was deleted
+  deliberately; a replacement category is planned.
