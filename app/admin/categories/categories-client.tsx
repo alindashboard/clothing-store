@@ -129,8 +129,8 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
 
   return (
     <>
-      {/* ── Table ───────────────────────────────────────────────── */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
+      {/* ── Desktop table ───────────────────────────────────────── */}
+      <div className="hidden md:block bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
         <table className="w-full text-sm min-w-[560px]">
           <thead>
             <tr className="border-b border-gray-100">
@@ -240,11 +240,89 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
         </table>
       </div>
 
+      {/* ── Mobile cards ────────────────────────────────────────────
+          Slug / product count / flags are dropped here — the row itself
+          opens the edit modal, and the controls that mutate state stop
+          propagation so they never trigger it by accident. */}
+      <div className="md:hidden space-y-2">
+        {categories.map((cat, index) => (
+          <div
+            key={cat.id}
+            onClick={() => openEdit(cat)}
+            className={`bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer ${!cat.is_active ? 'opacity-60' : ''}`}
+          >
+            <div className="flex flex-col shrink-0" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => handleMove(index, -1)}
+                disabled={index === 0 || isReordering}
+                className="p-1 text-gray-300 hover:text-black disabled:opacity-30 transition-colors"
+                aria-label={`Move ${cat.name} up`}
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleMove(index, 1)}
+                disabled={index === categories.length - 1 || isReordering}
+                className="p-1 text-gray-300 hover:text-black disabled:opacity-30 transition-colors"
+                aria-label={`Move ${cat.name} down`}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{cat.name}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <label
+                  className={`flex items-center gap-1.5 ${cat.is_active ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={cat.show_on_landing}
+                    disabled={!cat.is_active}
+                    onChange={() => handleToggleLanding(cat)}
+                    className="w-3.5 h-3.5"
+                  />
+                  <span className="text-[11px] text-gray-500">Landing</span>
+                </label>
+                <span className={`text-[11px] ${cat.is_active ? 'text-green-600' : 'text-gray-400'}`}>
+                  {cat.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Tapping the card opens the editor; this is the keyboard/AT path. */}
+              <button
+                onClick={(e) => { e.stopPropagation(); openEdit(cat) }}
+                className="p-1.5 text-gray-300 hover:text-black transition-colors"
+                aria-label={`Edit ${cat.name}`}
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget(cat) }}
+                className="p-1.5 text-red-400 hover:text-red-600 transition-colors"
+                aria-label={`Delete ${cat.name}`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {categories.length === 0 && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6 text-center text-gray-400">
+            No categories.
+          </div>
+        )}
+      </div>
+
       {/* ── Edit Modal ──────────────────────────────────────────── */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={closeEdit} />
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 space-y-4">
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-700">
               Edit Category
             </h2>
