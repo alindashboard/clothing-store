@@ -34,3 +34,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# bulk product import working files (photos + generated derivatives, hundreds of MB)
+/Poze magazin actualizate/
+/Poze magazin actualizate*.zip
+/scripts/output/
