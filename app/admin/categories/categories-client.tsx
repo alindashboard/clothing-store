@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, AlertTriangle } from 'lucide-react'
+import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category } from '@/lib/types'
-import { updateCategoryDirect, deleteCategory } from '@/lib/actions/categories'
+import { updateCategoryDirect, deleteCategory, reorderCategories } from '@/lib/actions/categories'
 import { slugify } from '@/lib/utils'
 
 interface Props {
@@ -26,10 +26,10 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
   const [eSlug, setESlug] = useState('')
   const [eOrigSlug, setEOrigSlug] = useState('')
   const [eDesc, setEDesc] = useState('')
-  const [eSort, setESort] = useState(0)
   const [eActive, setEActive] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isReordering, setIsReordering] = useState(false)
 
   // Sync when server re-fetches (after router.refresh)
   useEffect(() => { setCategories(initial) }, [initial])
@@ -40,7 +40,6 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
     setESlug(cat.slug)
     setEOrigSlug(cat.slug)
     setEDesc(cat.description ?? '')
-    setESort(cat.sort_order)
     setEActive(cat.is_active)
   }
 
@@ -58,7 +57,7 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
       name: eName.trim(),
       slug: eSlug.trim(),
       description: eDesc.trim(),
-      sort_order: eSort,
+      sort_order: editTarget.sort_order, // position is owned by the table arrows
       is_active: eActive,
     })
 
@@ -67,13 +66,36 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
     setCategories((prev) =>
       prev.map((c) =>
         c.id === editTarget.id
-          ? { ...c, name: eName.trim(), slug: eSlug.trim(), description: eDesc.trim() || null, sort_order: eSort, is_active: eActive }
+          ? { ...c, name: eName.trim(), slug: eSlug.trim(), description: eDesc.trim() || null, is_active: eActive }
           : c
       )
     )
     toast.success('Category updated')
     setIsSaving(false)
     closeEdit()
+    router.refresh()
+  }
+
+  /** Swaps a category with its neighbour and persists the whole new order. */
+  async function handleMove(index: number, direction: -1 | 1) {
+    const target = index + direction
+    if (target < 0 || target >= categories.length || isReordering) return
+
+    const previous = categories
+    const next = [...categories]
+    ;[next[index], next[target]] = [next[target], next[index]]
+
+    setCategories(next.map((c, i) => ({ ...c, sort_order: i + 1 })))
+    setIsReordering(true)
+
+    const res = await reorderCategories(next.map((c) => c.id))
+    setIsReordering(false)
+
+    if (res.error) {
+      setCategories(previous) // put it back where it was
+      toast.error(res.error)
+      return
+    }
     router.refresh()
   }
 
@@ -95,9 +117,11 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
     <>
       {/* ── Table ───────────────────────────────────────────────── */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
-        <table className="w-full text-sm min-w-[380px]">
+        <table className="w-full text-sm min-w-[460px]">
           <thead>
             <tr className="border-b border-gray-100">
+              <th className="text-left pl-4 pr-1 py-3 text-xs font-medium text-gray-500">#</th>
+              <th className="px-1 py-3" />
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Name</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Slug</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Products</th>
@@ -107,12 +131,33 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {categories.map((cat) => {
+            {categories.map((cat, index) => {
               const count  = productCounts[cat.id] ?? 0
               const onLand = landingSlugs.includes(cat.slug)
               const isShoe = shoeSlugs.includes(cat.slug)
               return (
                 <tr key={cat.id} className={`hover:bg-gray-50 ${!cat.is_active ? 'opacity-50' : ''}`}>
+                  <td className="pl-4 pr-1 py-2.5 text-xs text-gray-400 tabular-nums">{index + 1}</td>
+                  <td className="px-1 py-2.5">
+                    <div className="flex flex-col">
+                      <button
+                        onClick={() => handleMove(index, -1)}
+                        disabled={index === 0 || isReordering}
+                        className="text-gray-300 hover:text-black disabled:opacity-30 disabled:hover:text-gray-300 transition-colors"
+                        title="Move up"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleMove(index, 1)}
+                        disabled={index === categories.length - 1 || isReordering}
+                        className="text-gray-300 hover:text-black disabled:opacity-30 disabled:hover:text-gray-300 transition-colors"
+                        title="Move down"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
                   <td className="px-4 py-2.5 font-medium">{cat.name}</td>
                   <td className="px-4 py-2.5 text-gray-400 text-xs font-mono">{cat.slug}</td>
                   <td className="px-4 py-2.5">
@@ -162,7 +207,7 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
             })}
             {categories.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-400">No categories.</td>
+                <td colSpan={8} className="px-4 py-6 text-center text-gray-400">No categories.</td>
               </tr>
             )}
           </tbody>
@@ -215,28 +260,17 @@ export function CategoriesClient({ categories: initial, productCounts, landingSl
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs text-gray-500">Sort Order</label>
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-500">Active</label>
+              <label className="flex items-center gap-2 mt-2.5 cursor-pointer">
                 <input
-                  type="number"
-                  value={eSort}
-                  onChange={(e) => setESort(parseInt(e.target.value) || 0)}
-                  className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
+                  type="checkbox"
+                  checked={eActive}
+                  onChange={(e) => setEActive(e.target.checked)}
+                  className="w-3.5 h-3.5"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-gray-500">Active</label>
-                <label className="flex items-center gap-2 mt-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={eActive}
-                    onChange={(e) => setEActive(e.target.checked)}
-                    className="w-3.5 h-3.5"
-                  />
-                  <span className="text-sm text-gray-700">Visible in nav</span>
-                </label>
-              </div>
+                <span className="text-sm text-gray-700">Visible in nav</span>
+              </label>
             </div>
 
             <div className="flex gap-2 pt-2">

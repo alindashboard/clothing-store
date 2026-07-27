@@ -51,13 +51,22 @@ export async function createCategory(formData: FormData) {
   const name = formData.get('name') as string
   const slug = (formData.get('slug') as string) || slugify(name)
 
+  // New categories always go last; position is changed afterwards with the
+  // up/down controls in the table, so the form never asks for a raw number.
+  const { data: last } = await supabase
+    .from('categories')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
   const { data, error } = await supabase
     .from('categories')
     .insert({
       name,
       slug,
       description: formData.get('description') as string || null,
-      sort_order: parseInt(formData.get('sort_order') as string) || 0,
+      sort_order: (last?.sort_order ?? 0) + 1,
       is_active: formData.get('is_active') !== 'false',
     })
     .select()
@@ -67,6 +76,24 @@ export async function createCategory(formData: FormData) {
   revalidatePath('/admin/categories')
   revalidatePath('/')
   return { data }
+}
+
+/** Rewrites sort_order to match the given id order (1-based, gap-free). */
+export async function reorderCategories(orderedIds: string[]) {
+  const supabase = createSupabaseAdminClient()
+
+  const results = await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from('categories').update({ sort_order: index + 1 }).eq('id', id)
+    )
+  )
+
+  const failed = results.find((r) => r.error)
+  if (failed?.error) return { error: failed.error.message }
+
+  revalidatePath('/admin/categories')
+  revalidatePath('/')
+  return { success: true }
 }
 
 export async function updateCategory(id: string, formData: FormData) {

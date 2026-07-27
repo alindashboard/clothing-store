@@ -59,13 +59,12 @@ export default async function AdminCategoriesPage() {
                 <label className="text-xs text-gray-500">Description</label>
                 <input name="description" className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400" />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-gray-500">Sort Order</label>
-                <input name="sort_order" type="number" defaultValue="0" className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400" />
-              </div>
               <button type="submit" className="w-full py-2 bg-black text-white text-sm font-medium hover:bg-gray-800">
                 Add Category
               </button>
+              <p className="text-[11px] text-gray-400 text-center">
+                Added at the end of the list — reorder with the arrows in the table.
+              </p>
             </form>
 
             {/* Config info */}
