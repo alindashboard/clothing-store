@@ -41,7 +41,6 @@ export async function Footer() {
             <ul className="space-y-2">
               <li><Link href="/products" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('allProducts')}</Link></li>
               <li><Link href="/new-arrivals" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('newArrivals')}</Link></li>
-              <li><Link href="/category/sale" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('sale')}</Link></li>
               <li><Link href="/contact" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('contact')}</Link></li>
             </ul>
           </div>

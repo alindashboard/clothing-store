@@ -170,10 +170,15 @@ export default async function ProductPage({ params }: Props) {
             </div>
 
             <div
-              className="font-bold mb-5"
+              className="font-bold mb-5 flex items-baseline gap-3"
               style={{ fontFamily: 'var(--font-archivo, var(--font-sans))', fontSize: '26px', color: '#EDE9E1' }}
             >
               {formatPrice(product.base_price)}
+              {product.compare_at_price && product.compare_at_price > product.base_price && (
+                <span className="line-through font-normal" style={{ fontSize: '17px', color: '#6b6862' }}>
+                  {formatPrice(product.compare_at_price)}
+                </span>
+              )}
             </div>
 
             {product.short_description && (
