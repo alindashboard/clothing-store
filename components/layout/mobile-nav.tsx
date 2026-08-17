@@ -1,6 +1,8 @@
 'use client'
 
-import { X, ShoppingBag, User } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, X, ShoppingBag, User } from 'lucide-react'
+import { buildCategoryTree } from '@/lib/category-tree'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import type { Category } from '@/lib/types'
 import { useCartStore } from '@/lib/store/cart'
@@ -21,6 +23,8 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
   const count = getItemCount()
   const t = useTranslations('nav')
   const accent = SITE_CONFIG.brand.darkAccent
+  const tree = buildCategoryTree(categories)
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
@@ -36,16 +40,47 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
 
         <nav className="flex-1 overflow-y-auto px-5 py-6">
           <ul className="space-y-1">
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <Link
-                  href={`/category/${cat.slug}`}
-                  onClick={onClose}
-                  className="block py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] border-b border-[#201f1c] hover:border-[#2B2924] transition-colors"
-                  style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-                >
-                  {cat.name}
-                </Link>
+            {tree.map((cat) => (
+              <li key={cat.id} className="border-b border-[#201f1c]">
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/category/${cat.slug}`}
+                    onClick={onClose}
+                    className="flex-1 py-2.5 text-sm font-medium tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors"
+                    style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+                  >
+                    {cat.name}
+                  </Link>
+                  {cat.children.length > 0 && (
+                    <button
+                      onClick={() => setExpanded(expanded === cat.id ? null : cat.id)}
+                      className="p-2 -mr-2 text-[#8C8577]"
+                      aria-expanded={expanded === cat.id}
+                      aria-label={cat.name}
+                    >
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform ${expanded === cat.id ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {expanded === cat.id && (
+                  <ul className="pb-2">
+                    {cat.children.map((child) => (
+                      <li key={child.id}>
+                        <Link
+                          href={`/category/${child.slug}`}
+                          onClick={onClose}
+                          className="block py-2 pl-3 text-xs tracking-wider uppercase text-[#8C8577] hover:text-[#EDE9E1] transition-colors"
+                          style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+                        >
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
             <li>

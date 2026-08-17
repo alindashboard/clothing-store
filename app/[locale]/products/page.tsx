@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/footer'
 import { ProductGridInfinite } from '@/components/product/product-grid-infinite'
 import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
+import { buildCategoryTree } from '@/lib/category-tree'
 import { getAlternates } from '@/lib/seo/alternates'
 import { SITE_CONFIG } from '@/lib/config'
 
@@ -78,7 +79,8 @@ export default async function ProductsPage() {
             >
               {t('filterAll')}
             </Link>
-            {categories.map((cat) => (
+            {/* Top-level only — the full list is ~30 entries and wraps badly. */}
+            {buildCategoryTree(categories).map((cat) => (
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}

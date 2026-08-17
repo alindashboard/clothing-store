@@ -2,12 +2,37 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { createSupabaseAdminClient } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Product, ProductVariant, ProductImage } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
 import { deleteProductImageFromStorage } from './upload'
 
 const PAGE_LIMIT = 48
+
+/**
+ * Category ids a listing should cover: the category itself plus its children.
+ * Products sit on the leaf categories, so a parent page ("uomo") would come
+ * back empty without this.
+ */
+async function categoryIdsForSlug(
+  supabase: SupabaseClient,
+  slug: string
+): Promise<string[] | null> {
+  const { data: cat } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', slug)
+    .single()
+  if (!cat) return null
+
+  const { data: children } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('parent_id', cat.id)
+
+  return [cat.id, ...(children ?? []).map((c) => c.id)]
+}
 
 export async function getProducts(options?: {
   categorySlug?: string
@@ -32,12 +57,8 @@ export async function getProducts(options?: {
   if (options?.limit) query = query.limit(options.limit)
 
   if (options?.categorySlug) {
-    const { data: cat } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('slug', options.categorySlug)
-      .single()
-    if (cat) query = query.eq('category_id', cat.id)
+    const ids = await categoryIdsForSlug(supabase, options.categorySlug)
+    if (ids) query = query.in('category_id', ids)
   }
 
   const { data, error } = await query
@@ -86,13 +107,9 @@ export async function getProductsPage(options?: {
     .range(offset, offset + limit) // fetches limit+1 rows to detect hasMore
 
   if (options?.categorySlug) {
-    const { data: cat } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('slug', options.categorySlug)
-      .single()
-    if (!cat) return { products: [], hasMore: false }
-    query = query.eq('category_id', cat.id)
+    const ids = await categoryIdsForSlug(supabase, options.categorySlug)
+    if (!ids) return { products: [], hasMore: false }
+    query = query.in('category_id', ids)
   }
 
   const { data, error } = await query

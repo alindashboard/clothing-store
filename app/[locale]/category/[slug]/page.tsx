@@ -39,6 +39,14 @@ export default async function CategoryPage({ params }: Props) {
     getTranslations('product'),
   ])
 
+  // On a parent, its children; on a child, the categories next to it.
+  const parentSlug = category.parent_id
+    ? categories.find((c) => c.id === category.parent_id)?.slug ?? slug
+    : slug
+  const siblings = categories.filter(
+    (c) => c.parent_id === (category.parent_id ?? category.id)
+  )
+
   return (
     <>
       <AnnouncementBar />
@@ -81,6 +89,38 @@ export default async function CategoryPage({ params }: Props) {
             <p className="text-sm leading-relaxed mt-3 md:mt-[18px] max-w-[620px]" style={{ color: '#a9a598' }}>
               {category.description}
             </p>
+          )}
+
+          {/* Drill-down row: a parent lists its children, a child lists its
+              siblings so you can move sideways without going back up. */}
+          {siblings.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 md:mt-7">
+              <Link
+                href={`/category/${parentSlug}`}
+                className="text-xs tracking-widest uppercase pb-0.5 border-b"
+                style={{
+                  color: parentSlug === slug ? SITE_CONFIG.brand.darkAccent : '#8C8577',
+                  borderColor: parentSlug === slug ? SITE_CONFIG.brand.darkAccent : 'transparent',
+                  fontFamily: 'var(--font-grotesk, var(--font-sans))',
+                }}
+              >
+                {t('filterAll')}
+              </Link>
+              {siblings.map((sib) => (
+                <Link
+                  key={sib.id}
+                  href={`/category/${sib.slug}`}
+                  className="text-xs tracking-widest uppercase pb-0.5 border-b transition-colors hover:text-[#c7c3b8]"
+                  style={{
+                    color: sib.slug === slug ? SITE_CONFIG.brand.darkAccent : '#8C8577',
+                    borderColor: sib.slug === slug ? SITE_CONFIG.brand.darkAccent : 'transparent',
+                    fontFamily: 'var(--font-grotesk, var(--font-sans))',
+                  }}
+                >
+                  {sib.name}
+                </Link>
+              ))}
+            </div>
           )}
         </div>
 

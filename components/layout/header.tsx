@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu, ShoppingBag } from 'lucide-react'
+import { ChevronDown, Menu, ShoppingBag } from 'lucide-react'
+import { buildCategoryTree } from '@/lib/category-tree'
 import { useCartStore } from '@/lib/store/cart'
 import { MobileNav } from './mobile-nav'
 import { LanguageSwitcher } from './language-switcher'
@@ -21,6 +22,7 @@ export function Header({ categories }: HeaderProps) {
   const count = getItemCount()
   const t = useTranslations('nav')
   const accent = SITE_CONFIG.brand.darkAccent
+  const tree = buildCategoryTree(categories)
 
   return (
     <header className="sticky top-0 z-40 bg-[#141412] border-b border-[#2B2924]">
@@ -43,17 +45,37 @@ export function Header({ categories }: HeaderProps) {
           <KayaMark size={36} textClassName="text-[19px]" />
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav — top-level categories only; children live in a dropdown. */}
         <nav className="hidden lg:flex items-center gap-6 flex-1">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/category/${cat.slug}`}
-              className="text-xs font-medium tracking-widest uppercase text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors"
-              style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-            >
-              {cat.name}
-            </Link>
+          {tree.map((cat) => (
+            <div key={cat.id} className="relative group py-4 -my-4">
+              <Link
+                href={`/category/${cat.slug}`}
+                className="flex items-center gap-1 text-xs font-medium tracking-widest uppercase text-[#c7c3b8] group-hover:text-[#EDE9E1] transition-colors"
+                style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+              >
+                {cat.name}
+                {cat.children.length > 0 && <ChevronDown className="w-3 h-3" />}
+              </Link>
+
+              {cat.children.length > 0 && (
+                <div className="absolute left-0 top-full pt-3 hidden group-hover:block group-focus-within:block">
+                  <ul className="min-w-[190px] py-2 bg-[#1B1A17] border border-[#2B2924] shadow-xl">
+                    {cat.children.map((child) => (
+                      <li key={child.id}>
+                        <Link
+                          href={`/category/${child.slug}`}
+                          className="block px-4 py-2 text-xs tracking-wider uppercase text-[#c7c3b8] hover:text-[#EDE9E1] hover:bg-[#232119] transition-colors"
+                          style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+                        >
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ))}
           <Link
             href="/products"
