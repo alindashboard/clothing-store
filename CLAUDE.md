@@ -52,7 +52,31 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `sb_publishable_*` keys and **legacy keys were disabled 2026-07-27** — the leaked
   JWT now returns 401, so it is dead even though it stays in git history. Scripts
   read credentials from env only: `node --env-file=.env.local scripts/<name>.mjs`.
-- The catalog was bulk-imported from store photos as **placeholder products**
+- **The catalog is generated from the owner's stock spreadsheets, which are the
+  source of truth.** `scripts/input/*.ods` (gitignored) → `parse-stock-ods.py`
+  → `scripts/output/stock.json` → `import-stock.mjs --wipe`. The import wipes
+  products/variants/images/categories **and the whole `product-images` bucket**
+  before writing; it never touches events, contact requests or `event-images`.
+  Re-running is a full replace, not a merge — anything the owner edited in the
+  admin is lost, so re-import only from an updated ODS. Photos are uploaded
+  separately afterwards; a fresh import leaves the catalog imageless.
+  Sheet quirks the parser handles: one sheet per brand; SKU/NUME/CATEGORIE/
+  CULOARE/MARIME only appear on a product's first row and carry down; a
+  free-text "Sconto X%" past the VALOARE column applies downwards until the
+  next note; PRET is the **pre-discount** price (`compare_at_price`), so
+  `base_price = PRET x (1 - sconto)`; nameless rows are sold-out leftovers
+  (CANTITATE 0) and are dropped; sheets end in hundreds of formula-only rows.
+  Product names are translated to Italian from a fixed vocabulary at the top of
+  the parser — extend those tables rather than hand-editing names.
+- Categories are a two-level tree: `uomo` / `donna` / `accessori-scarpe` parents
+  (from the three source files, the only place gender is recorded) with slugs
+  like `uomo-t-shirt`. Only the three parents have `show_on_landing`.
+  `brand.shoeCategorySlugs` must track the shoe child slugs
+  (`accessori-scarpe-sneakers`, `accessori-scarpe-ciabatte`) or PDPs show
+  clothing sizes for shoes.
+- `product_variants.sku` is globally unique — the import derives it from the
+  product SKU plus a cleaned size ("44 ½" → `-445`) and suffixes on collision.
+- The pre-2026-08-17 catalog was bulk-imported from store photos as **placeholder products**
   (`name: "Produs NNN"`, `base_price: 0`, no category, no variants) — the owner
   fills each one in from the admin. The `Incomplete` filter on `/admin/products`
   keys off `base_price = 0`; drop that filter once the catalog is real.
@@ -201,12 +225,20 @@ RESEND_API_KEY                # Resend API key for transactional email
 - Brand logo assets in `/public/brands/` (ticker uses text fallback for now)
 - Admin dashboard redirect target (`/admin/dashboard` vs `/admin`)
 
-### Open items (as of 2026-07-27)
+### Open items (as of 2026-08-17)
 
-- **111 placeholder products** need real name/price/category/variants — owner fills
-  them in from `/admin/products` using the `Incomplete` filter.
+- **The catalog has no photos.** The stock import wiped the bucket; 356 products
+  are live with prices/variants and no images. Uploading them is the next job,
+  and nothing links a photo to a SKU yet — the ODS files carry no photo
+  reference, so the match has to be made by hand or by a new pipeline.
+- **Brand names to confirm** with the owner: `BLNCG`, `POLO` (which Polo label?),
+  `Richmond` (John Richmond?). Rendered conservatively in `parse-stock-ods.py`.
+- 105 products share a name with another (the owner recorded distinct pieces
+  identically, e.g. 6x "Plein Sport Shorts da spiaggia Blu"). Slugs are unique;
+  the names need the owner's eye.
+- 11 products imported with zero stock and `is_active = false`.
 - **One product must be re-shot**: `IMG_6822`/`IMG_6823` were its only photos and
   both are unrecoverable (broken HEIC depth map), so it was never imported.
   `IMG_6857` and `IMG_7043` are also corrupt but their products kept one good photo.
-- Landing grid currently shows 2 cards (Sneakers, Shirts) — `Sets` was deleted
-  deliberately; a replacement category is planned.
+- Landing grid now shows the three gender parents (Uomo, Donna, Accessori e
+  Scarpe); the old Sneakers/Shirts cards went away with the category wipe.

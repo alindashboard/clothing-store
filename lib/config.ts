@@ -33,7 +33,7 @@ export const SITE_CONFIG = {
      * Category slugs that use numeric shoe sizes (37–45).
      * All other categories default to clothing sizes (S/M/L/XL).
      */
-    shoeCategorySlugs: ['sneakers', 'footwear'],
+    shoeCategorySlugs: ['accessori-scarpe-sneakers', 'accessori-scarpe-ciabatte'],
 
     /** Curated metallic swatch options shown in the admin accent picker. */
     accentOptions: [

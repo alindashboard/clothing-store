@@ -39,3 +39,6 @@ next-env.d.ts
 /Poze magazin actualizate/
 /Poze magazin actualizate*.zip
 /scripts/output/
+
+# owner-supplied stock spreadsheets (source of truth for the catalog import)
+/scripts/input/
