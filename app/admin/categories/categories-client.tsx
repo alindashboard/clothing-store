@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown, Upload, X } from 'lucide-react'
+import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown, Upload, X, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category } from '@/lib/types'
 import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding, setCategoryImage } from '@/lib/actions/categories'
@@ -16,13 +16,16 @@ interface Props {
   categories: Category[]
   productCounts: Record<string, number>
   shoeSlugs: string[]
+  /** Server action that creates a category and redirects back to this page. */
+  createAction: (formData: FormData) => Promise<void>
 }
 
-export function CategoriesClient({ categories: initial, productCounts, shoeSlugs }: Props) {
+export function CategoriesClient({ categories: initial, productCounts, shoeSlugs, createAction }: Props) {
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>(initial)
   const [editTarget, setEditTarget] = useState<Category | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
+  const [showAdd, setShowAdd] = useState(false)
 
   // Edit form fields
   const [eName, setEName] = useState('')
@@ -182,6 +185,20 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
 
   return (
     <>
+      {/* ── Toolbar (both breakpoints) ──────────────────────────── */}
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <p className="text-xs text-gray-400">
+          {categories.length} {categories.length === 1 ? 'category' : 'categories'}
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowAdd(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Add Category
+        </button>
+      </div>
+
       {/* ── Desktop table ───────────────────────────────────────── */}
       <div className="hidden md:block bg-white border border-gray-200 rounded-lg overflow-x-auto min-w-0">
         <table className="w-full text-sm min-w-[560px]">
@@ -370,6 +387,82 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
           </div>
         )}
       </div>
+
+      {/* Guidance that used to sit beside the table, now that it is full width. */}
+      <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-3 text-[11px] text-gray-400 leading-relaxed">
+        <p className="max-w-md">
+          <span className="font-medium text-gray-500">Shown on landing:</span>{' '}
+          toggle the <strong>Landing</strong> checkbox above. Cards appear in the same order as
+          this list, so use the arrows to arrange them.
+        </p>
+        <div>
+          <p className="font-medium text-gray-500 mb-1">Shoe size categories (37–45)</p>
+          <div className="flex flex-wrap gap-1.5">
+            {shoeSlugs.map((slug) => (
+              <span key={slug} className="bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded">
+                {slug}
+              </span>
+            ))}
+          </div>
+          <p className="mt-1">Edit in <code className="bg-gray-100 px-1">lib/config.ts → brand.shoeCategorySlugs</code></p>
+        </div>
+      </div>
+
+      {/* ── Add Modal ───────────────────────────────────────────── */}
+      {showAdd && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowAdd(false)} />
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-700">
+              Add Category
+            </h2>
+            {/* The action redirects back to this page, which re-renders the table. */}
+            <form action={createAction} onSubmit={() => setShowAdd(false)} className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-500">Name *</label>
+                <input
+                  name="name"
+                  required
+                  autoFocus
+                  className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-500">Slug (auto-generated if empty)</label>
+                <input
+                  name="slug"
+                  className="w-full border border-gray-200 px-3 py-2 text-sm font-mono focus:outline-none focus:border-gray-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-500">Description</label>
+                <input
+                  name="description"
+                  className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
+                />
+              </div>
+              <p className="text-[11px] text-gray-400">
+                Added at the end of the list — reorder with the arrows in the table.
+              </p>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+                >
+                  Add Category
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(false)}
+                  className="flex-1 py-2 border border-gray-200 text-sm hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ── Edit Modal ──────────────────────────────────────────── */}
       {editTarget && (
