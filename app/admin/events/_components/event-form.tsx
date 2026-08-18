@@ -8,6 +8,8 @@ import { toast } from 'sonner'
 import type { Event } from '@/lib/types'
 import { createEvent, updateEvent } from '@/lib/actions/events'
 import { uploadEventImage, deleteEventImageFromStorage } from '@/lib/actions/upload'
+import { resizeImageForUpload, formatBytes } from '@/lib/image-resize'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
 
 interface Props {
@@ -48,17 +50,39 @@ export function EventForm({ event }: Props) {
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const original = e.target.files?.[0]
+    e.target.value = ''
+    if (!original) return
+
     setUploading(true)
+
+    let file = original
+    try {
+      const resized = await resizeImageForUpload(original)
+      file = resized.file
+    } catch {
+      // Fall through with the original; the size check below still guards it.
+    }
+
+    if (file.size > MAX_UPLOAD_SIZE) {
+      toast.error(`Still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
+      setUploading(false)
+      return
+    }
+
     const fd = new FormData()
     fd.append('file', file)
-    const { url, error } = await uploadEventImage(fd)
-    if (error) { toast.error(error); setUploading(false); return }
-    setImageUrl(url!)
-    toast.success('Image uploaded')
-    setUploading(false)
-    e.target.value = ''
+
+    try {
+      const { url, error } = await uploadEventImage(fd)
+      if (error || !url) { toast.error(error ?? 'Upload failed.'); return }
+      setImageUrl(url)
+      toast.success('Image uploaded')
+    } catch {
+      toast.error('Upload failed. Check your connection and retry.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   async function handleRemoveImage() {

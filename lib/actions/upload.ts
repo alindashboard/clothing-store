@@ -1,9 +1,9 @@
 'use server'
 
 import { createSupabaseAdminClient } from '@/lib/supabase'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from './upload-limits'
 
 const BUCKET = 'product-images'
-const MAX_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 export async function uploadProductImage(
@@ -13,7 +13,7 @@ export async function uploadProductImage(
   const file = formData.get('file') as File
   if (!file) return { error: 'No file provided.' }
   if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
-  if (file.size > MAX_SIZE) return { error: 'File must be under 5MB.' }
+  if (file.size > MAX_UPLOAD_SIZE) return { error: `File must be under ${MAX_UPLOAD_SIZE_LABEL}.` }
 
   const supabase = createSupabaseAdminClient()
   const ext = file.name.split('.').pop()
@@ -49,7 +49,7 @@ export async function uploadEventImage(
   const file = formData.get('file') as File
   if (!file) return { error: 'No file provided.' }
   if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
-  if (file.size > MAX_SIZE) return { error: 'File must be under 5MB.' }
+  if (file.size > MAX_UPLOAD_SIZE) return { error: `File must be under ${MAX_UPLOAD_SIZE_LABEL}.` }
 
   const supabase = createSupabaseAdminClient()
   const ext = file.name.split('.').pop()

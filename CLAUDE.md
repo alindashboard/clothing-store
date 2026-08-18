@@ -92,6 +92,15 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   click listener cancels link navigation and `beforeunload` covers reload/close.
   Dirty state is recomputed from the live form, so undoing an edit clears it.
   Browser Back is *not* covered (App Router can't block a popstate after the fact).
+- **Image uploads are capped at 4MB by Vercel, not by us.** A Server Action body over
+  ~4.5MB is rejected at the platform edge before the action runs, so
+  `serverActions.bodySizeLimit` cannot raise it. `lib/actions/upload-limits.ts` holds the
+  single `MAX_UPLOAD_SIZE` both the actions and the admin clients check. Admin uploads
+  downscale in the browser first (`lib/image-resize.ts`, 1600px WebP q82 — same constants
+  as `scripts/convert-to-webp.mjs`), so phone photos of 8-12MB go through as a few hundred
+  KB. The product uploader accepts multiple files per pick and uploads them sequentially.
+  Browsers cannot decode HEIC — the owner's phone must be set to "Most Compatible"/JPEG,
+  or the files go through `scripts/convert-to-webp.mjs` instead.
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
