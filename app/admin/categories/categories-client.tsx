@@ -1,11 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react'
+import Image from 'next/image'
+import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category } from '@/lib/types'
-import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding } from '@/lib/actions/categories'
+import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding, setCategoryImage } from '@/lib/actions/categories'
+import { uploadCategoryImage } from '@/lib/actions/upload'
+import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
 
 interface Props {
@@ -29,6 +33,9 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isReordering, setIsReordering] = useState(false)
+  const [eImageUrl, setEImageUrl] = useState<string | null>(null)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const imageInputRef = useRef<HTMLInputElement>(null)
 
   // Sync when server re-fetches (after router.refresh)
   useEffect(() => { setCategories(initial) }, [initial])
@@ -40,10 +47,56 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
     setEOrigSlug(cat.slug)
     setEDesc(cat.description ?? '')
     setEActive(cat.is_active)
+    setEImageUrl(cat.image_url)
   }
 
   function closeEdit() {
     setEditTarget(null)
+  }
+
+  async function handleCategoryImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const original = e.target.files?.[0]
+    e.target.value = ''
+    if (!original || !editTarget) return
+
+    setIsUploadingImage(true)
+    try {
+      let file = original
+      try {
+        file = (await resizeImageForUpload(original)).file
+      } catch (err) {
+        if (err instanceof UndecodableImageError) { toast.error(err.message); return }
+        // Fall through with the original; the size check below still guards it.
+      }
+
+      if (file.size > MAX_UPLOAD_SIZE) {
+        toast.error(`Still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
+        return
+      }
+
+      const fd = new FormData()
+      fd.append('file', file)
+      const { url, error } = await uploadCategoryImage(fd)
+      if (error || !url) { toast.error(error ?? 'Upload failed.'); return }
+
+      const saved = await setCategoryImage(editTarget.id, url)
+      if (saved.error) { toast.error(saved.error); return }
+
+      setEImageUrl(url)
+      setCategories((prev) => prev.map((c) => (c.id === editTarget.id ? { ...c, image_url: url } : c)))
+      toast.success('Category image updated')
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
+  async function handleRemoveCategoryImage() {
+    if (!editTarget) return
+    const { error } = await setCategoryImage(editTarget.id, null)
+    if (error) { toast.error(error); return }
+    setEImageUrl(null)
+    setCategories((prev) => prev.map((c) => (c.id === editTarget.id ? { ...c, image_url: null } : c)))
+    toast.success('Category image removed — the landing card falls back to product photos')
   }
 
   async function handleSave() {
@@ -363,6 +416,47 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
                 className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400"
               />
             </div>
+
+            {/* Only landing categories render a card, so the image is offered there. */}
+            {editTarget.show_on_landing && (
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-500">Landing image</label>
+                {eImageUrl ? (
+                  <div className="relative aspect-[3/4] w-32 bg-gray-50 overflow-hidden group">
+                    <Image src={eImageUrl} alt="" fill sizes="128px" className="object-cover" />
+                    <button
+                      type="button"
+                      onClick={handleRemoveCategoryImage}
+                      className="absolute top-1 right-1 p-1 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Remove category image"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="w-32 aspect-[3/4] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span className="text-[10px]">{isUploadingImage ? 'Uploading…' : 'Upload'}</span>
+                  </button>
+                )}
+                <p className="text-[11px] text-gray-400 leading-relaxed">
+                  Shown on the landing card. Without one, the card cycles through photos of
+                  products in this category.
+                </p>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+                  onChange={handleCategoryImage}
+                  className="hidden"
+                />
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="text-xs text-gray-500">Active</label>

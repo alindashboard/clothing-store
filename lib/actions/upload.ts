@@ -41,6 +41,38 @@ export async function deleteProductImageFromStorage(url: string): Promise<{ erro
   return {}
 }
 
+/**
+ * Category images live in the product-images bucket under a `categories/` prefix.
+ * A stock re-import wipes that bucket *and* the categories table, so the file and
+ * the row it belongs to are discarded together -- a separate bucket would only
+ * leave orphans behind.
+ */
+const CATEGORY_PREFIX = 'categories'
+
+export async function uploadCategoryImage(
+  formData: FormData
+): Promise<{ url?: string; error?: string }> {
+  const file = formData.get('file') as File
+  if (!file) return { error: 'No file provided.' }
+  if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
+  if (file.size > MAX_UPLOAD_SIZE) return { error: `File must be under ${MAX_UPLOAD_SIZE_LABEL}.` }
+
+  const supabase = createSupabaseAdminClient()
+  const ext = file.name.split('.').pop()
+  const path = `${CATEGORY_PREFIX}/${Date.now()}.${ext}`
+
+  const arrayBuffer = await file.arrayBuffer()
+  const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
+    contentType: file.type,
+    upsert: false,
+  })
+
+  if (error) return { error: error.message }
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
+  return { url: data.publicUrl }
+}
+
 const EVENT_BUCKET = 'event-images'
 
 export async function uploadEventImage(

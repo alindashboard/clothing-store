@@ -140,6 +140,27 @@ export async function deleteCategory(id: string) {
   return { success: true }
 }
 
+/**
+ * Sets (or clears, with null) the landing image for a category. Kept separate
+ * from updateCategoryDirect so the uploader saves immediately, like the product
+ * image uploader, rather than waiting for the modal's Save.
+ */
+export async function setCategoryImage(
+  id: string,
+  imageUrl: string | null
+): Promise<{ error?: string }> {
+  const supabase = createSupabaseAdminClient()
+  const { error } = await supabase
+    .from('categories')
+    .update({ image_url: imageUrl })
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/admin/categories')
+  revalidatePath('/', 'layout')
+  return {}
+}
+
 export async function updateCategoryDirect(
   id: string,
   data: {

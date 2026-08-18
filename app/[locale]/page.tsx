@@ -43,7 +43,10 @@ export default async function HomePage() {
     getTranslations('home'),
   ])
 
-  const categoryImages = await getCategoryImages(landingCategories.map((c) => c.id))
+  // Only categories without an editorial image need the product-photo fallback.
+  const categoryImages = await getCategoryImages(
+    landingCategories.filter((c) => !c.image_url).map((c) => c.id)
+  )
   const newArrivalProducts = newArrivals.map((a) => a.product)
 
   return (
@@ -187,7 +190,15 @@ export default async function HomePage() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
                   <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
-                    {(categoryImages[cat.id]?.length ?? 0) > 0 ? (
+                    {cat.image_url ? (
+                      <Image
+                        src={cat.image_url}
+                        alt={cat.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    ) : (categoryImages[cat.id]?.length ?? 0) > 0 ? (
                       <CategoryImageSlider
                         images={categoryImages[cat.id]}
                         alt={cat.name}

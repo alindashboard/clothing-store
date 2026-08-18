@@ -113,6 +113,15 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   which drops products with no photo from listings, the PDP (404) and the sitemap.
   Reads default to **false** if the row or table is missing, so a missing migration
   degrades to the old behaviour instead of emptying the shop.
+- Landing category cards: `categories.image_url` (uploaded in the `/admin/categories`
+  edit modal, offered only for `show_on_landing` categories) wins; without it the card
+  falls back to `getCategoryImages`, which cycles one photo from each of the newest
+  photographed products. That helper must resolve **parent + children** — landing shows
+  the gender parents while products hang off child categories, so a bare
+  `.eq('category_id', parentId)` matches nothing and every card renders the gradient
+  placeholder. Category images live in the `product-images` bucket under `categories/`:
+  a stock re-import wipes that bucket *and* the categories rows, so file and row die
+  together instead of leaving orphans.
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.

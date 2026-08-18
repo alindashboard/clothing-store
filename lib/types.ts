@@ -7,6 +7,8 @@ export interface Category {
   sort_order: number
   is_active: boolean
   show_on_landing: boolean
+  /** Editorial override for the landing card; falls back to product photos. */
+  image_url: string | null
   created_at: string
 }
 

@@ -197,15 +197,30 @@ export async function getCategoryImages(
   if (categoryIds.length === 0) return {}
   const supabase = createSupabaseAdminClient()
 
+  // Landing cards show the gender parents, but products hang off their children,
+  // so a bare category_id match would find nothing. Resolve each parent to itself
+  // plus its children, the same way categoryIdsForSlug does for the listing pages.
+  const { data: childRows } = await supabase
+    .from('categories')
+    .select('id, parent_id')
+    .in('parent_id', categoryIds)
+
   const entries = await Promise.all(
     categoryIds.map(async (categoryId) => {
+      const ids = [
+        categoryId,
+        ...(childRows ?? []).filter((c) => c.parent_id === categoryId).map((c) => c.id),
+      ]
+
+      // !inner drops products with no image, so `limit` rows are always usable
+      // rather than a guess at how many of the newest happen to be photographed.
       const { data } = await supabase
         .from('products')
-        .select('category_id, images:product_images(url, is_primary, sort_order)')
+        .select('category_id, images:product_images!inner(url, is_primary, sort_order)')
         .eq('is_active', true)
-        .eq('category_id', categoryId)
+        .in('category_id', ids)
         .order('created_at', { ascending: false })
-        .limit(limit * 2) // extra rows in case some products have no images
+        .limit(limit)
 
       const urls: string[] = []
       for (const product of data ?? []) {
@@ -213,9 +228,8 @@ export async function getCategoryImages(
         const imgs = product.images as { url: string; is_primary: boolean; sort_order: number }[]
         if (!imgs?.length) continue
         const sorted = [...imgs].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order)
-        for (const img of sorted) {
-          if (urls.length < limit) urls.push(img.url)
-        }
+        // One image per product, so a card cycles through different products.
+        urls.push(sorted[0].url)
       }
       return [categoryId, urls] as const
     })
