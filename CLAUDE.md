@@ -99,8 +99,13 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   downscale in the browser first (`lib/image-resize.ts`, 1600px WebP q82 — same constants
   as `scripts/convert-to-webp.mjs`), so phone photos of 8-12MB go through as a few hundred
   KB. The product uploader accepts multiple files per pick and uploads them sequentially.
-  Browsers cannot decode HEIC — the owner's phone must be set to "Most Compatible"/JPEG,
-  or the files go through `scripts/convert-to-webp.mjs` instead.
+  HEIC is handled too: browsers cannot decode it natively, so `heic-to` (libheif wasm)
+  is **dynamically imported** in `lib/image-resize.ts` only when a HEIC is picked — keep
+  it a dynamic import, it is a ~2.9MB chunk that must never reach the public bundle.
+  This means the owner can upload straight from her iPhone with no phone-setting change.
+  A HEIC that libheif cannot decode (the broken depth maps in this catalog) throws
+  `UndecodableImageError` and is reported per-file; `scripts/convert-to-webp.mjs` +
+  ImageMagick remains the fallback for those.
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.

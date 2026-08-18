@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import type { Event } from '@/lib/types'
 import { createEvent, updateEvent } from '@/lib/actions/events'
 import { uploadEventImage, deleteEventImageFromStorage } from '@/lib/actions/upload'
-import { resizeImageForUpload, formatBytes } from '@/lib/image-resize'
+import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
 
@@ -60,7 +60,12 @@ export function EventForm({ event }: Props) {
     try {
       const resized = await resizeImageForUpload(original)
       file = resized.file
-    } catch {
+    } catch (err) {
+      if (err instanceof UndecodableImageError) {
+        toast.error(err.message)
+        setUploading(false)
+        return
+      }
       // Fall through with the original; the size check below still guards it.
     }
 
@@ -290,7 +295,7 @@ export function EventForm({ event }: Props) {
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
               onChange={handleImageUpload}
               className="hidden"
             />

@@ -6,7 +6,7 @@ import { Upload, Trash2, Star } from 'lucide-react'
 import type { ProductImage } from '@/lib/types'
 import { uploadProductImage } from '@/lib/actions/upload'
 import { upsertImage, deleteImage, setImageAsPrimary } from '@/lib/actions/products'
-import { resizeImageForUpload, formatBytes } from '@/lib/image-resize'
+import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { toast } from 'sonner'
 
@@ -53,7 +53,11 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
     try {
       const result = await resizeImageForUpload(original)
       file = result.file
-    } catch {
+    } catch (err) {
+      if (err instanceof UndecodableImageError) {
+        toast.error(`${original.name}: ${err.message}`)
+        return false
+      }
       // Fall through with the original; the size check below still guards it.
     }
 
@@ -136,7 +140,7 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           multiple
           onChange={handleFileChange}
           className="hidden"
@@ -144,8 +148,8 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
       </div>
 
       <p className="text-xs text-gray-400">
-        JPG, PNG, WebP · select several at once · large photos are compressed automatically ·
-        Click ★ to set as primary
+        JPG, PNG, WebP, HEIC · select several at once · large photos are converted and
+        compressed automatically · Click ★ to set as primary
       </p>
 
       {images.length === 0 ? (
