@@ -1,5 +1,6 @@
 'use server'
 
+import { hideProductsWithoutImages } from '@/lib/site-settings'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -34,6 +35,31 @@ async function categoryIdsForSlug(
   return [cat.id, ...(children ?? []).map((c) => c.id)]
 }
 
+/**
+ * The product embed, in two literal forms so PostgREST can still infer the row
+ * type (a computed string collapses the inference to GenericStringError).
+ *
+ * The `!inner` variant inner-joins product_images, which drops parent rows with
+ * no matching child — exactly "products with at least one image".
+ */
+const PRODUCT_SELECT = `
+      *,
+      category:categories(*),
+      variants:product_variants(*),
+      images:product_images(*)
+    `
+
+const PRODUCT_SELECT_WITH_IMAGE = `
+      *,
+      category:categories(*),
+      variants:product_variants(*),
+      images:product_images!inner(*)
+    `
+
+function productSelect(hideImageless: boolean) {
+  return hideImageless ? PRODUCT_SELECT_WITH_IMAGE : PRODUCT_SELECT
+}
+
 export async function getProducts(options?: {
   categorySlug?: string
   featured?: boolean
@@ -41,14 +67,10 @@ export async function getProducts(options?: {
   limit?: number
 }): Promise<Product[]> {
   const supabase = await createSupabaseServerClient()
+  const hideImageless = await hideProductsWithoutImages()
   let query = supabase
     .from('products')
-    .select(`
-      *,
-      category:categories(*),
-      variants:product_variants(*),
-      images:product_images(*)
-    `)
+    .select(productSelect(hideImageless))
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
@@ -68,14 +90,11 @@ export async function getProducts(options?: {
 
 export async function getProduct(slug: string): Promise<Product | null> {
   const supabase = await createSupabaseServerClient()
+  // A hidden product must 404 on its own URL too, or it stays linkable and indexable.
+  const hideImageless = await hideProductsWithoutImages()
   const { data, error } = await supabase
     .from('products')
-    .select(`
-      *,
-      category:categories(*),
-      variants:product_variants(*),
-      images:product_images(*)
-    `)
+    .select(productSelect(hideImageless))
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
@@ -94,14 +113,10 @@ export async function getProductsPage(options?: {
   const limit = options?.limit ?? PAGE_LIMIT
   const offset = options?.offset ?? 0
 
+  const hideImageless = await hideProductsWithoutImages()
   let query = supabase
     .from('products')
-    .select(`
-      *,
-      category:categories(*),
-      variants:product_variants(*),
-      images:product_images(*)
-    `)
+    .select(productSelect(hideImageless))
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit) // fetches limit+1 rows to detect hasMore

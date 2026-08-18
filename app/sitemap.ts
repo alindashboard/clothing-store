@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/config'
 import { createSupabaseAdminClient } from '@/lib/supabase'
+import { hideProductsWithoutImages } from '@/lib/site-settings'
 
 const base = SITE_CONFIG.brand.url
 const locales = ['it', 'en'] as const
@@ -33,8 +34,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const supabase = createSupabaseAdminClient()
 
+  // Products hidden for having no photo must stay out of the sitemap, or Google
+  // is pointed at URLs that 404.
+  const hideImageless = await hideProductsWithoutImages()
+
   const [{ data: products }, { data: categories }] = await Promise.all([
-    supabase.from('products').select('slug, updated_at').eq('is_active', true),
+    supabase
+      .from('products')
+      .select(`slug, updated_at, images:product_images${hideImageless ? '!inner' : ''}(id)`)
+      .eq('is_active', true),
     supabase.from('categories').select('slug').eq('is_active', true),
   ])
 

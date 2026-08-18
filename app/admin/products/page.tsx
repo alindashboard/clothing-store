@@ -9,6 +9,8 @@ import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { formatPrice } from '@/lib/utils'
 import { ProductFilterBar } from '@/components/admin/product-filter-bar'
 import { AdminPagination } from '@/components/admin/admin-pagination'
+import { HideImagelessToggle } from '@/components/admin/hide-imageless-toggle'
+import { hideProductsWithoutImages } from '@/lib/site-settings'
 
 const PAGE_SIZE = 50
 
@@ -29,7 +31,7 @@ export default async function AdminProductsPage({
   const { categoryId, page: pageParam, search, status } = await searchParams
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
-  const [{ products, totalCount }, categories] = await Promise.all([
+  const [{ products, totalCount }, categories, hideImageless] = await Promise.all([
     getAllProductsAdmin({
       categoryId,
       page,
@@ -38,6 +40,7 @@ export default async function AdminProductsPage({
       status: (status as 'active' | 'draft' | 'incomplete' | 'all') || 'all',
     }),
     getAllCategoriesAdmin(),
+    hideProductsWithoutImages(),
   ])
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
@@ -53,6 +56,8 @@ export default async function AdminProductsPage({
           <Plus className="w-4 h-4" /> Add Product
         </Link>
       </div>
+
+      <HideImagelessToggle initial={hideImageless} />
 
       <Suspense>
         <ProductFilterBar

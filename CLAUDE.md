@@ -106,6 +106,13 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   A HEIC that libheif cannot decode (the broken depth maps in this catalog) throws
   `UndecodableImageError` and is reported per-file; `scripts/convert-to-webp.mjs` +
   ImageMagick remains the fallback for those.
+- `site_settings` is a key/value table for admin-toggleable flags (read via
+  `lib/site-settings.ts`, cached per request). First flag:
+  `hide_products_without_images`, toggled at the top of `/admin/products`. When on,
+  the public product queries switch their images embed to `product_images!inner`,
+  which drops products with no photo from listings, the PDP (404) and the sitemap.
+  Reads default to **false** if the row or table is missing, so a missing migration
+  degrades to the old behaviour instead of emptying the shop.
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
