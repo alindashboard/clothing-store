@@ -238,6 +238,42 @@ export async function getCategoryImages(
   return Object.fromEntries(entries)
 }
 
+/**
+ * Photos of the products in a category (parent + children), for picking landing
+ * slideshow images in the admin. One entry per image so a product shot from
+ * several angles offers each angle.
+ */
+export async function getCategoryPhotoOptions(
+  categoryId: string
+): Promise<{ productName: string; url: string }[]> {
+  const supabase = createSupabaseAdminClient()
+
+  const { data: children } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('parent_id', categoryId)
+
+  const ids = [categoryId, ...(children ?? []).map((c) => c.id)]
+
+  const { data } = await supabase
+    .from('products')
+    .select('name, images:product_images!inner(url, is_primary, sort_order)')
+    .eq('is_active', true)
+    .in('category_id', ids)
+    .order('created_at', { ascending: false })
+    .limit(120)
+
+  const options: { productName: string; url: string }[] = []
+  for (const product of data ?? []) {
+    const imgs = product.images as { url: string; is_primary: boolean; sort_order: number }[]
+    const sorted = [...(imgs ?? [])].sort(
+      (a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) || a.sort_order - b.sort_order
+    )
+    for (const img of sorted) options.push({ productName: product.name, url: img.url })
+  }
+  return options
+}
+
 export async function getProductAdmin(id: string): Promise<Product | null> {
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase

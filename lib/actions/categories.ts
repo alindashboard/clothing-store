@@ -141,18 +141,18 @@ export async function deleteCategory(id: string) {
 }
 
 /**
- * Sets (or clears, with null) the landing image for a category. Kept separate
- * from updateCategoryDirect so the uploader saves immediately, like the product
- * image uploader, rather than waiting for the modal's Save.
+ * Replaces a category's landing slideshow. Array order is slideshow order, so
+ * reordering and removing are both just a new list. Saves immediately rather
+ * than waiting for the modal's Save, like the product image uploader.
  */
-export async function setCategoryImage(
+export async function setCategoryImages(
   id: string,
-  imageUrl: string | null
+  imageUrls: string[]
 ): Promise<{ error?: string }> {
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase
     .from('categories')
-    .update({ image_url: imageUrl })
+    .update({ image_urls: imageUrls })
     .eq('id', id)
 
   if (error) return { error: error.message }

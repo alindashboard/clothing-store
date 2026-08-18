@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown, Upload, X, Plus } from 'lucide-react'
+import { Pencil, Trash2, AlertTriangle, ChevronUp, ChevronDown, Upload, X, Plus, ChevronLeft, ChevronRight, Images } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category } from '@/lib/types'
-import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding, setCategoryImage } from '@/lib/actions/categories'
+import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding, setCategoryImages } from '@/lib/actions/categories'
 import { uploadCategoryImage } from '@/lib/actions/upload'
+import { getCategoryPhotoOptions } from '@/lib/actions/products'
 import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
@@ -36,9 +37,12 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isReordering, setIsReordering] = useState(false)
-  const [eImageUrl, setEImageUrl] = useState<string | null>(null)
+  const [eImages, setEImages] = useState<string[]>([])
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const [pickerFor, setPickerFor] = useState<Category | null>(null)
+  const [pickerOptions, setPickerOptions] = useState<{ productName: string; url: string }[] | null>(null)
 
   // Sync when server re-fetches (after router.refresh)
   useEffect(() => { setCategories(initial) }, [initial])
@@ -50,56 +54,89 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
     setEOrigSlug(cat.slug)
     setEDesc(cat.description ?? '')
     setEActive(cat.is_active)
-    setEImageUrl(cat.image_url)
+    setEImages(cat.image_urls ?? [])
   }
 
   function closeEdit() {
     setEditTarget(null)
   }
 
+  /** Single place that persists the list and mirrors it into the table state. */
+  async function persistImages(categoryId: string, urls: string[]): Promise<boolean> {
+    const { error } = await setCategoryImages(categoryId, urls)
+    if (error) { toast.error(error); return false }
+    setEImages(urls)
+    setCategories((prev) => prev.map((c) => (c.id === categoryId ? { ...c, image_urls: urls } : c)))
+    return true
+  }
+
   async function handleCategoryImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const original = e.target.files?.[0]
+    const files = Array.from(e.target.files ?? [])
     e.target.value = ''
-    if (!original || !editTarget) return
+    if (files.length === 0 || !editTarget) return
 
     setIsUploadingImage(true)
-    try {
+    const added: string[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress(files.length > 1 ? `${i + 1}/${files.length}` : null)
+      const original = files[i]
+
       let file = original
       try {
         file = (await resizeImageForUpload(original)).file
       } catch (err) {
-        if (err instanceof UndecodableImageError) { toast.error(err.message); return }
+        if (err instanceof UndecodableImageError) { toast.error(`${original.name}: ${err.message}`); continue }
         // Fall through with the original; the size check below still guards it.
       }
 
       if (file.size > MAX_UPLOAD_SIZE) {
-        toast.error(`Still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
-        return
+        toast.error(`${original.name}: still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
+        continue
       }
 
       const fd = new FormData()
       fd.append('file', file)
       const { url, error } = await uploadCategoryImage(fd)
-      if (error || !url) { toast.error(error ?? 'Upload failed.'); return }
+      if (error || !url) { toast.error(`${original.name}: ${error ?? 'upload failed.'}`); continue }
+      added.push(url)
+    }
 
-      const saved = await setCategoryImage(editTarget.id, url)
-      if (saved.error) { toast.error(saved.error); return }
+    setUploadProgress(null)
+    setIsUploadingImage(false)
+    if (added.length === 0) return
 
-      setEImageUrl(url)
-      setCategories((prev) => prev.map((c) => (c.id === editTarget.id ? { ...c, image_url: url } : c)))
-      toast.success('Category image updated')
-    } finally {
-      setIsUploadingImage(false)
+    if (await persistImages(editTarget.id, [...eImages, ...added])) {
+      toast.success(added.length === 1 ? 'Image added' : `${added.length} images added`)
     }
   }
 
-  async function handleRemoveCategoryImage() {
+  async function handleRemoveImageAt(index: number) {
     if (!editTarget) return
-    const { error } = await setCategoryImage(editTarget.id, null)
-    if (error) { toast.error(error); return }
-    setEImageUrl(null)
-    setCategories((prev) => prev.map((c) => (c.id === editTarget.id ? { ...c, image_url: null } : c)))
-    toast.success('Category image removed — the landing card falls back to product photos')
+    await persistImages(editTarget.id, eImages.filter((_, i) => i !== index))
+  }
+
+  /** Moves an image one slot along, which is what reorders the slideshow. */
+  async function handleMoveImage(index: number, direction: -1 | 1) {
+    if (!editTarget) return
+    const target = index + direction
+    if (target < 0 || target >= eImages.length) return
+    const next = [...eImages]
+    ;[next[index], next[target]] = [next[target], next[index]]
+    await persistImages(editTarget.id, next)
+  }
+
+  async function openPicker() {
+    if (!editTarget) return
+    setPickerFor(editTarget)
+    setPickerOptions(null) // renders the loading state
+    setPickerOptions(await getCategoryPhotoOptions(editTarget.id))
+  }
+
+  async function addFromProduct(url: string) {
+    if (!editTarget) return
+    if (eImages.includes(url)) { toast.error('That photo is already in the slideshow'); return }
+    if (await persistImages(editTarget.id, [...eImages, url])) toast.success('Photo added')
   }
 
   async function handleSave() {
@@ -510,41 +547,84 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
               />
             </div>
 
-            {/* Only landing categories render a card, so the image is offered there. */}
+            {/* Only landing categories render a card, so the slideshow is offered there. */}
             {editTarget.show_on_landing && (
-              <div className="space-y-1.5">
-                <label className="text-xs text-gray-500">Landing image</label>
-                {eImageUrl ? (
-                  <div className="relative aspect-[3/4] w-32 bg-gray-50 overflow-hidden group">
-                    <Image src={eImageUrl} alt="" fill sizes="128px" className="object-cover" />
-                    <button
-                      type="button"
-                      onClick={handleRemoveCategoryImage}
-                      className="absolute top-1 right-1 p-1 bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label="Remove category image"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+              <div className="space-y-2">
+                <label className="text-xs text-gray-500">Landing slideshow</label>
+
+                {eImages.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {eImages.map((url, i) => (
+                      <div key={url} className="relative aspect-[3/4] bg-gray-50 overflow-hidden group">
+                        <Image src={url} alt="" fill sizes="96px" className="object-cover" unoptimized />
+                        <span className="absolute top-1 left-1 bg-black/70 text-white text-[10px] px-1">
+                          {i + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImageAt(i)}
+                          className="absolute top-1 right-1 p-0.5 bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label={`Remove image ${i + 1}`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <div className="absolute bottom-0 inset-x-0 flex justify-between bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(i, -1)}
+                            disabled={i === 0}
+                            className="p-1 text-white disabled:opacity-30"
+                            aria-label={`Move image ${i + 1} earlier`}
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(i, 1)}
+                            disabled={i === eImages.length - 1}
+                            className="p-1 text-white disabled:opacity-30"
+                            aria-label={`Move image ${i + 1} later`}
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ) : (
+                )}
+
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => imageInputRef.current?.click()}
                     disabled={isUploadingImage}
-                    className="w-32 aspect-[3/4] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200 text-xs hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   >
-                    <Upload className="w-4 h-4" />
-                    <span className="text-[10px]">{isUploadingImage ? 'Uploading…' : 'Upload'}</span>
+                    <Upload className="w-3.5 h-3.5" />
+                    {isUploadingImage ? `Uploading${uploadProgress ? ` ${uploadProgress}` : ''}…` : 'Upload'}
                   </button>
-                )}
+                  <button
+                    type="button"
+                    onClick={openPicker}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-200 text-xs hover:bg-gray-50 transition-colors"
+                  >
+                    <Images className="w-3.5 h-3.5" /> From products
+                  </button>
+                </div>
+
                 <p className="text-[11px] text-gray-400 leading-relaxed">
-                  Shown on the landing card. Without one, the card cycles through photos of
-                  products in this category.
+                  {eImages.length === 0
+                    ? 'No images set — the card cycles through photos of products in this category.'
+                    : eImages.length === 1
+                    ? 'One image — the card shows it as a still.'
+                    : `${eImages.length} images, cross-fading every 3.5s in this order.`}
                 </p>
+
                 <input
                   ref={imageInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+                  multiple
                   onChange={handleCategoryImage}
                   className="hidden"
                 />
@@ -579,6 +659,62 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Product photo picker ─────────────────────────────────
+          Sits above the edit modal (z-60) so the edit form stays behind it. */}
+      {pickerFor && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setPickerFor(null)} />
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-700">
+                Photos in {pickerFor.name}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setPickerFor(null)}
+                className="p-1 text-gray-400 hover:text-black transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {pickerOptions === null ? (
+              <p className="text-xs text-gray-400 py-8 text-center">Loading photos…</p>
+            ) : pickerOptions.length === 0 ? (
+              <p className="text-xs text-gray-400 py-8 text-center">
+                No products in this category have photos yet.
+              </p>
+            ) : (
+              <div className="overflow-y-auto grid grid-cols-4 sm:grid-cols-5 gap-2">
+                {pickerOptions.map((opt) => {
+                  const chosen = eImages.includes(opt.url)
+                  return (
+                    <button
+                      key={opt.url}
+                      type="button"
+                      onClick={() => addFromProduct(opt.url)}
+                      disabled={chosen}
+                      title={opt.productName}
+                      className={`relative aspect-[3/4] bg-gray-50 overflow-hidden group ${
+                        chosen ? 'ring-2 ring-black cursor-default' : 'hover:opacity-80'
+                      }`}
+                    >
+                      <Image src={opt.url} alt={opt.productName} fill sizes="120px" className="object-cover" unoptimized />
+                      {chosen && (
+                        <span className="absolute inset-x-0 bottom-0 bg-black/70 text-white text-[10px] py-0.5">
+                          Added
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}

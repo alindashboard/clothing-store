@@ -113,10 +113,14 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   which drops products with no photo from listings, the PDP (404) and the sitemap.
   Reads default to **false** if the row or table is missing, so a missing migration
   degrades to the old behaviour instead of emptying the shop.
-- Landing category cards: `categories.image_url` (uploaded in the `/admin/categories`
-  edit modal, offered only for `show_on_landing` categories) wins; without it the card
-  falls back to `getCategoryImages`, which cycles one photo from each of the newest
-  photographed products. That helper must resolve **parent + children** — landing shows
+- Landing category cards: `categories.image_urls` (TEXT[], curated in the
+  `/admin/categories` edit modal, offered only for `show_on_landing` categories) is a
+  slideshow fed straight to `CategoryImageSlider`; array order is slideshow order.
+  Entries are either uploads or URLs picked from the category's own product photos, so
+  **removing one never deletes the file** — it may still be a product image. Uploaded
+  category images are therefore orphaned on removal, which the bucket wipe on re-import
+  clears. Empty list falls back to `getCategoryImages`, which cycles one photo from each
+  of the newest photographed products. That helper must resolve **parent + children** — landing shows
   the gender parents while products hang off child categories, so a bare
   `.eq('category_id', parentId)` matches nothing and every card renders the gradient
   placeholder. Category images live in the `product-images` bucket under `categories/`:
