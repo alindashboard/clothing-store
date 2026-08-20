@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronDown, Menu, ShoppingBag } from 'lucide-react'
 import { buildCategoryTree } from '@/lib/category-tree'
 import { useCartStore } from '@/lib/store/cart'
@@ -18,9 +18,13 @@ interface HeaderProps {
 
 export function Header({ categories }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { getItemCount, openCart } = useCartStore()
-  const count = getItemCount()
+  const { getItemCount, openCart, hasHydrated } = useCartStore()
+  const count = hasHydrated ? getItemCount() : 0
   const t = useTranslations('nav')
+
+  useEffect(() => {
+    useCartStore.persist.rehydrate()
+  }, [])
   const accent = SITE_CONFIG.brand.darkAccent
   const tree = buildCategoryTree(categories)
 

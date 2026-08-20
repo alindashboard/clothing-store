@@ -19,6 +19,8 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[]
   isOpen: boolean
+  hasHydrated: boolean
+  setHasHydrated: (value: boolean) => void
   addItem: (item: Omit<CartItem, 'quantity'>) => void
   removeItem: (variantId: string) => void
   updateQuantity: (variantId: string, quantity: number) => void
@@ -34,6 +36,8 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      hasHydrated: false,
+      setHasHydrated: (value) => set({ hasHydrated: value }),
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((i) => i.variantId === item.variantId)
@@ -70,6 +74,19 @@ export const useCartStore = create<CartStore>()(
       getItemCount: () =>
         get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
-    { name: 'cart-storage', partialize: (state) => ({ items: state.items }) }
+    {
+      name: 'cart-storage',
+      partialize: (state) => ({ items: state.items }),
+      // Rehydrating from localStorage synchronously on the client (the default)
+      // makes the first client render disagree with the server's (always-empty)
+      // render whenever a returning visitor has items in their cart, which trips
+      // React hydration error #418. Rehydrate manually after mount instead
+      // (see Header's useEffect) and gate any UI that reads cart state on
+      // `hasHydrated` so the first client paint matches the server.
+      skipHydration: true,
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
+    }
   )
 )

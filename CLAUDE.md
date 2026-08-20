@@ -46,6 +46,14 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - Slugs: keep digits (model years, etc.) — they improve uniqueness and SEO. When
   migrating URLs, use 308 permanent redirects from old paths.
 - Admin, cart, and checkout routes must be `noindex`.
+- `useCartStore` (zustand `persist`) uses `skipHydration: true` — the default
+  (synchronous auto-rehydrate from `localStorage` before first client paint)
+  makes a returning visitor's client render disagree with the server's
+  always-empty render, tripping React hydration error #418 on every page for
+  anyone with items already in their cart. `Header` calls
+  `useCartStore.persist.rehydrate()` in a mount effect instead; any component
+  reading `items`/`getItemCount` in render must gate on `hasHydrated` (see
+  `header.tsx`, `mobile-nav.tsx`) so the first client paint matches the server.
 - **Never hardcode Supabase keys in scripts.** `scripts/seed-products.mjs` shipped a
   plaintext `service_role` key in this public repo from 2026-06-01 to 2026-07-27
   (fixed in `400cb9c`). Resolved: the project moved to `sb_secret_*` /
@@ -276,3 +284,14 @@ RESEND_API_KEY                # Resend API key for transactional email
   `IMG_6857` and `IMG_7043` are also corrupt but their products kept one good photo.
 - Landing grid now shows the three gender parents (Uomo, Donna, Accessori e
   Scarpe); the old Sneakers/Shirts cards went away with the category wipe.
+- **TODO — prefetch storm causes intermittent navigation 503s.** Category pages
+  render every sibling category tab plus every visible `ProductCard` as a
+  `<Link>`, and Next prefetches all of them the moment they enter the viewport —
+  20-30 simultaneous RSC requests per page load, most hitting cold (never
+  invoked) lambdas at once. Replaying that request pattern against production
+  (2026-08-20) reproduced ~50% `503`s, including on the clicked navigation
+  request itself, which forces Next to fall back to a full page reload — this is
+  the "delay between tap and action" users report on category navigation. Not
+  yet fixed. Fix: set `prefetch={false}` on the category-tab row and on
+  below-the-fold `ProductCard` links so page loads don't trigger dozens of
+  concurrent cold starts.

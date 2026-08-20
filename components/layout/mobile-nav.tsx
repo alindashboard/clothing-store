@@ -19,8 +19,8 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
-  const { getItemCount, openCart } = useCartStore()
-  const count = getItemCount()
+  const { getItemCount, openCart, hasHydrated } = useCartStore()
+  const count = hasHydrated ? getItemCount() : 0
   const t = useTranslations('nav')
   const accent = SITE_CONFIG.brand.darkAccent
   const tree = buildCategoryTree(categories)
