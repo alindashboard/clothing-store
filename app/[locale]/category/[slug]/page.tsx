@@ -97,6 +97,7 @@ export default async function CategoryPage({ params }: Props) {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 md:mt-7">
               <Link
                 href={`/category/${parentSlug}`}
+                prefetch={false}
                 className="text-xs tracking-widest uppercase pb-0.5 border-b"
                 style={{
                   color: parentSlug === slug ? SITE_CONFIG.brand.darkAccent : '#8C8577',
@@ -110,6 +111,7 @@ export default async function CategoryPage({ params }: Props) {
                 <Link
                   key={sib.id}
                   href={`/category/${sib.slug}`}
+                  prefetch={false}
                   className="text-xs tracking-widest uppercase pb-0.5 border-b transition-colors hover:text-[#c7c3b8]"
                   style={{
                     color: sib.slug === slug ? SITE_CONFIG.brand.darkAccent : '#8C8577',

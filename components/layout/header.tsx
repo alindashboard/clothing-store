@@ -55,6 +55,7 @@ export function Header({ categories }: HeaderProps) {
             <div key={cat.id} className="relative group py-4 -my-4">
               <Link
                 href={`/category/${cat.slug}`}
+                prefetch={false}
                 className="flex items-center gap-1 text-xs font-medium tracking-widest uppercase text-[#c7c3b8] group-hover:text-[#EDE9E1] transition-colors"
                 style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
@@ -83,6 +84,7 @@ export function Header({ categories }: HeaderProps) {
           ))}
           <Link
             href="/products"
+            prefetch={false}
             className="text-xs font-medium tracking-widest uppercase text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors"
             style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
           >
@@ -90,6 +92,7 @@ export function Header({ categories }: HeaderProps) {
           </Link>
           <Link
             href="/new-arrivals"
+            prefetch={false}
             className="text-xs font-medium tracking-widest uppercase transition-opacity hover:opacity-80"
             style={{ color: accent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
           >
@@ -97,6 +100,7 @@ export function Header({ categories }: HeaderProps) {
           </Link>
           <Link
             href="/events"
+            prefetch={false}
             className="text-xs font-medium tracking-widest uppercase text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors"
             style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
           >
@@ -104,6 +108,7 @@ export function Header({ categories }: HeaderProps) {
           </Link>
           <Link
             href="/store"
+            prefetch={false}
             className="text-xs font-medium tracking-widest uppercase text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors"
             style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
           >

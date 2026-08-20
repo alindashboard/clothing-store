@@ -284,14 +284,18 @@ RESEND_API_KEY                # Resend API key for transactional email
   `IMG_6857` and `IMG_7043` are also corrupt but their products kept one good photo.
 - Landing grid now shows the three gender parents (Uomo, Donna, Accessori e
   Scarpe); the old Sneakers/Shirts cards went away with the category wipe.
-- **TODO — prefetch storm causes intermittent navigation 503s.** Category pages
-  render every sibling category tab plus every visible `ProductCard` as a
-  `<Link>`, and Next prefetches all of them the moment they enter the viewport —
-  20-30 simultaneous RSC requests per page load, most hitting cold (never
-  invoked) lambdas at once. Replaying that request pattern against production
-  (2026-08-20) reproduced ~50% `503`s, including on the clicked navigation
-  request itself, which forces Next to fall back to a full page reload — this is
-  the "delay between tap and action" users report on category navigation. Not
-  yet fixed. Fix: set `prefetch={false}` on the category-tab row and on
-  below-the-fold `ProductCard` links so page loads don't trigger dozens of
-  concurrent cold starts.
+- **Fixed 2026-08-20 — prefetch storm caused intermittent navigation 503s.**
+  Category/products pages rendered every sibling category tab plus every
+  `ProductCard` on screen as a `<Link>`, and Next prefetched all of them the
+  moment they entered the viewport — 20-30 simultaneous RSC requests per page
+  load, most hitting cold (never invoked) lambdas at once. Replaying that
+  request pattern against production reproduced ~50% `503`s, including on the
+  clicked navigation request itself, which forced Next to fall back to a full
+  page reload — that was the "delay between tap and action" on category
+  navigation. Fix: `prefetch={false}` on `ProductCard`'s link, the category-tab
+  rows in `/category/[slug]` and `/products`, and Header's always-visible nav
+  links (top-level category links, Tutto/Nuovi Arrivi/Eventi/Negozio) — they
+  render on every page so they were adding to the baseline burst too. Clicking
+  still navigates instantly (Next just fetches on click instead of prefetching
+  ahead of time); it just no longer fires dozens of concurrent cold starts on
+  every page load.

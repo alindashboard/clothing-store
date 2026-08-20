@@ -74,6 +74,7 @@ export default async function ProductsPage() {
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 md:mt-7">
             <Link
               href="/products"
+              prefetch={false}
               className="text-xs tracking-widest uppercase pb-0.5 border-b"
               style={{ color: SITE_CONFIG.brand.darkAccent, borderColor: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
             >
@@ -84,6 +85,7 @@ export default async function ProductsPage() {
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}
+                prefetch={false}
                 className="text-xs tracking-widest uppercase pb-0.5 border-b border-transparent transition-colors hover:text-[#c7c3b8]"
                 style={{ color: '#8C8577', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
               >
