@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Plus, Trash2, Save } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Plus, Trash2, Save, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { ProductVariant } from '@/lib/types'
 import { upsertVariant, deleteVariant } from '@/lib/actions/products'
@@ -23,6 +23,7 @@ type DraftVariant = Partial<ProductVariant> & {
   product_id: string
   _dirty?: boolean
   _new?: boolean
+  _saving?: boolean
 }
 
 /**
@@ -37,18 +38,24 @@ type DraftVariant = Partial<ProductVariant> & {
 function NumberCell({
   value,
   onCommit,
+  onBlurCommit,
   fallback,
   min,
   className,
+  disabled,
 }: {
   value: number | null | undefined
   onCommit: (value: number) => void
+  /** Called on blur with the resolved value, only when it differs from the value at focus. */
+  onBlurCommit?: (value: number) => void
   fallback: number
   min?: number
   className?: string
+  disabled?: boolean
 }) {
   const [draft, setDraft] = useState(value == null ? '' : String(value))
   const [focused, setFocused] = useState(false)
+  const valueAtFocus = useRef<number | null | undefined>(value)
 
   // Adopt external updates (e.g. a save round-trip) unless the user is typing.
   useEffect(() => {
@@ -62,6 +69,7 @@ function NumberCell({
       value={draft}
       onFocus={(e) => {
         setFocused(true)
+        valueAtFocus.current = value
         e.currentTarget.select()
       }}
       onChange={(e) => {
@@ -78,9 +86,11 @@ function NumberCell({
         const resolved = Number.isNaN(parsed) ? fallback : parsed
         setDraft(String(resolved))
         if (resolved !== value) onCommit(resolved)
+        if (resolved !== valueAtFocus.current) onBlurCommit?.(resolved)
       }}
       className={className}
       min={min}
+      disabled={disabled}
     />
   )
 }
@@ -115,16 +125,48 @@ export function VariantManager({ productId, initialVariants, categorySlug = '' }
     )
   }
 
-  async function saveRow(idx: number) {
-    const v = variants[idx]
+  async function persistRow(idx: number, patch: Partial<DraftVariant>, successMessage: string) {
+    // Strip local-only bookkeeping flags — they are not columns on product_variants.
+    const { _dirty, _new, _saving, ...v } = { ...variants[idx], ...patch }
+    setVariants((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch, _saving: true } : r)))
+
     const result = await upsertVariant(v as ProductVariant & { product_id: string })
-    if (result.error) { toast.error(result.error); return }
-    toast.success('Variant saved')
+
+    if (result.error) {
+      toast.error(result.error)
+      // Keep the edit and the dirty flag so the row can be retried via the save button.
+      setVariants((prev) => prev.map((r, i) => (i === idx ? { ...r, _saving: false, _dirty: true } : r)))
+      return
+    }
+
+    toast.success(successMessage)
     setVariants((prev) =>
       prev.map((r, i) =>
-        i === idx ? { ...result.data!, product_id: productId, _dirty: false, _new: false } : r
+        i === idx
+          ? { ...result.data!, product_id: productId, _dirty: false, _new: false, _saving: false }
+          : r
       )
     )
+  }
+
+  function saveRow(idx: number) {
+    return persistRow(idx, {}, 'Variant saved')
+  }
+
+  /**
+   * Persist a stock/threshold edit as soon as the field loses focus.
+   *
+   * Rows that have never been saved are skipped: they usually still have an empty
+   * size and SKU, and inserting them on a stray blur would litter the catalog.
+   * Those stay dirty and go through the explicit save button as before.
+   */
+  function autoSaveRow(idx: number, patch: Partial<DraftVariant>) {
+    const v = variants[idx]
+    if (!v?.id || v._saving) {
+      setVariants((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch, _dirty: true } : r)))
+      return
+    }
+    void persistRow(idx, patch, 'Stock updated')
   }
 
   async function removeRow(idx: number) {
@@ -252,18 +294,22 @@ export function VariantManager({ productId, initialVariants, categorySlug = '' }
                   <NumberCell
                     value={v.stock_quantity ?? 0}
                     onCommit={(n) => updateRow(idx, 'stock_quantity', Math.max(0, n))}
+                    onBlurCommit={(n) => autoSaveRow(idx, { stock_quantity: Math.max(0, n) })}
                     fallback={0}
                     className="h-7 text-xs w-16"
                     min={0}
+                    disabled={v._saving}
                   />
                 </td>
                 <td className="py-1.5 pr-2">
                   <NumberCell
                     value={v.low_stock_threshold ?? 3}
                     onCommit={(n) => updateRow(idx, 'low_stock_threshold', Math.max(0, n))}
+                    onBlurCommit={(n) => autoSaveRow(idx, { low_stock_threshold: Math.max(0, n) })}
                     fallback={3}
                     className="h-7 text-xs w-16"
                     min={0}
+                    disabled={v._saving}
                   />
                 </td>
                 <td className="py-1.5 pr-2">
@@ -286,20 +332,27 @@ export function VariantManager({ productId, initialVariants, categorySlug = '' }
                 </td>
                 <td className="py-1.5">
                   <div className="flex gap-1">
-                    {v._dirty && (
-                      <button
-                        type="button"
-                        onClick={() => saveRow(idx)}
-                        className="p-1 text-green-600 hover:text-green-700"
-                        title="Save"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                      </button>
+                    {v._saving ? (
+                      <span className="p-1 text-gray-400" title="Saving…">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      </span>
+                    ) : (
+                      v._dirty && (
+                        <button
+                          type="button"
+                          onClick={() => saveRow(idx)}
+                          className="p-1 text-green-600 hover:text-green-700"
+                          title="Save"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                        </button>
+                      )
                     )}
                     <button
                       type="button"
                       onClick={() => removeRow(idx)}
-                      className="p-1 text-red-400 hover:text-red-600"
+                      disabled={v._saving}
+                      className="p-1 text-red-400 hover:text-red-600 disabled:opacity-40"
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

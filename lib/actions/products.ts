@@ -375,9 +375,9 @@ export async function deleteProduct(id: string) {
   return { success: true }
 }
 
-export async function upsertVariant(variant: Partial<ProductVariant> & { product_id: string; _dirty?: boolean; _new?: boolean }) {
+export async function upsertVariant(variant: Partial<ProductVariant> & { product_id: string; _dirty?: boolean; _new?: boolean; _saving?: boolean }) {
   const supabase = createSupabaseAdminClient()
-  const { _dirty, _new, ...payload } = variant
+  const { _dirty, _new, _saving, ...payload } = variant
 
   if (payload.id) {
     const { data, error } = await supabase
