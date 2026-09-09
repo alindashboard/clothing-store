@@ -3,6 +3,8 @@ import { DM_Sans, Cormorant_Garamond, Archivo, Space_Grotesk } from 'next/font/g
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/config'
 import { Toaster } from '@/components/ui/sonner'
+import { ConsentProvider } from '@/components/consent/consent-context'
+import { FacebookPixel } from '@/components/analytics/facebook-pixel'
 import { headers } from 'next/headers'
 
 const dmSans = DM_Sans({
@@ -58,7 +60,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${dmSans.variable} ${cormorant.variable} ${archivo.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-[#111111]">
-        {children}
+        <ConsentProvider>
+          {children}
+          <FacebookPixel />
+        </ConsentProvider>
         <Toaster position="bottom-right" />
       </body>
     </html>

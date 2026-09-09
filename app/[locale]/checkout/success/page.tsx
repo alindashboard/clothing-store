@@ -5,6 +5,7 @@ import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
 import { Header } from '@/components/layout/header'
+import { TrackPurchase } from '@/components/analytics/track-purchase'
 import { SITE_CONFIG } from '@/lib/config'
 
 interface Props {
@@ -20,6 +21,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
   return (
     <>
+      <TrackPurchase />
       <AnnouncementBar />
       <Header categories={categories} />
 

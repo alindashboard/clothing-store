@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { getBrandAccent } from '@/lib/brand-accent'
 import { CartDrawer } from '@/components/cart/cart-drawer'
+import { CookieBanner } from '@/components/consent/cookie-banner'
 import { WipBanner } from '@/components/layout/wip-banner'
 import { routing } from '@/i18n/routing'
 import { SITE_CONFIG } from '@/lib/config'
@@ -80,6 +81,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <WipBanner />
         {children}
         <CartDrawer />
+        <CookieBanner />
       </div>
     </NextIntlClientProvider>
   )

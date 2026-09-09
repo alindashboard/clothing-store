@@ -86,10 +86,21 @@ export const SITE_CONFIG = {
     enableWishlist: false,
     enableReviews: false,
     showWipBanner: false,
+    /** Meta Pixel — loads only after cookie consent (see components/consent). */
+    facebookPixel: true,
   },
   social: {
     instagram: STORE_INFO.instagram,
     facebook: '',
     tiktok: '',
+  },
+  analytics: {
+    /**
+     * Meta (Facebook) Pixel ID. This is a public value — it is visible in the
+     * page source of any site running the pixel — so it lives in config rather
+     * than an env var. The pixel is still gated on cookie consent at runtime.
+     * Set to '' (or features.facebookPixel = false) to disable.
+     */
+    facebookPixelId: '2947865605550878',
   },
 }

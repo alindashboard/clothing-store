@@ -12,6 +12,7 @@ import { createOrder } from '@/lib/actions/orders'
 import { SITE_CONFIG } from '@/lib/config'
 import { formatPrice } from '@/lib/utils'
 import type { CheckoutFormData } from '@/lib/types'
+import { stashOrderForPixel } from '@/lib/analytics/order-tracking'
 
 interface CheckoutFormProps {
   items: CartItem[]
@@ -72,6 +73,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         ].join('\n')
       )
 
+      trackPurchase(result.orderNumber)
       clearCart()
       window.open(`https://wa.me/${SITE_CONFIG.contact.whatsapp}?text=${message}`, '_blank')
       router.push(`/checkout/success?order=${result.orderNumber}`)
@@ -81,8 +83,21 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     const result = await createOrder(data, items)
     if (result.error) { setError(result.error); setLoading(false); return }
 
+    trackPurchase(result.orderNumber)
     clearCart()
     router.push(`/checkout/success?order=${result.orderNumber}`)
+  }
+
+  /** Hand the order to the Meta Purchase event on the success page (see order-tracking.ts). */
+  function trackPurchase(orderNumber: string | undefined) {
+    if (!orderNumber) return
+    stashOrderForPixel({
+      orderNumber,
+      value: subtotal + shippingCost,
+      currency: SITE_CONFIG.brand.currency,
+      numItems: items.reduce((sum, i) => sum + i.quantity, 0),
+      contents: items.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price })),
+    })
   }
 
   return (

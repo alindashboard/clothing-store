@@ -8,6 +8,7 @@ import { CheckoutForm } from '@/components/checkout/checkout-form'
 import { OrderSummary } from '@/components/checkout/order-summary'
 import { useCartStore } from '@/lib/store/cart'
 import { SITE_CONFIG } from '@/lib/config'
+import { TrackInitiateCheckout } from '@/components/analytics/track-initiate-checkout'
 
 export function CheckoutPageClient() {
   const { items, getTotal } = useCartStore()
@@ -26,6 +27,11 @@ export function CheckoutPageClient() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10 flex-1">
+      <TrackInitiateCheckout
+        items={items}
+        value={subtotal + shippingCost}
+        currency={SITE_CONFIG.brand.currency}
+      />
       <div className="mb-6">
         <Link href="/cart" className="text-xs text-gray-400 hover:text-black underline-offset-4 underline">
           {t('backToCart')}

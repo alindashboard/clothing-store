@@ -5,6 +5,8 @@ import { useCartStore } from '@/lib/store/cart'
 import { useTranslations } from 'next-intl'
 import type { Product, ProductVariant } from '@/lib/types'
 import { toast } from 'sonner'
+import { track } from '@/lib/analytics/fpixel'
+import { SITE_CONFIG } from '@/lib/config'
 
 interface AddToCartButtonProps {
   product: Product
@@ -26,6 +28,7 @@ export function AddToCartButton({ product, variant, allOutOfStock = false, size 
     if (!variant || variant.stock_quantity <= 0) return
 
     const primaryImage = product.images?.find((i) => i.is_primary) ?? product.images?.[0]
+    const unitPrice = variant.price_override ?? product.base_price
 
     addItem({
       productId: product.id,
@@ -34,9 +37,18 @@ export function AddToCartButton({ product, variant, allOutOfStock = false, size 
       productSlug: product.slug,
       variantSize: variant.size,
       variantColor: variant.color_name,
-      price: variant.price_override ?? product.base_price,
+      price: unitPrice,
       imageUrl: primaryImage?.url ?? '/images/placeholder-product.svg',
       maxStock: variant.stock_quantity,
+    })
+
+    track('AddToCart', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      contents: [{ id: product.id, quantity: 1, item_price: unitPrice }],
+      value: unitPrice,
+      currency: SITE_CONFIG.brand.currency,
     })
 
     setAdded(true)

@@ -16,6 +16,7 @@ import { STORE_INFO } from '@/lib/store-info'
 import { formatPrice } from '@/lib/utils'
 import { getAlternates } from '@/lib/seo/alternates'
 import { ProductDetailClient } from './product-detail-client'
+import { TrackViewContent } from '@/components/analytics/track-view-content'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -122,6 +123,13 @@ export default async function ProductPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <TrackViewContent
+        id={product.id}
+        name={product.name}
+        category={product.category?.name}
+        value={product.base_price}
+        currency={SITE_CONFIG.brand.currency}
+      />
       <AnnouncementBar />
       <Header categories={categories} />
 

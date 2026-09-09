@@ -191,6 +191,26 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `useTranslations`) into a separate `*-page-client.tsx` child component
   (see `components/cart/cart-page-client.tsx`, `components/checkout/checkout-page-client.tsx`).
 
+- **Meta Pixel is consent-gated — it must not load before the visitor accepts.**
+  `ConsentProvider` (`components/consent/consent-context.tsx`, mounted in the root
+  `app/layout.tsx`) holds the choice in `localStorage` (`kaya-cookie-consent` =
+  `granted`/`denied`); `CookieBanner` (in `app/[locale]/layout.tsx`, needs
+  next-intl) shows while undecided. `FacebookPixel`
+  (`components/analytics/facebook-pixel.tsx`) injects the base code only when
+  `consent === 'granted'`, and fires one `PageView` per App Router route change
+  (first effect run skipped — the inline snippet already fired the initial one).
+  Pixel ID lives in `lib/config.ts → analytics.facebookPixelId` (public value, not
+  an env var) behind `features.facebookPixel`. Event helpers: `lib/analytics/fpixel.ts`
+  (`track()` no-ops until `window.fbq` exists, i.e. until consent). Standard events
+  wired: ViewContent (`TrackViewContent` on the PDP), AddToCart (in
+  `add-to-cart-button.tsx`), InitiateCheckout (`TrackInitiateCheckout` on the
+  checkout page), Purchase (`TrackPurchase` on `/checkout/success`, reading the
+  order from `sessionStorage` via `lib/analytics/order-tracking.ts` — never the URL).
+  `content_ids` are Supabase product UUIDs; realign them if a Meta catalog/feed is
+  added. No Conversions API yet (no token supplied). Privacy page has a stub
+  cookies section — **TODO_CONFIRM: full privacy/cookie policy needs the client's
+  legal review.**
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.
@@ -229,6 +249,7 @@ project's memory.
 - Admin panel: products, categories, orders, new-arrivals, events, contacts
 - Brands ticker (BARROW, VERSACE JEANS COUTURE, DS2, GIVENCHY, ALEXANDER MCQUEEN, NEW BALANCE, ICON)
 - Store info page with map embed
+- Cookie-consent banner (IT/EN) + consent-gated Meta Pixel with standard events (`features.facebookPixel`)
 
 ### Features disabled
 

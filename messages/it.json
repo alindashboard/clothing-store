@@ -24,6 +24,13 @@
   "wipBanner": {
     "message": "Sito in aggiornamento — i prodotti verranno caricati nel corso di questa settimana."
   },
+  "cookieConsent": {
+    "label": "Preferenze cookie",
+    "message": "Utilizziamo cookie tecnici necessari al funzionamento del sito e, con il tuo consenso, cookie di terze parti (Meta Pixel) per misurare e migliorare le nostre campagne pubblicitarie.",
+    "learnMore": "Scopri di più",
+    "accept": "Accetta",
+    "reject": "Rifiuta"
+  },
   "nav": {
     "all": "Tutto",
     "allProducts": "Tutti i prodotti",

@@ -32,6 +32,14 @@ export default async function PrivacyPage() {
         <p>We collect your name, email, shipping address, and order information to process your orders.</p>
         <h2>How We Use Your Data</h2>
         <p>Your data is used solely to process orders, send order confirmations, and improve our service.</p>
+        <h2>Cookies &amp; Tracking</h2>
+        <p>
+          We use strictly necessary cookies to run this site. With your consent we also load the
+          Meta (Facebook) Pixel, which sets cookies and sends data about your interactions with this
+          site to Meta Platforms Ireland Ltd. so we can measure and optimise our advertising. You can
+          accept or decline this in the cookie banner shown on your first visit; declining keeps the
+          Pixel disabled and stores only your choice.
+        </p>
         <h2>Contact</h2>
         <p>For privacy inquiries, contact us at <a href={`mailto:${SITE_CONFIG.contact.email}`}>{SITE_CONFIG.contact.email}</a>.</p>
       </main>

@@ -24,6 +24,13 @@
   "wipBanner": {
     "message": "Site under construction — products will be uploaded during this week."
   },
+  "cookieConsent": {
+    "label": "Cookie preferences",
+    "message": "We use technical cookies required for the site to work and, with your consent, third-party cookies (Meta Pixel) to measure and improve our advertising.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
   "nav": {
     "all": "All",
     "allProducts": "All Products",
