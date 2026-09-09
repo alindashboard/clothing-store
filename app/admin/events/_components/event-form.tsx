@@ -8,7 +8,13 @@ import { toast } from 'sonner'
 import type { Event } from '@/lib/types'
 import { createEvent, updateEvent } from '@/lib/actions/events'
 import { uploadEventImage, deleteEventImageFromStorage } from '@/lib/actions/upload'
-import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
+import {
+  resizeImageForUpload,
+  oversizeMessage,
+  unresizedResult,
+  UndecodableImageError,
+  type ResizeResult,
+} from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
 
@@ -56,10 +62,9 @@ export function EventForm({ event }: Props) {
 
     setUploading(true)
 
-    let file = original
+    let result: ResizeResult
     try {
-      const resized = await resizeImageForUpload(original)
-      file = resized.file
+      result = await resizeImageForUpload(original)
     } catch (err) {
       if (err instanceof UndecodableImageError) {
         toast.error(err.message)
@@ -67,10 +72,12 @@ export function EventForm({ event }: Props) {
         return
       }
       // Fall through with the original; the size check below still guards it.
+      result = unresizedResult(original)
     }
+    const file = result.file
 
     if (file.size > MAX_UPLOAD_SIZE) {
-      toast.error(`Still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
+      toast.error(oversizeMessage(result, MAX_UPLOAD_SIZE_LABEL))
       setUploading(false)
       return
     }

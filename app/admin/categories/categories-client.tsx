@@ -9,7 +9,13 @@ import type { Category } from '@/lib/types'
 import { updateCategoryDirect, deleteCategory, reorderCategories, setCategoryOnLanding, setCategoryImages } from '@/lib/actions/categories'
 import { uploadCategoryImage } from '@/lib/actions/upload'
 import { getCategoryPhotoOptions } from '@/lib/actions/products'
-import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
+import {
+  resizeImageForUpload,
+  oversizeMessage,
+  unresizedResult,
+  UndecodableImageError,
+  type ResizeResult,
+} from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { slugify } from '@/lib/utils'
 
@@ -82,16 +88,18 @@ export function CategoriesClient({ categories: initial, productCounts, shoeSlugs
       setUploadProgress(files.length > 1 ? `${i + 1}/${files.length}` : null)
       const original = files[i]
 
-      let file = original
+      let result: ResizeResult
       try {
-        file = (await resizeImageForUpload(original)).file
+        result = await resizeImageForUpload(original)
       } catch (err) {
         if (err instanceof UndecodableImageError) { toast.error(`${original.name}: ${err.message}`); continue }
         // Fall through with the original; the size check below still guards it.
+        result = unresizedResult(original)
       }
+      const file = result.file
 
       if (file.size > MAX_UPLOAD_SIZE) {
-        toast.error(`${original.name}: still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`)
+        toast.error(`${original.name}: ${oversizeMessage(result, MAX_UPLOAD_SIZE_LABEL)}`)
         continue
       }
 

@@ -121,6 +121,14 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   fallback on blur only. Variant Stock/Threshold also auto-save on blur via
   `persistRow`; rows with no `id` are skipped (empty size/SKU would insert junk) and
   local flags `_dirty`/`_new`/`_saving` must be stripped before hitting Supabase.
+- `lib/image-resize.ts` must never fail silently. It used to `return passthrough`
+  (the untouched original) on any decode/encode error, so a browser that could not
+  process an image produced the same "still NMB after compression" toast as a
+  genuinely oversized one. It now reports a `PassthroughReason`, and the three
+  uploaders render it via `oversizeMessage`. Decode falls back
+  createImageBitmap(from-image) -> createImageBitmap() -> <img>+objectURL; encode falls
+  back WebP -> JPEG (Safari lacked canvas WebP encoding for years); and
+  `ENCODE_ATTEMPTS` steps quality/size down until the result fits `MAX_UPLOAD_SIZE`.
 - `site_settings` is a key/value table for admin-toggleable flags (read via
   `lib/site-settings.ts`, cached per request). First flag:
   `hide_products_without_images`, toggled at the top of `/admin/products`. When on,

@@ -6,7 +6,13 @@ import { Upload, Trash2, Star } from 'lucide-react'
 import type { ProductImage } from '@/lib/types'
 import { uploadProductImage } from '@/lib/actions/upload'
 import { upsertImage, deleteImage, setImageAsPrimary } from '@/lib/actions/products'
-import { resizeImageForUpload, formatBytes, UndecodableImageError } from '@/lib/image-resize'
+import {
+  resizeImageForUpload,
+  oversizeMessage,
+  unresizedResult,
+  UndecodableImageError,
+  type ResizeResult,
+} from '@/lib/image-resize'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/actions/upload-limits'
 import { toast } from 'sonner'
 
@@ -49,22 +55,21 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
 
   /** Returns true when the file made it all the way into the DB. */
   async function uploadOne(original: File): Promise<boolean> {
-    let file = original
+    let resize: ResizeResult
     try {
-      const result = await resizeImageForUpload(original)
-      file = result.file
+      resize = await resizeImageForUpload(original)
     } catch (err) {
       if (err instanceof UndecodableImageError) {
         toast.error(`${original.name}: ${err.message}`)
         return false
       }
       // Fall through with the original; the size check below still guards it.
+      resize = unresizedResult(original)
     }
+    const file = resize.file
 
     if (file.size > MAX_UPLOAD_SIZE) {
-      toast.error(
-        `${original.name}: still ${formatBytes(file.size)} after compression — max is ${MAX_UPLOAD_SIZE_LABEL}.`
-      )
+      toast.error(`${original.name}: ${oversizeMessage(resize, MAX_UPLOAD_SIZE_LABEL)}`)
       return false
     }
 
