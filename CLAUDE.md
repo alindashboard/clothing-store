@@ -114,6 +114,13 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   A HEIC that libheif cannot decode (the broken depth maps in this catalog) throws
   `UndecodableImageError` and is reported per-file; `scripts/convert-to-webp.mjs` +
   ImageMagick remains the fallback for those.
+- Admin numeric inputs must not bind `value` to `parseInt(x) || fallback` — emptying
+  the field re-renders it as the fallback on the same keystroke, so it can never be
+  cleared and retyped (no spinner arrows on mobile = uneditable). `NumberCell` in
+  `variant-manager.tsx` is the pattern: hold a string draft while focused, resolve the
+  fallback on blur only. Variant Stock/Threshold also auto-save on blur via
+  `persistRow`; rows with no `id` are skipped (empty size/SKU would insert junk) and
+  local flags `_dirty`/`_new`/`_saving` must be stripped before hitting Supabase.
 - `site_settings` is a key/value table for admin-toggleable flags (read via
   `lib/site-settings.ts`, cached per request). First flag:
   `hide_products_without_images`, toggled at the top of `/admin/products`. When on,
