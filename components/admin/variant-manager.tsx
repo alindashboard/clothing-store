@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Trash2, Save } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import type { ProductVariant } from '@/lib/types'
@@ -23,6 +23,66 @@ type DraftVariant = Partial<ProductVariant> & {
   product_id: string
   _dirty?: boolean
   _new?: boolean
+}
+
+/**
+ * Numeric cell that keeps its own string draft while focused.
+ *
+ * A plain controlled `type="number"` bound to `parseInt(x) || fallback` snaps back
+ * to the fallback the instant the field is emptied, so the value can never be
+ * cleared and retyped — fatal on mobile, where there are no spinner arrows.
+ * Here the field may legitimately be empty mid-edit; the fallback is only
+ * applied on blur.
+ */
+function NumberCell({
+  value,
+  onCommit,
+  fallback,
+  min,
+  className,
+}: {
+  value: number | null | undefined
+  onCommit: (value: number) => void
+  fallback: number
+  min?: number
+  className?: string
+}) {
+  const [draft, setDraft] = useState(value == null ? '' : String(value))
+  const [focused, setFocused] = useState(false)
+
+  // Adopt external updates (e.g. a save round-trip) unless the user is typing.
+  useEffect(() => {
+    if (!focused) setDraft(value == null ? '' : String(value))
+  }, [value, focused])
+
+  return (
+    <Input
+      type="number"
+      inputMode="numeric"
+      value={draft}
+      onFocus={(e) => {
+        setFocused(true)
+        e.currentTarget.select()
+      }}
+      onChange={(e) => {
+        const next = e.target.value
+        setDraft(next)
+        if (next !== '') {
+          const parsed = parseInt(next, 10)
+          if (!Number.isNaN(parsed)) onCommit(parsed)
+        }
+      }}
+      onBlur={() => {
+        setFocused(false)
+        const parsed = parseInt(draft, 10)
+        const resolved = Number.isNaN(parsed) ? fallback : parsed
+        setDraft(String(resolved))
+        if (resolved !== value) onCommit(resolved)
+      }}
+      className={className}
+      min={min}
+    />
+  )
 }
 
 export function VariantManager({ productId, initialVariants, categorySlug = '' }: VariantManagerProps) {
@@ -189,21 +249,21 @@ export function VariantManager({ productId, initialVariants, categorySlug = '' }
                   />
                 </td>
                 <td className="py-1.5 pr-2">
-                  <Input
-                    type="number"
+                  <NumberCell
                     value={v.stock_quantity ?? 0}
-                    onChange={(e) => updateRow(idx, 'stock_quantity', parseInt(e.target.value) || 0)}
+                    onCommit={(n) => updateRow(idx, 'stock_quantity', Math.max(0, n))}
+                    fallback={0}
                     className="h-7 text-xs w-16"
                     min={0}
                   />
                 </td>
                 <td className="py-1.5 pr-2">
-                  <Input
-                    type="number"
+                  <NumberCell
                     value={v.low_stock_threshold ?? 3}
-                    onChange={(e) => updateRow(idx, 'low_stock_threshold', parseInt(e.target.value) || 3)}
+                    onCommit={(n) => updateRow(idx, 'low_stock_threshold', Math.max(0, n))}
+                    fallback={3}
                     className="h-7 text-xs w-16"
-                    min={1}
+                    min={0}
                   />
                 </td>
                 <td className="py-1.5 pr-2">
