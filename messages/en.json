@@ -31,6 +31,87 @@
     "accept": "Accept",
     "reject": "Reject"
   },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: {date}",
+    "intro": "This policy explains what personal data {store} collects when you visit this site or place an order, why we collect it, who we share it with, and the rights you have over it. It applies to this website only.",
+    "controller": {
+      "heading": "Who is responsible for your data",
+      "body": "The data controller is {name}, {address}. For any question about this policy or about your personal data, write to <mail>{email}</mail>.",
+      "vatLabel": "VAT number: {vat}"
+    },
+    "collect": {
+      "heading": "What we collect",
+      "intro": "We collect only what we need to run the shop:",
+      "items": [
+        "Order data — your name, email address, phone number, shipping address and the contents of your order. You provide this at checkout; without it we cannot fulfil an order.",
+        "Contact data — the name, email address and message you send us through the contact form or WhatsApp.",
+        "Technical data — IP address, browser type, device type and the pages you visit. This is generated automatically by our hosting provider and is used to keep the site running and secure.",
+        "Advertising data — if, and only if, you accept cookies, the Meta Pixel records the pages and products you view, items you add to the cart, and completed orders, and sends this to Meta together with an identifier stored in a cookie."
+      ]
+    },
+    "purposes": {
+      "heading": "Why we use it, and on what legal basis",
+      "intro": "Under the GDPR we must have a legal basis for each use of your data:",
+      "items": [
+        "To process, ship and invoice your order — performance of a contract with you (Art. 6(1)(b)).",
+        "To answer your messages — performance of a contract, or our legitimate interest in responding to enquiries (Art. 6(1)(b) and (f)).",
+        "To keep the site available, secure and free of fraud — our legitimate interest in protecting the business (Art. 6(1)(f)).",
+        "To keep accounting and tax records — compliance with a legal obligation under Italian law (Art. 6(1)(c)).",
+        "To measure and target advertising through the Meta Pixel — your consent, and only your consent (Art. 6(1)(a)). You can withdraw it at any time, and we do nothing with this data if you decline."
+      ]
+    },
+    "cookies": {
+      "heading": "Cookies and tracking",
+      "necessary": "We use a small number of strictly necessary cookies and similar local storage to keep your cart, your language choice and your cookie decision. These cannot be switched off and do not require consent.",
+      "pixel": "With your consent we also load the Meta Pixel, a tracking tool provided by Meta Platforms Ireland Ltd. It sets cookies in your browser and sends Meta information about how you use this site, so that we can measure our advertising and show ads to people who have shown interest in our products. Meta may combine this with data it already holds about you. If you decline, the Pixel is never loaded and no data is sent.",
+      "manage": "The banner appears on your first visit and your choice is stored in your browser. To change it later, clear this site's data in your browser settings and the banner will appear again. You can also block cookies entirely in your browser, and you can adjust how Meta uses your data in your Facebook or Instagram ad settings."
+    },
+    "sharing": {
+      "heading": "Who we share it with",
+      "intro": "We do not sell your data. We share it only with the providers we need to operate the shop, each acting under contract:",
+      "items": [
+        "Our hosting and database providers, who store the site and your order records.",
+        "Our email provider, used to send order confirmations and to deliver contact-form messages to us.",
+        "Couriers and shipping partners, who receive the name and address needed to deliver your parcel.",
+        "Meta Platforms Ireland Ltd., but only if you accepted cookies.",
+        "Our accountant and, where the law requires it, the tax authorities."
+      ],
+      "transfers": "Some of these providers may process data outside the European Economic Area. Where that happens, the transfer is covered by the European Commission's Standard Contractual Clauses or an equivalent safeguard."
+    },
+    "retention": {
+      "heading": "How long we keep it",
+      "items": [
+        "Order and invoicing records — 10 years, as required by Italian tax law.",
+        "Contact messages — up to 24 months after our last exchange with you.",
+        "Technical and server logs — a short period set by our hosting provider, typically a few weeks.",
+        "Your cookie choice — up to 12 months, after which the banner is shown again.",
+        "Data held by Meta following your consent — for the period set out in Meta's own policy, which we do not control."
+      ]
+    },
+    "rights": {
+      "heading": "Your rights",
+      "intro": "You can ask us at any time to:",
+      "items": [
+        "give you a copy of the data we hold about you;",
+        "correct anything that is wrong or out of date;",
+        "delete your data, where we are not required to keep it;",
+        "restrict or object to how we use it;",
+        "receive your data in a portable format, or have it sent to another provider;",
+        "withdraw your consent to advertising cookies, without affecting what was done before you withdrew it."
+      ],
+      "howTo": "Write to <mail>{email}</mail> and we will respond within one month.",
+      "complaint": "If you believe we have handled your data improperly, you may lodge a complaint with the Italian data protection authority, the Garante per la protezione dei dati personali (garanteprivacy.it), or with the authority in your country of residence."
+    },
+    "changes": {
+      "heading": "Changes to this policy",
+      "body": "If we change how we handle your data we will update this page and the date shown at the top. If the change is significant, we will ask for your consent again where the law requires it."
+    },
+    "contact": {
+      "heading": "Contact",
+      "body": "For any privacy question, or to exercise any of the rights above, contact us at <mail>{email}</mail>."
+    }
+  },
   "nav": {
     "all": "All",
     "allProducts": "All Products",

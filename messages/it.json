@@ -31,6 +31,87 @@
     "accept": "Accetta",
     "reject": "Rifiuta"
   },
+  "privacy": {
+    "title": "Informativa sulla privacy",
+    "lastUpdated": "Ultimo aggiornamento: {date}",
+    "intro": "La presente informativa spiega quali dati personali {store} raccoglie quando visiti questo sito o effettui un ordine, per quali finalità, con chi li condividiamo e quali diritti puoi esercitare. Si applica esclusivamente a questo sito web.",
+    "controller": {
+      "heading": "Titolare del trattamento",
+      "body": "Il titolare del trattamento è {name}, {address}. Per qualsiasi domanda relativa alla presente informativa o ai tuoi dati personali puoi scrivere a <mail>{email}</mail>.",
+      "vatLabel": "Partita IVA: {vat}"
+    },
+    "collect": {
+      "heading": "Quali dati raccogliamo",
+      "intro": "Raccogliamo solo i dati necessari alla gestione del negozio:",
+      "items": [
+        "Dati dell'ordine — nome, indirizzo email, numero di telefono, indirizzo di spedizione e contenuto dell'ordine. Li fornisci in fase di acquisto; senza di essi non possiamo evadere l'ordine.",
+        "Dati di contatto — nome, indirizzo email e messaggio che ci invii tramite il modulo di contatto o WhatsApp.",
+        "Dati tecnici — indirizzo IP, tipo di browser, tipo di dispositivo e pagine visitate. Sono generati automaticamente dal nostro fornitore di hosting e servono a mantenere il sito funzionante e sicuro.",
+        "Dati pubblicitari — se e solo se accetti i cookie, il Meta Pixel registra le pagine e i prodotti che visualizzi, gli articoli aggiunti al carrello e gli ordini completati, e li trasmette a Meta insieme a un identificativo memorizzato in un cookie."
+      ]
+    },
+    "purposes": {
+      "heading": "Finalità e base giuridica del trattamento",
+      "intro": "Ai sensi del GDPR ogni trattamento dei tuoi dati deve fondarsi su una base giuridica:",
+      "items": [
+        "Gestione, spedizione e fatturazione dell'ordine — esecuzione di un contratto di cui sei parte (art. 6, par. 1, lett. b).",
+        "Risposta ai tuoi messaggi — esecuzione di un contratto o nostro legittimo interesse a rispondere alle richieste (art. 6, par. 1, lett. b e f).",
+        "Mantenimento della disponibilità e della sicurezza del sito e prevenzione delle frodi — nostro legittimo interesse alla tutela dell'attività (art. 6, par. 1, lett. f).",
+        "Tenuta delle scritture contabili e fiscali — adempimento di un obbligo legale previsto dalla normativa italiana (art. 6, par. 1, lett. c).",
+        "Misurazione e personalizzazione della pubblicità tramite Meta Pixel — esclusivamente il tuo consenso (art. 6, par. 1, lett. a). Puoi revocarlo in qualsiasi momento e, se rifiuti, nessun dato viene trattato per questa finalità."
+      ]
+    },
+    "cookies": {
+      "heading": "Cookie e strumenti di tracciamento",
+      "necessary": "Utilizziamo un numero limitato di cookie tecnici e di strumenti di memorizzazione locale strettamente necessari per conservare il carrello, la lingua selezionata e la tua scelta sui cookie. Non possono essere disattivati e non richiedono consenso.",
+      "pixel": "Previo tuo consenso installiamo inoltre il Meta Pixel, uno strumento di tracciamento fornito da Meta Platforms Ireland Ltd. Il Pixel installa cookie nel tuo browser e trasmette a Meta informazioni sul modo in cui utilizzi questo sito, così da consentirci di misurare le nostre campagne e di mostrare annunci a chi ha manifestato interesse per i nostri prodotti. Meta può combinare tali informazioni con i dati che già detiene su di te. Se rifiuti, il Pixel non viene caricato e nessun dato viene trasmesso.",
+      "manage": "Il banner compare alla prima visita e la tua scelta viene salvata nel browser. Per modificarla in seguito è sufficiente cancellare i dati di questo sito dalle impostazioni del browser: il banner verrà mostrato nuovamente. Puoi inoltre bloccare integralmente i cookie dal browser e gestire l'utilizzo dei tuoi dati da parte di Meta nelle impostazioni pubblicitarie del tuo account Facebook o Instagram."
+    },
+    "sharing": {
+      "heading": "A chi comunichiamo i dati",
+      "intro": "Non vendiamo i tuoi dati. Li comunichiamo esclusivamente ai fornitori necessari al funzionamento del negozio, ciascuno vincolato da contratto:",
+      "items": [
+        "I fornitori di hosting e di database, che ospitano il sito e conservano i dati degli ordini.",
+        "Il fornitore del servizio di posta elettronica, utilizzato per inviare le conferme d'ordine e per recapitarci i messaggi del modulo di contatto.",
+        "I corrieri e i partner logistici, che ricevono il nome e l'indirizzo necessari alla consegna.",
+        "Meta Platforms Ireland Ltd., unicamente se hai prestato il consenso ai cookie.",
+        "Il nostro consulente contabile e, nei casi previsti dalla legge, l'Amministrazione finanziaria."
+      ],
+      "transfers": "Alcuni di questi fornitori possono trattare i dati al di fuori dello Spazio economico europeo. In tal caso il trasferimento è assistito dalle Clausole contrattuali standard adottate dalla Commissione europea o da garanzia equivalente."
+    },
+    "retention": {
+      "heading": "Per quanto tempo conserviamo i dati",
+      "items": [
+        "Dati di ordini e fatturazione — 10 anni, come previsto dalla normativa fiscale italiana.",
+        "Messaggi di contatto — fino a 24 mesi dall'ultimo scambio con te.",
+        "Dati tecnici e log del server — per il periodo limitato stabilito dal fornitore di hosting, in genere alcune settimane.",
+        "Scelta sui cookie — fino a 12 mesi, trascorsi i quali il banner viene nuovamente mostrato.",
+        "Dati conservati da Meta a seguito del tuo consenso — per il periodo indicato nell'informativa di Meta, sul quale non abbiamo controllo."
+      ]
+    },
+    "rights": {
+      "heading": "I tuoi diritti",
+      "intro": "In qualsiasi momento puoi chiederci di:",
+      "items": [
+        "ottenere una copia dei dati che ti riguardano;",
+        "rettificare i dati inesatti o non aggiornati;",
+        "cancellare i tuoi dati, ove non sussista un obbligo di conservazione;",
+        "limitare il trattamento oppure opporti ad esso;",
+        "ricevere i tuoi dati in formato portabile o trasmetterli ad altro titolare;",
+        "revocare il consenso ai cookie pubblicitari, senza pregiudicare la liceità del trattamento effettuato prima della revoca."
+      ],
+      "howTo": "Scrivi a <mail>{email}</mail>: ti risponderemo entro un mese.",
+      "complaint": "Se ritieni che il trattamento dei tuoi dati non sia conforme alla normativa, puoi proporre reclamo al Garante per la protezione dei dati personali (garanteprivacy.it) oppure all'autorità di controllo del tuo Paese di residenza."
+    },
+    "changes": {
+      "heading": "Modifiche alla presente informativa",
+      "body": "In caso di modifiche al trattamento dei tuoi dati aggiorneremo questa pagina e la data indicata in alto. Se la modifica è sostanziale, richiederemo nuovamente il tuo consenso nei casi previsti dalla legge."
+    },
+    "contact": {
+      "heading": "Contatti",
+      "body": "Per qualsiasi richiesta in materia di privacy, o per esercitare i diritti sopra elencati, scrivi a <mail>{email}</mail>."
+    }
+  },
   "nav": {
     "all": "Tutto",
     "allProducts": "Tutti i prodotti",
