@@ -63,6 +63,7 @@ export default async function AdminProductsPage({
   if (status) exportParams.set('status', status)
   const exportQs = exportParams.toString()
   const exportHref = `/api/admin/export-stock${exportQs ? `?${exportQs}` : ''}`
+  const exportByBrandHref = `/api/admin/export-stock-by-brand${exportQs ? `?${exportQs}` : ''}`
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
@@ -74,6 +75,12 @@ export default async function AdminProductsPage({
             className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm font-medium hover:border-gray-400 transition-colors"
           >
             <Download className="w-4 h-4" /> Export CSV
+          </a>
+          <a
+            href={exportByBrandHref}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm font-medium hover:border-gray-400 transition-colors"
+          >
+            <Download className="w-4 h-4" /> Export by Brand (XLSX)
           </a>
           <Link
             href="/admin/products/new"

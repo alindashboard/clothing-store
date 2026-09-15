@@ -345,3 +345,12 @@ RESEND_API_KEY                # Resend API key for transactional email
   zero-stock row); UTF-8 BOM prefix so Excel doesn't mangle accented names.
   It is under `/api`, which the proxy matcher excludes from the `/admin` auth
   gate, so it re-checks `auth.getUser()` itself rather than relying on proxy.
+- **Stock export by brand**: `/api/admin/export-stock-by-brand` is a second,
+  separate export endpoint — real `.xlsx` (via `exceljs`, first new dependency
+  added since template init) with one worksheet per brand. Brand = the first
+  two SKU characters uppercased (`brandCodeForSku` in `lib/stock-export.ts`,
+  e.g. `BRusd127-` -> sheet `BR`); rows with no/short SKU land in a fallback
+  `ALTELE` sheet, sorted last. Row-building is shared with the flat CSV export
+  via `getStockExportRows` in the same file — both endpoints take the same
+  `categoryId`/`status`/`search` filters, so keep them in sync if the export
+  columns change.
