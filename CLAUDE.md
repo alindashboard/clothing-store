@@ -335,3 +335,13 @@ RESEND_API_KEY                # Resend API key for transactional email
   still navigates instantly (Next just fetches on click instead of prefetching
   ahead of time); it just no longer fires dozens of concurrent cold starts on
   every page load.
+- **Stock CSV export**: `/api/admin/export-stock` (route handler, not a Server
+  Action, so it can stream a file download) reuses the same `categoryId`/
+  `status`/`search` filters as `/admin/products` — the "Export CSV" button
+  passes through whatever's in the URL. Unlike the products list, its category
+  filter expands a parent to its children (so picking "Uomo" exports all men's
+  categories, not zero rows) — needed for the gender-filtered export use case.
+  One row per variant (placeholder products with no variants get a single
+  zero-stock row); UTF-8 BOM prefix so Excel doesn't mangle accented names.
+  It is under `/api`, which the proxy matcher excludes from the `/admin` auth
+  gate, so it re-checks `auth.getUser()` itself rather than relying on proxy.

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus } from 'lucide-react'
+import { Plus, Download } from 'lucide-react'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { getAllProductsAdmin } from '@/lib/actions/products'
@@ -55,16 +55,33 @@ export default async function AdminProductsPage({
   const returnQs = returnParams.toString()
   const editHref = (id: string) => `/admin/products/${id}${returnQs ? `?${returnQs}` : ''}`
 
+  // Export carries the same category/status/search filters as the current view
+  // (not pagination — export is always the full filtered set, not just this page).
+  const exportParams = new URLSearchParams()
+  if (categoryId) exportParams.set('categoryId', categoryId)
+  if (search) exportParams.set('search', search)
+  if (status) exportParams.set('status', status)
+  const exportQs = exportParams.toString()
+  const exportHref = `/api/admin/export-stock${exportQs ? `?${exportQs}` : ''}`
+
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-semibold">Products</h1>
-        <Link
-          href="/admin/products/new"
-          className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Product
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href={exportHref}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm font-medium hover:border-gray-400 transition-colors"
+          >
+            <Download className="w-4 h-4" /> Export CSV
+          </a>
+          <Link
+            href="/admin/products/new"
+            className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Add Product
+          </Link>
+        </div>
       </div>
 
       <HideImagelessToggle initial={hideImageless} />
