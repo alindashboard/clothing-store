@@ -45,6 +45,16 @@ export default async function AdminProductsPage({
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
+  // Carried on every product link so saving/discarding an edit returns here
+  // instead of resetting to page 1 (see CLAUDE.md admin gotchas).
+  const returnParams = new URLSearchParams()
+  if (categoryId) returnParams.set('categoryId', categoryId)
+  if (page > 1) returnParams.set('page', String(page))
+  if (search) returnParams.set('search', search)
+  if (status) returnParams.set('status', status)
+  const returnQs = returnParams.toString()
+  const editHref = (id: string) => `/admin/products/${id}${returnQs ? `?${returnQs}` : ''}`
+
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <div className="flex items-center justify-between mb-5">
@@ -95,7 +105,7 @@ export default async function AdminProductsPage({
                           unoptimized={primaryImg?.url?.startsWith('/') ?? true}
                         />
                       </div>
-                      <Link href={`/admin/products/${product.id}`} className="font-medium hover:underline">{product.name}</Link>
+                      <Link href={editHref(product.id)} className="font-medium hover:underline">{product.name}</Link>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-500">{(product.category as any)?.name ?? '—'}</td>
@@ -107,7 +117,7 @@ export default async function AdminProductsPage({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/products/${product.id}`} className="text-xs text-gray-400 hover:text-black underline">Edit</Link>
+                    <Link href={editHref(product.id)} className="text-xs text-gray-400 hover:text-black underline">Edit</Link>
                   </td>
                 </tr>
               )
@@ -130,7 +140,7 @@ export default async function AdminProductsPage({
           return (
             <Link
               key={product.id}
-              href={`/admin/products/${product.id}`}
+              href={editHref(product.id)}
               className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 hover:border-gray-400 transition-colors"
             >
               <div className="relative w-12 h-16 bg-gray-100 shrink-0 rounded overflow-hidden">

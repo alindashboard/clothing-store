@@ -25,7 +25,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="mb-3">
-              <KayaMark size={30} textClassName="text-base" />
+              <KayaMark textClassName="text-base" />
             </div>
             <p className="text-xs text-[#6b6862] leading-relaxed max-w-[220px]">{brand.tagline}</p>
           </div>

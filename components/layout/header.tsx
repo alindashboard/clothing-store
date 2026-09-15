@@ -46,7 +46,7 @@ export function Header({ categories }: HeaderProps) {
           className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0"
           aria-label={SITE_CONFIG.brand.name}
         >
-          <KayaMark size={36} textClassName="text-[19px]" />
+          <KayaMark textClassName="text-[19px]" />
         </Link>
 
         {/* Desktop nav — top-level categories only; children live in a dropdown. */}

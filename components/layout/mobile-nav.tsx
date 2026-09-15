@@ -31,7 +31,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
       <SheetContent side="left" className="flex flex-col w-72 p-0 bg-[#141412] border-[#2B2924] text-[#EDE9E1]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2B2924]">
           <Link href="/" onClick={onClose} aria-label={SITE_CONFIG.brand.name}>
-            <KayaMark size={30} textClassName="text-base" />
+            <KayaMark textClassName="text-base" />
           </Link>
           <button onClick={onClose} className="p-1">
             <X className="w-5 h-5" />

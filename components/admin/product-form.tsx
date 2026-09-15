@@ -17,6 +17,8 @@ import { toast } from 'sonner'
 interface ProductFormProps {
   product?: Product
   categories: Category[]
+  /** Where Discard/Save should return to. Defaults to the unfiltered list. */
+  backHref?: string
 }
 
 const UNSAVED_MESSAGE = 'You have unsaved changes. Leave this page and discard them?'
@@ -34,7 +36,7 @@ const TEXT_FIELDS = [
   'meta_description',
 ] as const
 
-export function ProductForm({ product, categories }: ProductFormProps) {
+export function ProductForm({ product, categories, backHref = '/admin/products' }: ProductFormProps) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [loading, setLoading] = useState(false)
@@ -90,7 +92,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   function handleDiscard() {
     if (dirty && !window.confirm(UNSAVED_MESSAGE)) return
     setDirty(false)
-    router.push('/admin/products')
+    router.push(backHref)
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -113,7 +115,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     setDirty(false) // saved — stop guarding before we navigate away
     toast.success(product ? 'Product updated' : 'Product created')
     if (product) {
-      router.push('/admin/products')
+      router.push(backHref)
       router.refresh()
     } else {
       router.push(`/admin/products/${(result as any).data.id}`)
