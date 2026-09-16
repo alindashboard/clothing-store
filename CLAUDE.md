@@ -354,3 +354,12 @@ RESEND_API_KEY                # Resend API key for transactional email
   via `getStockExportRows` in the same file — both endpoints take the same
   `categoryId`/`status`/`search` filters, so keep them in sync if the export
   columns change.
+- **Stock export row order**: both exports sort products by `sku_prefix`
+  ("BR-0016" -> brand "BR" + counter 16), not by name — the counter is what the
+  owner reads off physical labels, and name order scattered them (a plain
+  string sort of the SKU also breaks past 4 digits: "0002" < "00010" as text).
+  Products with no parseable `sku_prefix` (the pre-2026-08-17 placeholders)
+  sort last. Sizes within a product were already correctly ordered via
+  `product_variants.sort_order`, set at import time by `sizeRank()` in
+  `scripts/import-stock.mjs` (clothing letters in size order, then numeric —
+  see that function before touching size sort anywhere else).

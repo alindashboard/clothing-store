@@ -23,6 +23,33 @@ export interface StockExportFilters {
   status?: 'active' | 'draft' | 'incomplete'
 }
 
+/** `sku_prefix` is `"<brand>-<counter>"` (e.g. "BR-0016") — split it into the parts
+ *  that actually matter for sort order. Sorting the SKU string itself breaks past
+ *  4 digits ("0002" < "00010" as text) and ignores the brand entirely for the flat
+ *  CSV, which is the disorder the by-brand sheets were showing. */
+function parseSkuPrefix(skuPrefix: string | null): { brand: string; counter: number } {
+  const [brand, counterPart] = (skuPrefix ?? '').split('-')
+  const counter = counterPart ? parseInt(counterPart, 10) : NaN
+  return {
+    brand: brand ? brand.toUpperCase() : '',
+    counter: Number.isNaN(counter) ? Number.POSITIVE_INFINITY : counter,
+  }
+}
+
+/** Sorts products by brand, then by their numeric SKU counter — the order the
+ *  owner works in on paper. Products with no parseable SKU (pre-2026-08-17
+ *  photo-import placeholders) sort after everything that has one. */
+function compareProductsBySku(a: Product, b: Product): number {
+  const pa = parseSkuPrefix(a.sku_prefix)
+  const pb = parseSkuPrefix(b.sku_prefix)
+  const aUnranked = pa.brand === ''
+  const bUnranked = pb.brand === ''
+  if (aUnranked !== bUnranked) return aUnranked ? 1 : -1
+  if (pa.brand !== pb.brand) return pa.brand.localeCompare(pb.brand)
+  if (pa.counter !== pb.counter) return pa.counter - pb.counter
+  return a.name.localeCompare(b.name)
+}
+
 /** Category ids to filter by: the given id plus its children (products hang off
  *  leaf categories, so filtering a parent like "Uomo" must reach its children too). */
 async function categoryIdsForId(
@@ -50,7 +77,6 @@ export async function getStockExportRows(
       category:categories(*),
       variants:product_variants(*)
     `)
-    .order('name', { ascending: true })
     .range(0, 9999)
 
   if (filters.categoryId) {
@@ -73,6 +99,7 @@ export async function getStockExportRows(
   if (error) throw new Error(error.message)
 
   const products = (data ?? []) as Product[]
+  products.sort(compareProductsBySku)
   const rows: StockExportRow[] = []
 
   for (const product of products) {
