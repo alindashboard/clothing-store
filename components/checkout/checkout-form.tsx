@@ -97,6 +97,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       currency: SITE_CONFIG.brand.currency,
       numItems: items.reduce((sum, i) => sum + i.quantity, 0),
       contents: items.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price })),
+      paymentMethod,
     })
   }
 

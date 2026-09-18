@@ -5,6 +5,8 @@ import { SITE_CONFIG } from '@/lib/config'
 import { Toaster } from '@/components/ui/sonner'
 import { ConsentProvider } from '@/components/consent/consent-context'
 import { FacebookPixel } from '@/components/analytics/facebook-pixel'
+import { SitePageView } from '@/components/analytics/site-pageview'
+import { Analytics } from '@vercel/analytics/next'
 import { headers } from 'next/headers'
 
 const dmSans = DM_Sans({
@@ -63,8 +65,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ConsentProvider>
           {children}
           <FacebookPixel />
+          <SitePageView />
         </ConsentProvider>
         <Toaster position="bottom-right" />
+        <Analytics />
       </body>
     </html>
   )

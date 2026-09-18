@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { track } from '@/lib/analytics/fpixel'
+import { siteTrack } from '@/lib/analytics/site-track'
 
 interface Props {
   id: string
@@ -11,7 +12,7 @@ interface Props {
   currency: string
 }
 
-/** Fires a Meta `ViewContent` event on the product detail page. */
+/** Fires a Meta `ViewContent` event and a first-party `view_product` event on the product detail page. */
 export function TrackViewContent({ id, name, category, value, currency }: Props) {
   useEffect(() => {
     track('ViewContent', {
@@ -22,6 +23,7 @@ export function TrackViewContent({ id, name, category, value, currency }: Props)
       value,
       currency,
     })
+    siteTrack('view_product', { productId: id, category, value })
   }, [id, name, category, value, currency])
 
   return null

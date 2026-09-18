@@ -88,6 +88,12 @@ export const SITE_CONFIG = {
     showWipBanner: false,
     /** Meta Pixel — loads only after cookie consent (see components/consent). */
     facebookPixel: true,
+    /**
+     * First-party site analytics (visits + on-site actions), stored in Supabase.
+     * Cookieless — not gated on cookie consent. See lib/analytics/site-track.ts
+     * and the analytics_events migration.
+     */
+    siteAnalytics: true,
   },
   social: {
     instagram: STORE_INFO.instagram,

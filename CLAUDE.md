@@ -226,6 +226,23 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   cookies section — **TODO_CONFIRM: full privacy/cookie policy needs the client's
   legal review.**
 
+- **First-party site analytics is separate from the Meta Pixel and NOT consent-gated.**
+  `analytics_events` (Supabase) stores page views + the same four funnel events as the
+  Pixel (`view_product`/`add_to_cart`/`checkout_start`/`purchase`), written only via
+  `app/api/analytics/route.ts` using the service-role client — RLS on the table has
+  zero policies, so the anon/authenticated keys get no access at all, by design.
+  No persistent visitor id: `visitor_hash` is `sha256(salt+ip+ua+UTC date)`, rotates
+  daily, IP itself is never stored — that's what makes it defensible without a
+  consent click. `lib/analytics/site-track.ts` (`siteTrack()`, client, sendBeacon)
+  fans out from the same trigger points as `lib/analytics/fpixel.ts` (see
+  `TrackViewContent`/`add-to-cart-button.tsx`/`TrackInitiateCheckout`/`TrackPurchase`).
+  Toggle via `features.siteAnalytics` in `lib/config.ts`. Admin view: `/admin/analytics`
+  (`lib/actions/analytics.ts` fetches the date range and aggregates in JS — fine at
+  this traffic volume, revisit with an RPC/materialized view if it ever gets slow).
+  Vercel Web Analytics (`@vercel/analytics`, mounted in `app/layout.tsx`) runs
+  alongside it for referrer/country/device breakdowns the Vercel dashboard already
+  does well — no need to duplicate those in the admin table.
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.
@@ -248,7 +265,7 @@ project's memory.
 - **Project type:** magazin (fashion outlet e-commerce, brick-and-mortar + online)
 - **Physical location:** Str. Acque Alte 12, 04100 Borgo Podgora LT, Italy
 - **Languages:** IT (default) + EN — via next-intl, `localePrefix: 'always'`
-- **Supabase:** yes — auth (admin only), DB (products/orders/events/new_arrivals/categories/contacts), storage (product images)
+- **Supabase:** yes — auth (admin only), DB (products/orders/events/new_arrivals/categories/contacts/analytics_events), storage (product images)
 - **Currency:** EUR · `€`
 
 ### Features enabled
@@ -265,6 +282,7 @@ project's memory.
 - Brands ticker (BARROW, VERSACE JEANS COUTURE, DS2, GIVENCHY, ALEXANDER MCQUEEN, NEW BALANCE, ICON)
 - Store info page with map embed
 - Cookie-consent banner (IT/EN) + consent-gated Meta Pixel with standard events (`features.facebookPixel`)
+- First-party cookieless site analytics (`features.siteAnalytics`) + Vercel Web Analytics — `/admin/analytics`
 
 ### Features disabled
 
@@ -280,7 +298,7 @@ project's memory.
 - No reservations system
 - Events module added (not in template)
 - New arrivals module added (not in template)
-- Extra deps: `zustand`, `react-day-picker`, `date-fns`, `@base-ui/react`
+- Extra deps: `zustand`, `react-day-picker`, `date-fns`, `@base-ui/react`, `@vercel/analytics`
 - Brands ticker component on homepage
 - `lib/store-info.ts` and `lib/brands.ts` extracted from `lib/config.ts`
 

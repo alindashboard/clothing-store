@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays } from 'lucide-react'
+import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays, BarChart3 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/admin/new-arrivals', label: 'New Arrivals', icon: Sparkles, exact: false },
   { href: '/admin/events', label: 'Events', icon: CalendarDays, exact: false },
   { href: '/admin/contacts', label: 'Contacts', icon: MessageSquare, exact: false },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, exact: false },
 ]
 
 function SidebarContent({ pathname, brandName, onNavigate }: { pathname: string; brandName: string; onNavigate?: () => void }) {

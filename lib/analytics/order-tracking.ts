@@ -12,6 +12,8 @@ export interface PixelOrder {
   currency: string
   numItems: number
   contents: { id: string; quantity: number; item_price: number }[]
+  /** 'whatsapp' | 'bank_transfer' — also fed to the first-party `purchase` event. */
+  paymentMethod?: string
 }
 
 export function stashOrderForPixel(order: PixelOrder) {

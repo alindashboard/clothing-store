@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import type { Product, ProductVariant } from '@/lib/types'
 import { toast } from 'sonner'
 import { track } from '@/lib/analytics/fpixel'
+import { siteTrack } from '@/lib/analytics/site-track'
 import { SITE_CONFIG } from '@/lib/config'
 
 interface AddToCartButtonProps {
@@ -50,6 +51,7 @@ export function AddToCartButton({ product, variant, allOutOfStock = false, size 
       value: unitPrice,
       currency: SITE_CONFIG.brand.currency,
     })
+    siteTrack('add_to_cart', { productId: product.id, value: unitPrice })
 
     setAdded(true)
     toast.success(`${product.name} added to cart`, {

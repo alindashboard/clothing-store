@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { track } from '@/lib/analytics/fpixel'
+import { siteTrack } from '@/lib/analytics/site-track'
 import { LAST_ORDER_KEY, type PixelOrder } from '@/lib/analytics/order-tracking'
 
 /**
@@ -32,6 +33,7 @@ export function TrackPurchase() {
         value: order.value,
         currency: order.currency ?? 'EUR',
       })
+      siteTrack('purchase', { value: order.value, paymentMethod: order.paymentMethod })
     } catch {
       // malformed payload — nothing to report
     }
