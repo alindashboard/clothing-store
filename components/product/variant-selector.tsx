@@ -42,9 +42,12 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
     }
   }, [selectedColor, selectedSize])
 
+  useEffect(() => {
+    setSelectedSize(sizesForColor.length === 1 ? sizesForColor[0].size : '')
+  }, [selectedColor])
+
   function handleColorSelect(color: string) {
     setSelectedColor(color)
-    setSelectedSize('')
     onColorChange?.(color)
   }
 

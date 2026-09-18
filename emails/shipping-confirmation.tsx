@@ -34,7 +34,7 @@ const dict = {
     trackButton: 'Traccia il tuo pacco',
     noTrackingYet: 'Riceverai i dettagli di tracciamento a breve.',
     contact: 'Domande? Scrivici a',
-    footer: '© 2025 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
+    footer: '© 2026 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'Questo è un messaggio transazionale relativo al tuo ordine.',
   },
   en: {
@@ -47,7 +47,7 @@ const dict = {
     trackButton: 'Track your package',
     noTrackingYet: "You'll receive tracking details shortly.",
     contact: 'Questions? Contact us at',
-    footer: '© 2025 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
+    footer: '© 2026 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'This is a transactional message related to your order.',
   },
 }
