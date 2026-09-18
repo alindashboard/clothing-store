@@ -188,9 +188,8 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   tracking link (email template just omits that section) — save tracking
   first if you want it included.
 - **`order_status_history`** (migration `20260918000001_order_status_history.sql`,
-  **must be applied manually in the Supabase SQL editor** — no CLI/migration-
-  runner is wired up in this repo, same as every other migration here) backs
-  the admin order Timeline. `createOrder` inserts the initial `pending` row;
+  applied 2026-09-18 via `supabase db push --linked`) backs the admin order
+  Timeline. `createOrder` inserts the initial `pending` row;
   `updateOrderStatus` inserts one on every actual transition (skipped on a
   same-status resubmit) and only fires the shipping email on that same
   transition check. Both inserts are non-blocking (logged, not thrown) and
@@ -218,8 +217,25 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   logo-free by design — the logo (`/kaya-logo.png`, transparent PNG) is overlaid in JSX.
   Favicon comes from `app/icon.png` / `app/apple-icon.png` (Next file conventions).
   Don't reintroduce backgrounds with the logo baked in.
-- Supabase env vars are NOT in `.env.local` (only the Vercel OIDC token is) — local
-  SSR of public pages 500s; verify rendering on Vercel previews instead.
+- **Supabase CLI is now usable from this repo (as of 2026-09-18).** Earlier
+  notes said Supabase env vars weren't in `.env.local` and no migration
+  tooling was wired up — both are now stale: `.env.local` has real
+  `NEXT_PUBLIC_SUPABASE_URL`/anon/service-role values (local SSR of public
+  pages should work), and the CLI is logged in with this project (`Fashion`,
+  ref `snsjjyvleuirivsiytre`) already linked — `supabase/.temp/` is tracked
+  in git (project ref + a credential-free pooler URL template, nothing
+  secret) but there's still no committed `config.toml`. Before this date,
+  every
+  migration in `supabase/migrations/` had been applied by hand via the
+  Supabase SQL editor, so the CLI's own bookkeeping (`supabase_migrations.
+  schema_migrations`) didn't know about any of them — `supabase migration
+  list --linked` showed all of them as local-only. Fixed by `supabase
+  migration repair --status applied <versions...> --linked` for every
+  pre-existing migration (verified each one's table/column actually existed
+  first — never repair blind), then `supabase db push --linked` for the new
+  one. Going forward, prefer `supabase db push --linked` for new migrations
+  over asking the client to paste SQL manually — just verify state first if
+  local and remote history might have drifted again.
 - Header + Footer (shared on every page), the homepage, the **product detail
   page** (`/product/[slug]`), the **category/listing page** (`/category/[slug]`),
   the **store page** (`/store`), the **events page** (`/events`), and the
