@@ -1,10 +1,12 @@
 'use server'
 
 import { createSupabaseAdminClient } from '@/lib/supabase'
-import type { Order, CheckoutFormData } from '@/lib/types'
+import type { Order, OrderItem, CheckoutFormData } from '@/lib/types'
 import type { CartItem } from '@/lib/store/cart'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { SITE_CONFIG } from '@/lib/config'
+import { stripe } from '@/lib/stripe'
 import {
   sendOrderConfirmation,
   sendNewOrderNotification,
@@ -39,11 +41,16 @@ export async function getOrdersAdmin(options?: {
 /** Public lookup for the checkout success page — only the fields it needs to render. */
 export async function getOrderByNumber(
   orderNumber: string
-): Promise<Pick<Order, 'order_number' | 'payment_method' | 'total' | 'currency'> | null> {
+): Promise<
+  | (Pick<Order, 'order_number' | 'payment_method' | 'payment_status' | 'total' | 'currency'> & {
+      items: Pick<OrderItem, 'product_id' | 'quantity' | 'unit_price'>[]
+    })
+  | null
+> {
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('orders')
-    .select('order_number, payment_method, total, currency')
+    .select('order_number, payment_method, payment_status, total, currency, items:order_items(product_id, quantity, unit_price)')
     .eq('order_number', orderNumber)
     .single()
 
@@ -259,15 +266,38 @@ export async function createOrder(
     }
   }
 
-  // Send emails (don't block on failure)
-  const emailData: OrderEmailData = {
+  // Send emails (don't block on failure). Stripe orders are unpaid at this point —
+  // their confirmation/notification emails fire from the webhook once payment
+  // actually succeeds (see markStripeOrderPaid), not here.
+  if (order.payment_method !== 'stripe') {
+    const emailData = buildOrderEmailData(order, cartItems)
+    await Promise.allSettled([
+      sendOrderConfirmation(emailData),
+      sendNewOrderNotification(emailData),
+    ])
+  }
+
+  revalidatePath('/admin/orders')
+  return { orderId: order.id, orderNumber: order.order_number }
+}
+
+interface OrderEmailItemInput {
+  productName: string
+  variantSize: string
+  variantColor: string
+  quantity: number
+  price: number
+}
+
+function buildOrderEmailData(order: Order, items: OrderEmailItemInput[]): OrderEmailData {
+  return {
     orderNumber: order.order_number,
     customerName: order.customer_name,
     customerEmail: order.customer_email,
     customerPhone: order.customer_phone,
     paymentMethod: order.payment_method,
     locale: 'it',
-    items: cartItems.map((item) => ({
+    items: items.map((item) => ({
       name: item.productName,
       size: item.variantSize,
       color: item.variantColor,
@@ -288,13 +318,154 @@ export async function createOrder(
     },
     shippingMethod: `Standard · ${SITE_CONFIG.shipping.estimatedDays.standard} giorni lavorativi`,
   }
+}
+
+/**
+ * Creates a Stripe Checkout Session for an order already saved as
+ * pending/unpaid by createOrder, and stashes the session id on
+ * `payment_intent_id` so the webhook can find the order again.
+ * Amount is computed server-side from `order.total` (never trusted from the
+ * client) — same total createOrder just persisted.
+ */
+export async function createStripeCheckoutSession(
+  orderId: string,
+  cartItems: CartItem[],
+  locale: string
+): Promise<{ url?: string; error?: string }> {
+  const supabase = createSupabaseAdminClient()
+
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select('order_number, customer_email, shipping_cost, currency')
+    .eq('id', orderId)
+    .single()
+  if (error || !order) return { error: error?.message ?? 'Order not found' }
+
+  const hdrs = await headers()
+  const host = hdrs.get('host')
+  const proto = hdrs.get('x-forwarded-proto') ?? (host?.startsWith('localhost') ? 'http' : 'https')
+  const origin = host ? `${proto}://${host}` : SITE_CONFIG.brand.url
+
+  const lineItems: Array<{
+    price_data: {
+      currency: string
+      product_data: { name: string; description?: string }
+      unit_amount: number
+    }
+    quantity: number
+  }> = cartItems.map((item) => ({
+    price_data: {
+      currency: order.currency.toLowerCase(),
+      product_data: {
+        name: item.productName,
+        description: [item.variantColor, item.variantSize].filter(Boolean).join(' / '),
+      },
+      unit_amount: Math.round(item.price * 100),
+    },
+    quantity: item.quantity,
+  }))
+
+  if (order.shipping_cost > 0) {
+    lineItems.push({
+      price_data: {
+        currency: order.currency.toLowerCase(),
+        product_data: { name: 'Shipping' },
+        unit_amount: Math.round(order.shipping_cost * 100),
+      },
+      quantity: 1,
+    })
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      customer_email: order.customer_email,
+      client_reference_id: orderId,
+      line_items: lineItems,
+      metadata: { order_id: orderId, order_number: order.order_number },
+      success_url: `${origin}/${locale}/checkout/success?order=${order.order_number}`,
+      cancel_url: `${origin}/${locale}/checkout`,
+    })
+
+    if (!session.url) return { error: 'Stripe did not return a checkout URL' }
+
+    // Stash the Checkout Session id here so the webhook can find this order by
+    // it (see markStripeOrderPaid) — it's overwritten with the real
+    // PaymentIntent id once payment actually succeeds.
+    await supabase
+      .from('orders')
+      .update({ payment_intent_id: session.id })
+      .eq('id', orderId)
+
+    return { url: session.url }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[stripe] createStripeCheckoutSession failed:', msg)
+    return { error: msg }
+  }
+}
+
+/**
+ * Marks an order paid from the Stripe webhook once `checkout.session.completed`
+ * fires, and sends the confirmation/notification emails that createOrder held
+ * back for stripe orders. Idempotent — Stripe retries webhooks, and re-delivery
+ * of an already-paid session must not re-send the emails.
+ *
+ * Looked up by orderId (from the session's client_reference_id), not by
+ * payment_intent_id — that column gets overwritten below from the session id
+ * to the real PaymentIntent id, so a retried delivery of the same event would
+ * no longer match if we looked it up by that column instead.
+ */
+export async function markStripeOrderPaid(orderId: string, paymentIntentId: string | null) {
+  const supabase = createSupabaseAdminClient()
+
+  const { data: order, error } = await supabase
+    .from('orders')
+    .select('*, items:order_items(*)')
+    .eq('id', orderId)
+    .single()
+
+  if (error || !order) {
+    console.error('[stripe webhook] no order found for id', orderId, error?.message)
+    return { error: 'Order not found' }
+  }
+
+  if (order.payment_status === 'paid') {
+    return { success: true, alreadyProcessed: true }
+  }
+
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({
+      status: 'paid',
+      payment_status: 'paid',
+      payment_intent_id: paymentIntentId ?? order.payment_intent_id,
+    })
+    .eq('id', order.id)
+  if (updateError) return { error: updateError.message }
+
+  const { error: historyError } = await supabase
+    .from('order_status_history')
+    .insert({ order_id: order.id, status: 'paid' })
+  if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
+
+  const items: OrderEmailItemInput[] = (order.items ?? []).map((item: OrderItem) => ({
+    productName: item.product_name,
+    variantSize: item.variant_size,
+    variantColor: item.variant_color,
+    quantity: item.quantity,
+    price: item.unit_price,
+  }))
+
+  const emailData = buildOrderEmailData(order, items)
   await Promise.allSettled([
     sendOrderConfirmation(emailData),
     sendNewOrderNotification(emailData),
   ])
 
   revalidatePath('/admin/orders')
-  return { orderId: order.id, orderNumber: order.order_number }
+  return { success: true }
 }
 
 export async function getDashboardStats() {

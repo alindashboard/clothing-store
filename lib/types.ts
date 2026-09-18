@@ -171,5 +171,5 @@ export interface CheckoutFormData {
   billing_state: string
   billing_postal_code: string
   billing_country: string
-  payment_method: 'whatsapp' | 'bank_transfer'
+  payment_method: 'whatsapp' | 'bank_transfer' | 'stripe'
 }

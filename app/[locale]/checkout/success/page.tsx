@@ -22,9 +22,23 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
     order ? getOrderByNumber(order) : Promise.resolve(null),
   ])
 
+  const isStripePending = orderRecord?.payment_method === 'stripe' && orderRecord.payment_status !== 'paid'
+
+  const stripeOrder =
+    orderRecord?.payment_method === 'stripe' && orderRecord.payment_status === 'paid'
+      ? {
+          orderNumber: orderRecord.order_number,
+          value: orderRecord.total,
+          currency: orderRecord.currency,
+          numItems: orderRecord.items.reduce((sum, i) => sum + i.quantity, 0),
+          contents: orderRecord.items.map((i) => ({ id: i.product_id, quantity: i.quantity, item_price: i.unit_price })),
+          paymentMethod: 'stripe',
+        }
+      : undefined
+
   return (
     <>
-      <TrackPurchase />
+      <TrackPurchase stripeOrder={stripeOrder} />
       <AnnouncementBar />
       <Header categories={categories} />
 
@@ -37,7 +51,9 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
               {t('orderNumber')}: <span className="font-semibold text-gray-900">{order}</span>
             </p>
           )}
-          {email ? (
+          {isStripePending ? (
+            <p className="text-sm text-gray-500 mb-8">{t('paymentProcessing')}</p>
+          ) : email ? (
             <p className="text-sm text-gray-500 mb-8">
               {t('confirmationEmail')} <strong>{email}</strong>
             </p>

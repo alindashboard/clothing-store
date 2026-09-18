@@ -152,8 +152,66 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
-- Stripe is wired (`enableStripe` flag exists) but **disabled**. Don't enable without
-  full Stripe key setup and client confirmation.
+- **Stripe card payments — live in sandbox as of 2026-09-18** (`checkout.enableStripe:
+  true`). Uses hosted Stripe Checkout (redirect), not Elements — we never touch card
+  data. Flow: `CheckoutForm` calls `createOrder` first (status `pending`/`unpaid`,
+  same as whatsapp/bank_transfer), then `createStripeCheckoutSession`
+  (`lib/actions/orders.ts`) builds one Checkout Session line item per cart item plus
+  a `Shipping` line if non-zero, sets `client_reference_id`/`metadata.order_id` to
+  the order's UUID, stashes the session id on `payment_intent_id` (temporarily —
+  see below), and redirects via `window.location.href` (a real navigation, not
+  `router.push`, since Stripe's domain is external). Amount is always computed
+  server-side from the order just persisted — never trust a client-submitted total.
+  `success_url`/`cancel_url` are built from the request's own `host`/
+  `x-forwarded-proto` headers (`next/headers`), not `NEXT_PUBLIC_SITE_URL` — that
+  env var is still wrong locally (points at the vercel.app placeholder per the
+  gotcha below), and deriving from the request makes local Stripe testing work
+  without touching it.
+  **Payment confirmation is webhook-only**, never the client-side redirect back to
+  success — `app/api/webhooks/stripe/route.ts` verifies `stripe-signature` against
+  `STRIPE_WEBHOOK_SECRET` on the raw body (`request.text()`, read before any JSON
+  parsing) and, on `checkout.session.completed` with `payment_status === 'paid'`,
+  calls `markStripeOrderPaid(orderId, paymentIntentId)` — looked up by
+  **`session.client_reference_id` (the order's UUID), not `payment_intent_id`**,
+  because that column gets overwritten from the Checkout Session id to the real
+  PaymentIntent id as part of marking it paid; looking it up by that same mutable
+  column breaks a legitimate Stripe retry of the same event (reproduced locally: a
+  replayed webhook came back "order not found" after the first delivery succeeded).
+  `markStripeOrderPaid` is idempotent on `payment_status === 'paid'` (early-return,
+  no duplicate `order_status_history` row, no duplicate emails) — Stripe retries
+  webhooks it doesn't get a fast 2xx for.
+  `createOrder` skips `sendOrderConfirmation`/`sendNewOrderNotification` when
+  `payment_method === 'stripe'` (money hasn't arrived yet); `markStripeOrderPaid`
+  sends both once payment is confirmed, reusing the extracted `buildOrderEmailData`
+  helper. One confirmation email template for all three payment methods — the
+  `payment_status === 'stripe'` branch in `emails/order-confirmation.tsx` shows a
+  "Payment received" block instead of the `bank_transfer` IBAN block;
+  `new-order-notification.tsx` gets a green "PAID — CARD" badge so the owner can
+  tell at a glance which orders are already settled.
+  The success page (`app/[locale]/checkout/success/page.tsx`) reflects actual DB
+  state, not client-side optimism: `getOrderByNumber` now also selects
+  `payment_status` and `items(product_id, quantity, unit_price)`; if a stripe order
+  hasn't flipped to `paid` yet (webhook can lag the redirect by a beat) it shows a
+  "confirming your payment" message instead of claiming success. The Meta Pixel
+  `Purchase` event follows the same split: `CheckoutForm` never stashes pixel data
+  before redirecting to Stripe (payment isn't confirmed at that point), so
+  `TrackPurchase` (`components/analytics/track-purchase.tsx`) gained an optional
+  `stripeOrder` prop — the success page builds it server-side from the DB only when
+  `payment_method === 'stripe' && payment_status === 'paid'`, bypassing the
+  sessionStorage path whatsapp/bank_transfer still use.
+  Tested end-to-end against the real sandbox account (checkout redirect, line
+  items/amount matched the cart exactly, a real `4242...` test card payment) and
+  the webhook route was exercised locally with `stripe.webhooks.generateTestHeaderString`
+  (no Stripe CLI install needed) — including the retry/idempotency case above.
+  **Not yet done: the sandbox's `STRIPE_WEBHOOK_SECRET` isn't registered anywhere.**
+  Get it by running `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+  locally (prints a `whsec_...`), or by adding the endpoint in the Stripe Dashboard
+  (Developers → Webhooks) for `checkout.session.completed` once deployed — a
+  deployed endpoint needs its own separate `STRIPE_WEBHOOK_SECRET` in Vercel env
+  vars, listening locally does not share a secret with the Dashboard's.
+  Also unresolved: `createOrder`'s `total` still excludes `tax_amount` (pre-existing,
+  not introduced by this work) — the Stripe Checkout Session amount mirrors that
+  same `total`, so fix the tax bug and the Stripe amount together if it's ever fixed.
 - **Fixed 2026-09-18 — bank transfer checkout landed on a blank page.** Both
   `whatsapp` and `bank_transfer` submits in `CheckoutForm` called `clearCart()`
   synchronously before `router.push('/checkout/success')`. Clearing the cart
@@ -360,6 +418,8 @@ project's memory.
 - Cart (Zustand store) + checkout
 - WhatsApp order flow (`enableWhatsAppOrder: true`)
 - Bank transfer checkout (`enableBankTransfer: true`)
+- Stripe card payments via hosted Checkout (`enableStripe: true`) — sandbox as of
+  2026-09-18, see the gotcha above before touching payment/webhook code
 - New Arrivals curated list (admin-managed, carousel on homepage)
 - Events module (admin CRUD, public listing page)
 - Contact form → Supabase `contact_requests` table
@@ -372,7 +432,6 @@ project's memory.
 
 ### Features disabled
 
-- Stripe (`enableStripe: false`) — checkout is WhatsApp + bank transfer only
 - Newsletter (`enableNewsletter: false`)
 - Wishlist (`enableWishlist: false`)
 - Reviews (`enableReviews: false`)
@@ -396,6 +455,12 @@ NEXT_PUBLIC_SUPABASE_URL      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase anon key (public)
 SUPABASE_SERVICE_ROLE_KEY     # Supabase service role (server-only)
 RESEND_API_KEY                # Resend API key for transactional email
+STRIPE_SECRET_KEY             # Stripe secret key (server-only; sk_test_... in sandbox)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY # Stripe publishable key (public; unused for now —
+                               # hosted Checkout needs only the secret key server-side,
+                               # kept for if Elements/Payment Element is ever added)
+STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT YET SET,
+                               # see the Stripe gotcha above
 ```
 
 ### Things the client must confirm (TODO_CONFIRM)

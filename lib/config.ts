@@ -76,7 +76,7 @@ export const SITE_CONFIG = {
     estimatedDays: { standard: '3-5', express: '1-2' },
   },
   checkout: {
-    enableStripe: false,
+    enableStripe: true,
     enableWhatsAppOrder: true,
     enableBankTransfer: true,
     taxRate: 0.22,

@@ -70,6 +70,8 @@ const dict = {
     iban: 'IBAN',
     bic: 'BIC / SWIFT',
     paymentReference: 'Causale',
+    paymentReceivedTitle: 'Pagamento ricevuto',
+    paymentReceivedMessage: 'Abbiamo ricevuto il tuo pagamento con carta. Il tuo ordine verrà elaborato a breve.',
   },
   en: {
     preview: (n: string) => `Your order ${n} is confirmed — KAYA Studio Outlet`,
@@ -98,6 +100,8 @@ const dict = {
     iban: 'IBAN',
     bic: 'BIC / SWIFT',
     paymentReference: 'Payment reference',
+    paymentReceivedTitle: 'Payment received',
+    paymentReceivedMessage: 'We\'ve received your card payment. Your order will be processed shortly.',
   },
 }
 
@@ -215,6 +219,16 @@ export function OrderConfirmation({
               </tbody>
             </table>
           </Section>
+
+          {paymentMethod === 'stripe' && (
+            <>
+              <Hr style={rule} />
+              <Section style={section}>
+                <Text style={labelHeading}>{tr.paymentReceivedTitle}</Text>
+                <Text style={para}>{tr.paymentReceivedMessage}</Text>
+              </Section>
+            </>
+          )}
 
           {paymentMethod === 'bank_transfer' && (
             <>

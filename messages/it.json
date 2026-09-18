@@ -246,7 +246,12 @@
     "amountDue": "Importo da versare",
     "paymentReference": "Causale",
     "copy": "Copia",
-    "copied": "Copiato!"
+    "copied": "Copiato!",
+    "stripeTitle": "Paga con Carta",
+    "stripeDescription": "Paga in modo sicuro con carta tramite Stripe. Verrai reindirizzato per completare il pagamento.",
+    "redirectingToPayment": "Reindirizzamento al pagamento...",
+    "paymentProcessing": "Stiamo confermando il tuo pagamento — potrebbe richiedere qualche istante.",
+    "paymentReceived": "Pagamento ricevuto"
   },
   "contact": {
     "title": "Contatto",

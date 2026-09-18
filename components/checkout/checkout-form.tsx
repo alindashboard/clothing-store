@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from '@/i18n/navigation'
-import { useTranslations } from 'next-intl'
-import { MessageCircle, Building2, Loader2 } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { MessageCircle, Building2, CreditCard, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { CartItem } from '@/lib/store/cart'
-import { createOrder } from '@/lib/actions/orders'
+import { createOrder, createStripeCheckoutSession } from '@/lib/actions/orders'
 import { SITE_CONFIG } from '@/lib/config'
 import { formatPrice } from '@/lib/utils'
 import type { CheckoutFormData } from '@/lib/types'
@@ -22,11 +22,12 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProps) {
   const router = useRouter()
+  const locale = useLocale()
   const t = useTranslations('checkout')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [billingSame, setBillingSame] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'bank_transfer'>('whatsapp')
+  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'bank_transfer' | 'stripe'>('whatsapp')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -75,6 +76,17 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       trackPurchase(result.orderNumber)
       window.open(`https://wa.me/${SITE_CONFIG.contact.whatsapp}?text=${message}`, '_blank')
       router.push(`/checkout/success?order=${result.orderNumber}`)
+      return
+    }
+
+    if (paymentMethod === 'stripe') {
+      const result = await createOrder(data, items)
+      if (result.error || !result.orderId) { setError(result.error ?? 'Could not create order'); setLoading(false); return }
+
+      const session = await createStripeCheckoutSession(result.orderId, items, locale)
+      if (session.error || !session.url) { setError(session.error ?? 'Could not start payment'); setLoading(false); return }
+
+      window.location.href = session.url
       return
     }
 
@@ -241,6 +253,29 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
               </div>
             </label>
           )}
+          {SITE_CONFIG.checkout.enableStripe && (
+            <label
+              className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
+                paymentMethod === 'stripe' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+              }`}
+            >
+              <input
+                type="radio"
+                name="payment"
+                value="stripe"
+                checked={paymentMethod === 'stripe'}
+                onChange={() => setPaymentMethod('stripe')}
+                className="mt-0.5"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-medium">{t('stripeTitle')}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">{t('stripeDescription')}</p>
+              </div>
+            </label>
+          )}
         </div>
       </section>
 
@@ -252,7 +287,9 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         className="w-full h-12 bg-black text-white font-semibold text-sm tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {loading ? 'Placing order...' : 'Place Order'}
+        {loading
+          ? paymentMethod === 'stripe' ? t('redirectingToPayment') : 'Placing order...'
+          : 'Place Order'}
       </button>
     </form>
   )

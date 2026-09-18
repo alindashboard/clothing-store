@@ -26,6 +26,7 @@ export interface NewOrderNotificationProps {
   shippingCost: number
   total: number
   currency: string
+  paymentMethod?: string | null
   shippingAddress: {
     line1: string
     line2?: string | null
@@ -55,6 +56,7 @@ export function NewOrderNotification({
   shippingCost,
   total,
   currency,
+  paymentMethod,
   shippingAddress,
   shippingMethod,
 }: NewOrderNotificationProps) {
@@ -78,6 +80,7 @@ export function NewOrderNotification({
           <Section style={section}>
             <Text style={heading}>New Order: {orderNumber}</Text>
             <Text style={totalLine}>{fmt(total, currency)}</Text>
+            {paymentMethod === 'stripe' && <Text style={paidBadge}>PAID — CARD</Text>}
           </Section>
 
           <Hr style={rule} />
@@ -195,6 +198,18 @@ const totalLine: React.CSSProperties = {
   fontWeight: '700',
   color: '#1a6b3a',
   margin: '0',
+}
+
+const paidBadge: React.CSSProperties = {
+  display: 'inline-block',
+  fontSize: '11px',
+  fontWeight: '700',
+  color: '#1a6b3a',
+  backgroundColor: '#e6f4ea',
+  padding: '3px 8px',
+  borderRadius: '3px',
+  letterSpacing: '0.05em',
+  margin: '8px 0 0 0',
 }
 
 const sectionTitle: React.CSSProperties = {

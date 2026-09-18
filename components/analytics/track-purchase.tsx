@@ -19,12 +19,30 @@ import { useCartStore } from '@/lib/store/cart'
  * The order details are read from sessionStorage (written by `CheckoutForm`
  * before the redirect) rather than the URL, so no order data leaks into query
  * params. The key is cleared after firing so a page refresh doesn't double-count.
+ *
+ * Stripe is the exception: payment isn't confirmed at redirect time, so
+ * `CheckoutForm` never stashes anything for it — instead the success page
+ * passes `stripeOrder`, already resolved server-side from the DB's
+ * `payment_status`, and we fire straight from that instead of sessionStorage.
  */
-export function TrackPurchase() {
+export function TrackPurchase({ stripeOrder }: { stripeOrder?: PixelOrder } = {}) {
   const clearCart = useCartStore((state) => state.clearCart)
 
   useEffect(() => {
     clearCart()
+
+    if (stripeOrder) {
+      track('Purchase', {
+        content_ids: stripeOrder.contents.map((c) => c.id),
+        contents: stripeOrder.contents,
+        content_type: 'product',
+        num_items: stripeOrder.numItems,
+        value: stripeOrder.value,
+        currency: stripeOrder.currency,
+      })
+      siteTrack('purchase', { value: stripeOrder.value, paymentMethod: stripeOrder.paymentMethod })
+      return
+    }
 
     let raw: string | null = null
     try {

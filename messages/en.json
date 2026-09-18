@@ -246,7 +246,12 @@
     "amountDue": "Amount Due",
     "paymentReference": "Payment Reference",
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "stripeTitle": "Pay by Card",
+    "stripeDescription": "Pay securely by card via Stripe. You'll be redirected to complete payment.",
+    "redirectingToPayment": "Redirecting to payment...",
+    "paymentProcessing": "We're confirming your payment — this can take a moment.",
+    "paymentReceived": "Payment received"
   },
   "contact": {
     "title": "Contact",
