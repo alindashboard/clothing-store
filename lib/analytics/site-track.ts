@@ -14,6 +14,9 @@ import type { SiteEvent, SiteEventPayload } from './site-events'
 
 export function siteTrack(event: SiteEvent, payload?: Omit<SiteEventPayload, 'event' | 'path' | 'locale' | 'referrer'>) {
   if (typeof window === 'undefined' || !SITE_CONFIG.features.siteAnalytics) return
+  // The root layout wraps /admin too — don't let the owner's own admin
+  // sessions pollute visitor/traffic numbers for the storefront.
+  if (window.location.pathname.startsWith('/admin')) return
 
   try {
     // localePrefix: 'always' means the pathname always starts with /it/ or /en/.

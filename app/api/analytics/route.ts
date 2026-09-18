@@ -37,6 +37,12 @@ export async function POST(request: NextRequest) {
       return new NextResponse(null, { status: 204 })
     }
 
+    // Belt-and-suspenders: the client already skips /admin (see site-track.ts),
+    // but never let an admin session end up in visitor/traffic numbers.
+    if (typeof body.path === 'string' && body.path.startsWith('/admin')) {
+      return new NextResponse(null, { status: 204 })
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
     const country = request.headers.get('x-vercel-ip-country') || null
