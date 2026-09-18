@@ -187,6 +187,29 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   an order shipped before saving tracking, the email still sends without a
   tracking link (email template just omits that section) — save tracking
   first if you want it included.
+- **`order_status_history`** (migration `20260918000001_order_status_history.sql`,
+  **must be applied manually in the Supabase SQL editor** — no CLI/migration-
+  runner is wired up in this repo, same as every other migration here) backs
+  the admin order Timeline. `createOrder` inserts the initial `pending` row;
+  `updateOrderStatus` inserts one on every actual transition (skipped on a
+  same-status resubmit) and only fires the shipping email on that same
+  transition check. Both inserts are non-blocking (logged, not thrown) and
+  `getOrderStatusHistory` returns `[]` on error, so a not-yet-applied
+  migration degrades to the old "no history" Timeline instead of breaking
+  order creation or status updates — same pattern as `site_settings`.
+  `/admin/orders/[id]`'s Timeline card skips the bootstrap `pending` row
+  (already represented by the "Created" line) via `history[0].status ===
+  'pending'`, which only holds for orders created after this migration.
+- **Order status update is a client component** (`OrderStatusPanel`,
+  `components/admin/order-status-panel.tsx`) instead of the page's old
+  inline `<form action={serverAction}>` + `redirect()` — that pattern gave no
+  loading feedback until the full navigation landed (felt like a freeze).
+  It calls `updateOrderStatus` directly, tracks its own `loading` state for
+  the spinner, and calls `router.refresh()` on success instead of navigating.
+  Selecting **Shipped** with no `tracking_number`/`tracking_url` saved opens
+  a confirm dialog (`components/ui/dialog`, first real usage of that
+  shadcn/base-ui primitive in this repo) before proceeding, since the
+  shipping email silently omits the tracking section otherwise.
 - `localePrefix: 'always'` means every URL carries `/it/` or `/en/` — including the
   default locale. No bare `/` routes for public pages.
 - Admin login redirects to `/admin/dashboard` on success, but the actual admin home

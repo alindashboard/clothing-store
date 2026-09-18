@@ -75,22 +75,44 @@ export async function updateOrderStatus(id: string, status: string) {
   const { error } = await supabase.from('orders').update({ status }).eq('id', id)
   if (error) return { error: error.message }
 
-  // Only on the transition into 'shipped' — re-saving the same status (e.g.
-  // updating tracking afterwards) must not re-send the email.
-  if (existing && existing.status !== 'shipped' && status === 'shipped') {
-    await sendShippingConfirmation({
-      orderNumber: existing.order_number,
-      customerName: existing.customer_name,
-      customerEmail: existing.customer_email,
-      trackingNumber: existing.tracking_number,
-      trackingUrl: existing.tracking_url,
-      locale: 'it',
-    })
+  // Only on an actual transition — re-saving the same status must not log a
+  // duplicate history entry or (for 'shipped') re-send the email.
+  if (existing && existing.status !== status) {
+    const { error: historyError } = await supabase
+      .from('order_status_history')
+      .insert({ order_id: id, status })
+    if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
+
+    if (status === 'shipped') {
+      await sendShippingConfirmation({
+        orderNumber: existing.order_number,
+        customerName: existing.customer_name,
+        customerEmail: existing.customer_email,
+        trackingNumber: existing.tracking_number,
+        trackingUrl: existing.tracking_url,
+        locale: 'it',
+      })
+    }
   }
 
   revalidatePath('/admin/orders')
   revalidatePath(`/admin/orders/${id}`)
   return { success: true }
+}
+
+/** Chronological status history for the admin order Timeline. */
+export async function getOrderStatusHistory(
+  orderId: string
+): Promise<{ status: string; created_at: string }[]> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase
+    .from('order_status_history')
+    .select('status, created_at')
+    .eq('order_id', orderId)
+    .order('created_at', { ascending: true })
+
+  if (error) return []
+  return data
 }
 
 export async function updateOrderTracking(id: string, trackingNumber: string, trackingUrl: string) {
@@ -162,6 +184,11 @@ export async function createOrder(
     .single()
 
   if (orderError) return { error: orderError.message }
+
+  const { error: historyError } = await supabase
+    .from('order_status_history')
+    .insert({ order_id: order.id, status: order.status })
+  if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
 
   const orderItems = cartItems.map((item) => ({
     order_id: order.id,

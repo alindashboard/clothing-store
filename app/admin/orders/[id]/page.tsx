@@ -1,14 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getOrderAdmin, updateOrderStatus, updateOrderTracking, updateOrderNotes } from '@/lib/actions/orders'
+import { getOrderAdmin, getOrderStatusHistory, updateOrderTracking, updateOrderNotes } from '@/lib/actions/orders'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
-import { OrderStatusBadge, PaymentStatusBadge } from '@/components/admin/order-status-badge'
+import { OrderStatusPanel } from '@/components/admin/order-status-panel'
+import { OrderStatusBadge } from '@/components/admin/order-status-badge'
 
 interface Props { params: Promise<{ id: string }> }
-
-const ORDER_STATUSES = ['pending','confirmed','paid','processing','shipped','delivered','cancelled','refunded']
 
 export default async function OrderDetailPage({ params }: Props) {
   const { id } = await params
@@ -16,14 +15,11 @@ export default async function OrderDetailPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
 
-  const order = await getOrderAdmin(id)
+  const [order, history] = await Promise.all([
+    getOrderAdmin(id),
+    getOrderStatusHistory(id),
+  ])
   if (!order) notFound()
-
-  async function handleStatusUpdate(fd: FormData) {
-    'use server'
-    await updateOrderStatus(id, fd.get('status') as string)
-    redirect(`/admin/orders/${id}`)
-  }
 
   async function handleTrackingUpdate(fd: FormData) {
     'use server'
@@ -108,25 +104,35 @@ export default async function OrderDetailPage({ params }: Props) {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4">Status</h2>
-              <div className="space-y-3">
-                <div><OrderStatusBadge status={order.status} /></div>
-                <div><PaymentStatusBadge status={order.payment_status} /></div>
-                <p className="text-xs text-gray-400">Payment: {order.payment_method ?? '—'}</p>
-              </div>
-              <form action={handleStatusUpdate} className="mt-4 space-y-2">
-                <select name="status" defaultValue={order.status} className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-gray-400">
-                  {ORDER_STATUSES.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                </select>
-                <button type="submit" className="w-full py-2 bg-black text-white text-xs font-medium hover:bg-gray-800">Update Status</button>
-              </form>
-            </div>
+            <OrderStatusPanel
+              orderId={order.id}
+              status={order.status}
+              paymentStatus={order.payment_status}
+              paymentMethod={order.payment_method}
+              trackingNumber={order.tracking_number}
+              trackingUrl={order.tracking_url}
+            />
 
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-2">Timeline</h2>
-              <p className="text-xs text-gray-400">Created: {new Date(order.created_at).toLocaleString('en-GB')}</p>
-              <p className="text-xs text-gray-400">Updated: {new Date(order.updated_at).toLocaleString('en-GB')}</p>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4">Timeline</h2>
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-400">Created</p>
+                    <p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString('en-GB')}</p>
+                  </div>
+                </li>
+                {(history.length > 0 && history[0].status === 'pending' ? history.slice(1) : history).map((entry, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0" />
+                    <div>
+                      <OrderStatusBadge status={entry.status as typeof order.status} />
+                      <p className="text-xs text-gray-400 mt-1">{new Date(entry.created_at).toLocaleString('en-GB')}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </div>
