@@ -94,7 +94,9 @@ export function VariantSelector({ variants, onSelect, onColorChange }: VariantSe
                 onClick={() => !outOfStock && setSelectedSize(v.size)}
                 disabled={outOfStock}
                 title={outOfStock ? tCommon('outOfStock') : undefined}
-                className="relative w-14 h-[52px] flex items-center justify-center font-semibold text-sm box-border transition-all"
+                className={`relative min-w-14 h-[52px] flex items-center justify-center px-2 font-semibold whitespace-nowrap box-border transition-all ${
+                  v.size.length > 4 ? 'text-xs' : 'text-sm'
+                }`}
                 style={{
                   fontFamily: 'var(--font-grotesk, var(--font-sans))',
                   border: `1.5px solid ${outOfStock ? '#2B2924' : selected ? '#D9B679' : '#2B2924'}`,
