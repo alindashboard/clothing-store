@@ -9,6 +9,7 @@ export interface OrderEmailData {
   customerName: string
   customerEmail: string
   customerPhone?: string | null
+  paymentMethod?: string | null
   locale: 'it' | 'en'
   items: Array<{
     name: string

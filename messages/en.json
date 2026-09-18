@@ -236,7 +236,17 @@
     "shippingTitle": "Shipping",
     "payment": "Payment",
     "billingAddress": "Billing Address",
-    "sameAsShipping": "Same as shipping address"
+    "sameAsShipping": "Same as shipping address",
+    "bankTransferTitle": "Bank Transfer Details",
+    "bankTransferInstructions": "Transfer the amount below and include the order number as the payment reference, so we can match your payment to your order. Your order ships once payment is confirmed.",
+    "bankName": "Bank",
+    "accountHolder": "Account Holder",
+    "iban": "IBAN",
+    "bic": "BIC / SWIFT",
+    "amountDue": "Amount Due",
+    "paymentReference": "Payment Reference",
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "contact": {
     "title": "Contact",

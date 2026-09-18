@@ -4,8 +4,10 @@ import { CheckCircle } from 'lucide-react'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
+import { getOrderByNumber } from '@/lib/actions/orders'
 import { Header } from '@/components/layout/header'
 import { TrackPurchase } from '@/components/analytics/track-purchase'
+import { BankTransferPanel } from '@/components/checkout/bank-transfer-panel'
 import { SITE_CONFIG } from '@/lib/config'
 
 interface Props {
@@ -14,9 +16,10 @@ interface Props {
 
 export default async function CheckoutSuccessPage({ searchParams }: Props) {
   const { order, email } = await searchParams
-  const [categories, t] = await Promise.all([
+  const [categories, t, orderRecord] = await Promise.all([
     getCategories(),
     getTranslations('checkout'),
+    order ? getOrderByNumber(order) : Promise.resolve(null),
   ])
 
   return (
@@ -26,7 +29,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
       <Header categories={categories} />
 
       <main className="flex-1 flex items-center justify-center px-4 py-20">
-        <div className="text-center max-w-md">
+        <div className={`text-center ${orderRecord?.payment_method === 'bank_transfer' ? 'max-w-lg' : 'max-w-md'}`}>
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
           <h1 className="text-2xl font-light mb-2">{t('orderConfirmed')}</h1>
           {order && (
@@ -55,6 +58,14 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
               {t('continueShopping')}
             </Link>
           </div>
+
+          {orderRecord?.payment_method === 'bank_transfer' && (
+            <BankTransferPanel
+              orderNumber={orderRecord.order_number}
+              total={orderRecord.total}
+              currency={orderRecord.currency}
+            />
+          )}
         </div>
       </main>
 

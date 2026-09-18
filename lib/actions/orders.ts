@@ -31,6 +31,21 @@ export async function getOrdersAdmin(options?: {
   return data ?? []
 }
 
+/** Public lookup for the checkout success page — only the fields it needs to render. */
+export async function getOrderByNumber(
+  orderNumber: string
+): Promise<Pick<Order, 'order_number' | 'payment_method' | 'total' | 'currency'> | null> {
+  const supabase = createSupabaseAdminClient()
+  const { data, error } = await supabase
+    .from('orders')
+    .select('order_number, payment_method, total, currency')
+    .eq('order_number', orderNumber)
+    .single()
+
+  if (error) return null
+  return data
+}
+
 export async function getOrderAdmin(id: string): Promise<Order | null> {
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
@@ -159,6 +174,7 @@ export async function createOrder(
     customerName: order.customer_name,
     customerEmail: order.customer_email,
     customerPhone: order.customer_phone,
+    paymentMethod: order.payment_method,
     locale: 'it',
     items: cartItems.map((item) => ({
       name: item.productName,

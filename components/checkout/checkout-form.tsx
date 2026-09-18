@@ -7,7 +7,7 @@ import { MessageCircle, Building2, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { useCartStore, type CartItem } from '@/lib/store/cart'
+import type { CartItem } from '@/lib/store/cart'
 import { createOrder } from '@/lib/actions/orders'
 import { SITE_CONFIG } from '@/lib/config'
 import { formatPrice } from '@/lib/utils'
@@ -22,7 +22,6 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProps) {
   const router = useRouter()
-  const { clearCart } = useCartStore()
   const t = useTranslations('checkout')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -74,7 +73,6 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       )
 
       trackPurchase(result.orderNumber)
-      clearCart()
       window.open(`https://wa.me/${SITE_CONFIG.contact.whatsapp}?text=${message}`, '_blank')
       router.push(`/checkout/success?order=${result.orderNumber}`)
       return
@@ -84,7 +82,6 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     if (result.error) { setError(result.error); setLoading(false); return }
 
     trackPurchase(result.orderNumber)
-    clearCart()
     router.push(`/checkout/success?order=${result.orderNumber}`)
   }
 

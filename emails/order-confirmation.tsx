@@ -11,12 +11,14 @@ import {
   Link,
   Preview,
 } from '@react-email/components'
+import { SITE_CONFIG } from '@/lib/config'
 
 type Locale = 'it' | 'en'
 
 export interface OrderConfirmationProps {
   orderNumber: string
   customerName: string
+  paymentMethod?: string | null
   locale: Locale
   items: Array<{
     name: string
@@ -61,6 +63,13 @@ const dict = {
     contact: 'Domande? Scrivici a',
     footer: '© 2025 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'Questo è un messaggio transazionale relativo al tuo ordine.',
+    bankTransferTitle: 'Dati per il bonifico',
+    bankTransferInstructions: 'Effettua il bonifico per l\'importo totale indicato sopra e inserisci il numero ordine come causale. Il tuo ordine verrà spedito dopo la conferma del pagamento.',
+    bankName: 'Banca',
+    accountHolder: 'Intestatario',
+    iban: 'IBAN',
+    bic: 'BIC / SWIFT',
+    paymentReference: 'Causale',
   },
   en: {
     preview: (n: string) => `Your order ${n} is confirmed — KAYA Studio Outlet`,
@@ -82,6 +91,13 @@ const dict = {
     contact: 'Questions? Contact us at',
     footer: '© 2025 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'This is a transactional message related to your order.',
+    bankTransferTitle: 'Bank transfer details',
+    bankTransferInstructions: 'Please transfer the total amount above and include the order number as the payment reference. Your order ships once payment is confirmed.',
+    bankName: 'Bank',
+    accountHolder: 'Account holder',
+    iban: 'IBAN',
+    bic: 'BIC / SWIFT',
+    paymentReference: 'Payment reference',
   },
 }
 
@@ -96,6 +112,7 @@ function fmt(amount: number, currency: string) {
 export function OrderConfirmation({
   orderNumber,
   customerName,
+  paymentMethod,
   locale = 'it',
   items,
   subtotal,
@@ -198,6 +215,40 @@ export function OrderConfirmation({
               </tbody>
             </table>
           </Section>
+
+          {paymentMethod === 'bank_transfer' && (
+            <>
+              <Hr style={rule} />
+              <Section style={section}>
+                <Text style={labelHeading}>{tr.bankTransferTitle}</Text>
+                <Text style={para}>{tr.bankTransferInstructions}</Text>
+                <table style={{ ...tbl, marginTop: '12px' }}>
+                  <tbody>
+                    <tr>
+                      <td style={sumLabel}>{tr.bankName}</td>
+                      <td style={sumValue}>{SITE_CONFIG.checkout.bankTransfer.bankName}</td>
+                    </tr>
+                    <tr>
+                      <td style={sumLabel}>{tr.accountHolder}</td>
+                      <td style={sumValue}>{SITE_CONFIG.checkout.bankTransfer.accountHolder}</td>
+                    </tr>
+                    <tr>
+                      <td style={sumLabel}>{tr.iban}</td>
+                      <td style={sumValue}>{SITE_CONFIG.checkout.bankTransfer.iban}</td>
+                    </tr>
+                    <tr>
+                      <td style={sumLabel}>{tr.bic}</td>
+                      <td style={sumValue}>{SITE_CONFIG.checkout.bankTransfer.bic}</td>
+                    </tr>
+                    <tr>
+                      <td style={sumLabelBold}>{tr.paymentReference}</td>
+                      <td style={sumValueBold}>{orderNumber}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Section>
+            </>
+          )}
 
           <Hr style={rule} />
 

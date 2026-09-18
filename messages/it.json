@@ -236,7 +236,17 @@
     "shippingTitle": "Spedizione",
     "payment": "Pagamento",
     "billingAddress": "Indirizzo di fatturazione",
-    "sameAsShipping": "Uguale all'indirizzo di spedizione"
+    "sameAsShipping": "Uguale all'indirizzo di spedizione",
+    "bankTransferTitle": "Dati per il bonifico",
+    "bankTransferInstructions": "Effettua il bonifico per l'importo indicato e inserisci il numero ordine come causale, così possiamo abbinare il pagamento al tuo ordine. L'ordine verrà spedito dopo la conferma del pagamento.",
+    "bankName": "Banca",
+    "accountHolder": "Intestatario",
+    "iban": "IBAN",
+    "bic": "BIC / SWIFT",
+    "amountDue": "Importo da versare",
+    "paymentReference": "Causale",
+    "copy": "Copia",
+    "copied": "Copiato!"
   },
   "contact": {
     "title": "Contatto",

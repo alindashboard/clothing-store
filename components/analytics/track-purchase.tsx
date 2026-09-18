@@ -4,16 +4,28 @@ import { useEffect } from 'react'
 import { track } from '@/lib/analytics/fpixel'
 import { siteTrack } from '@/lib/analytics/site-track'
 import { LAST_ORDER_KEY, type PixelOrder } from '@/lib/analytics/order-tracking'
+import { useCartStore } from '@/lib/store/cart'
 
 /**
- * Fires a Meta `Purchase` event on the checkout success page.
+ * Fires a Meta `Purchase` event on the checkout success page, and clears the
+ * cart now that the order has actually landed here.
+ *
+ * Clearing used to happen in `CheckoutForm` right before the redirect, which
+ * raced `CheckoutPageClient`'s "cart is empty, bounce to /cart" effect on the
+ * still-mounted /checkout page — the two competing navigations could leave
+ * the browser stuck on /checkout rendering nothing. Clearing only once we're
+ * already on /checkout/success removes the race.
  *
  * The order details are read from sessionStorage (written by `CheckoutForm`
  * before the redirect) rather than the URL, so no order data leaks into query
  * params. The key is cleared after firing so a page refresh doesn't double-count.
  */
 export function TrackPurchase() {
+  const clearCart = useCartStore((state) => state.clearCart)
+
   useEffect(() => {
+    clearCart()
+
     let raw: string | null = null
     try {
       raw = sessionStorage.getItem(LAST_ORDER_KEY)

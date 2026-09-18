@@ -80,6 +80,13 @@ export const SITE_CONFIG = {
     enableWhatsAppOrder: true,
     enableBankTransfer: true,
     taxRate: 0.22,
+    /** Shown on the success page + confirmation email for bank_transfer orders. */
+    bankTransfer: {
+      bankName: 'Blu Banca',
+      accountHolder: 'Labis Pop Dragos Cosmin',
+      iban: 'IT31W0344114700CC0141001064',
+      bic: 'SVTUIT21',
+    },
   },
   features: {
     enableNewsletter: false,

@@ -154,6 +154,29 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
 - Stripe is wired (`enableStripe` flag exists) but **disabled**. Don't enable without
   full Stripe key setup and client confirmation.
+- **Fixed 2026-09-18 — bank transfer checkout landed on a blank page.** Both
+  `whatsapp` and `bank_transfer` submits in `CheckoutForm` called `clearCart()`
+  synchronously before `router.push('/checkout/success')`. Clearing the cart
+  immediately re-rendered the still-mounted `/checkout` page, whose
+  `CheckoutPageClient` has "cart empty → redirect to `/cart` and render
+  `null`" — a second, competing navigation that could leave the browser stuck
+  on `/checkout` rendering nothing (reproduced live: both the success-page and
+  cart-page requests came back `net::ERR_ABORTED`). WhatsApp hit the same race
+  but was masked because `window.open()` pulls attention to the new tab.
+  Fix: `clearCart()` moved out of `CheckoutForm` into `TrackPurchase`, which
+  already runs once on `/checkout/success` mount — the cart only empties once
+  the checkout page is gone, so there's nothing to race.
+  Bank details live in `lib/config.ts → checkout.bankTransfer` (bank name,
+  account holder, IBAN, BIC/SWIFT — real values, client-confirmed
+  2026-09-18). The success page fetches the order server-side via
+  `getOrderByNumber` (`lib/actions/orders.ts`, public — only selects
+  `order_number/payment_method/total/currency`, no PII) and renders
+  `BankTransferPanel` (copy-to-clipboard per field, including the order
+  number as payment reference so the owner can match transfers to orders) when
+  `payment_method === 'bank_transfer'`. Same block is mirrored in
+  `emails/order-confirmation.tsx` (gated on the new `paymentMethod` prop,
+  threaded through `OrderEmailData` from `createOrder`) since a customer who
+  closes the success page otherwise has no record of where to send payment.
 - `localePrefix: 'always'` means every URL carries `/it/` or `/en/` — including the
   default locale. No bare `/` routes for public pages.
 - Admin login redirects to `/admin/dashboard` on success, but the actual admin home
