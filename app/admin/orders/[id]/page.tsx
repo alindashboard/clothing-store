@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getOrderAdmin, getOrderStatusHistory, updateOrderTracking, updateOrderNotes } from '@/lib/actions/orders'
+import { getOrderAdmin, getOrderStatusHistory, updateOrderTracking, updateOrderNotes, deleteOrder } from '@/lib/actions/orders'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { formatPrice } from '@/lib/utils'
 import { OrderStatusPanel } from '@/components/admin/order-status-panel'
 import { OrderStatusBadge } from '@/components/admin/order-status-badge'
+import { DeleteOrderButton } from './delete-order-button'
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -36,9 +37,14 @@ export default async function OrderDetailPage({ params }: Props) {
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Link href="/admin/orders" className="text-xs text-gray-400 hover:text-black underline">Orders</Link>
-          <h1 className="text-xl font-semibold mt-1">{order.order_number}</h1>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <Link href="/admin/orders" className="text-xs text-gray-400 hover:text-black underline">Orders</Link>
+            <h1 className="text-xl font-semibold mt-1">{order.order_number}</h1>
+          </div>
+          <form action={async () => { 'use server'; await deleteOrder(id); redirect('/admin/orders') }}>
+            <DeleteOrderButton />
+          </form>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

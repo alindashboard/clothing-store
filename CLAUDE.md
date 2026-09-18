@@ -209,6 +209,20 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   a confirm dialog (`components/ui/dialog`, first real usage of that
   shadcn/base-ui primitive in this repo) before proceeding, since the
   shipping email silently omits the tracking section otherwise.
+- **`deleteOrder`** (`lib/actions/orders.ts`, wired to a "Delete Order" button
+  on `/admin/orders/[id]`, same confirm()-in-a-client-component pattern as
+  `deleteProduct`/`DeleteButton`) restores each item's `stock_quantity`
+  before deleting `order_status_history`/`order_items`/the order itself —
+  explicit deletes, not relying on an unverified FK cascade. This is the
+  general "undo" for a test order or one that needs voiding; it's also what
+  cleaned up the 6 orders placed while testing bank transfer/shipping-email
+  during 2026-09-18 (all from the owner's own email, verified against the
+  full `orders` table before deleting — there were no real customer orders
+  yet). Deliberately did **not** add an email-based "skip stock for my own
+  orders" exception — that would silently stop decrementing stock for any
+  future order from that address (including a real one) with nothing in the
+  admin UI showing why, and it would stop testing the actual decrement code
+  path. `deleteOrder` covers the same need without that risk.
 - `localePrefix: 'always'` means every URL carries `/it/` or `/en/` — including the
   default locale. No bare `/` routes for public pages.
 - Admin login redirects to `/admin/dashboard` on success, but the actual admin home

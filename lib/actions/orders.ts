@@ -100,6 +100,44 @@ export async function updateOrderStatus(id: string, status: string) {
   return { success: true }
 }
 
+/**
+ * Deletes an order and restores the stock its items had reserved — the
+ * undo for a test order or a cancelled/fraudulent one that never shipped.
+ * Does NOT touch stock for items whose variant was since deleted.
+ */
+export async function deleteOrder(id: string) {
+  const supabase = createSupabaseAdminClient()
+
+  const { data: items } = await supabase
+    .from('order_items')
+    .select('variant_id, quantity')
+    .eq('order_id', id)
+
+  for (const item of items ?? []) {
+    const { data: variant } = await supabase
+      .from('product_variants')
+      .select('stock_quantity')
+      .eq('id', item.variant_id)
+      .single()
+    if (variant) {
+      await supabase
+        .from('product_variants')
+        .update({ stock_quantity: variant.stock_quantity + item.quantity })
+        .eq('id', item.variant_id)
+    }
+  }
+
+  // Explicit, rather than relying on an FK cascade that may or may not be there.
+  await supabase.from('order_status_history').delete().eq('order_id', id)
+  await supabase.from('order_items').delete().eq('order_id', id)
+
+  const { error } = await supabase.from('orders').delete().eq('id', id)
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin/orders')
+  return { success: true }
+}
+
 /** Chronological status history for the admin order Timeline. */
 export async function getOrderStatusHistory(
   orderId: string
