@@ -3,6 +3,7 @@ import { resend } from './client'
 import { FROM, REPLY_TO, OWNER_NOTIFICATION_EMAIL } from './config'
 import { OrderConfirmation } from '@/emails/order-confirmation'
 import { NewOrderNotification } from '@/emails/new-order-notification'
+import { ShippingConfirmation } from '@/emails/shipping-confirmation'
 
 export interface OrderEmailData {
   orderNumber: string
@@ -55,6 +56,41 @@ export async function sendOrderConfirmation(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[email] sendOrderConfirmation threw:', msg)
+    return { success: false, error: msg }
+  }
+}
+
+export interface ShippingEmailData {
+  orderNumber: string
+  customerName: string
+  customerEmail: string
+  trackingNumber?: string | null
+  trackingUrl?: string | null
+  locale: 'it' | 'en'
+}
+
+export async function sendShippingConfirmation(
+  data: ShippingEmailData
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  try {
+    const { data: result, error } = await resend.emails.send({
+      from: FROM,
+      to: data.customerEmail,
+      replyTo: REPLY_TO,
+      subject:
+        data.locale === 'it'
+          ? `Ordine Spedito — ${data.orderNumber}`
+          : `Order Shipped — ${data.orderNumber}`,
+      react: React.createElement(ShippingConfirmation, data),
+    })
+    if (error) {
+      console.error('[email] sendShippingConfirmation error:', error)
+      return { success: false, error: error.message }
+    }
+    return { success: true, id: result?.id }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[email] sendShippingConfirmation threw:', msg)
     return { success: false, error: msg }
   }
 }

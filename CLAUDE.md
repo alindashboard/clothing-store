@@ -177,6 +177,16 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `emails/order-confirmation.tsx` (gated on the new `paymentMethod` prop,
   threaded through `OrderEmailData` from `createOrder`) since a customer who
   closes the success page otherwise has no record of where to send payment.
+- **Shipping confirmation email**: `updateOrderStatus` (`lib/actions/orders.ts`)
+  fetches the order's prior status before writing the new one and fires
+  `sendShippingConfirmation` (`emails/shipping-confirmation.tsx`) only on the
+  transition *into* `shipped` (`existing.status !== 'shipped' && status ===
+  'shipped'`) — re-saving while already shipped (e.g. editing tracking
+  afterwards) must not re-send it. Pulls whatever `tracking_number`/
+  `tracking_url` are already on the order at that moment; if the admin marks
+  an order shipped before saving tracking, the email still sends without a
+  tracking link (email template just omits that section) — save tracking
+  first if you want it included.
 - `localePrefix: 'always'` means every URL carries `/it/` or `/en/` — including the
   default locale. No bare `/` routes for public pages.
 - Admin login redirects to `/admin/dashboard` on success, but the actual admin home
