@@ -532,3 +532,23 @@ STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT
   `product_variants.sort_order`, set at import time by `sizeRank()` in
   `scripts/import-stock.mjs` (clothing letters in size order, then numeric —
   see that function before touching size sort anywhere else).
+- **Wholesale discount applied 2026-09-19** via `scripts/apply-wholesale-discount.mjs`
+  (`node --env-file=.env.local scripts/apply-wholesale-discount.mjs [--apply]`, dry-run by
+  default). Brand = first 2 chars of `products.sku_prefix` before the hyphen (already
+  the brand code, unlike `brandCodeForSku` in `lib/stock-export.ts` which parses a raw
+  variant SKU — don't conflate the two). For each product in the `DISCOUNTS` map,
+  `new base_price = (compare_at_price ?? old base_price) x (1 - discount%)`; when
+  `compare_at_price` was null it's backfilled to the old `base_price` so the discount
+  still shows crossed-out. Permanently overwrote retail prices for 270 products across
+  13 brands (BL 40%, CK 40%, DI 35%, IC 50%, IB 35%, PK 40%, PS 40%, TH 40%, DS 40%,
+  RI 50%, NB 50%, EX 40%, BR 50%) — confirmed with the owner this replaces the live
+  price, not a separate wholesale tier. Brands not in that list (`MB` 39 products, `VS`,
+  `GC`, `GV`, `PA`, `AM`, `AR`, `MS`, `PO`) were deliberately left untouched. No
+  `product_variants.price_override` rows existed on any affected brand, so `base_price`
+  alone drove the change — re-check that assumption if this is ever re-run after variant
+  overrides get used. Re-running the script is idempotent-ish but NOT re-runnable for a
+  second discount round as-is: it always reads from the current `compare_at_price`, so a
+  second pass with different percentages should still work off the same math, but a
+  second pass with the *same* percentages would re-discount an already-discounted price
+  if `compare_at_price` reflects the reduced price rather than the original one — verify
+  `compare_at_price` still holds the pre-wholesale price before reusing this script.
