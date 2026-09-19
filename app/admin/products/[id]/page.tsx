@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ProductForm } from '@/components/admin/product-form'
-import { getProductAdmin, deleteProduct } from '@/lib/actions/products'
+import { getProductAdmin } from '@/lib/actions/products'
 import { getAllCategoriesAdmin } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { DeleteButton } from './delete-button'
@@ -40,9 +40,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
             <Link href={backHref} className="text-xs text-gray-400 hover:text-black underline">Products</Link>
             <h1 className="text-xl font-semibold mt-1">{product.name}</h1>
           </div>
-          <form action={async () => { 'use server'; await deleteProduct(id); redirect(backHref) }}>
-            <DeleteButton />
-          </form>
+          <DeleteButton productId={id} backHref={backHref} />
         </div>
         <ProductForm product={product} categories={categories} backHref={backHref} />
       </div>

@@ -368,7 +368,12 @@ export async function deleteProduct(id: string) {
   }
 
   const { error } = await supabase.from('products').delete().eq('id', id)
-  if (error) return { error: error.message }
+  if (error) {
+    if (error.code === '23503') {
+      return { error: 'This product has existing orders and cannot be deleted. Delete or reassign those orders first.' }
+    }
+    return { error: error.message }
+  }
 
   revalidatePath('/admin/products')
   revalidatePath('/products')
