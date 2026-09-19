@@ -2,6 +2,7 @@
 
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
+import { sendContactNotification } from '@/lib/email/send'
 
 export async function submitContact(formData: FormData) {
   const supabase = createSupabaseAdminClient()
@@ -21,6 +22,12 @@ export async function submitContact(formData: FormData) {
   })
 
   if (error) return { error: error.message }
+
+  // Don't block the success response on email delivery.
+  await Promise.allSettled([
+    sendContactNotification({ name, email, phone, message }),
+  ])
+
   return { success: true }
 }
 

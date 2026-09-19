@@ -4,6 +4,7 @@ import { FROM, REPLY_TO, OWNER_NOTIFICATION_EMAIL } from './config'
 import { OrderConfirmation } from '@/emails/order-confirmation'
 import { NewOrderNotification } from '@/emails/new-order-notification'
 import { ShippingConfirmation } from '@/emails/shipping-confirmation'
+import { ContactNotification } from '@/emails/contact-notification'
 
 export interface OrderEmailData {
   orderNumber: string
@@ -91,6 +92,36 @@ export async function sendShippingConfirmation(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[email] sendShippingConfirmation threw:', msg)
+    return { success: false, error: msg }
+  }
+}
+
+export interface ContactEmailData {
+  name: string
+  email?: string | null
+  phone?: string | null
+  message: string
+}
+
+export async function sendContactNotification(
+  data: ContactEmailData
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  try {
+    const { data: result, error } = await resend.emails.send({
+      from: FROM,
+      to: OWNER_NOTIFICATION_EMAIL,
+      replyTo: data.email ?? REPLY_TO,
+      subject: `New Contact Request from ${data.name}`,
+      react: React.createElement(ContactNotification, data),
+    })
+    if (error) {
+      console.error('[email] sendContactNotification error:', error)
+      return { success: false, error: error.message }
+    }
+    return { success: true, id: result?.id }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[email] sendContactNotification threw:', msg)
     return { success: false, error: msg }
   }
 }
