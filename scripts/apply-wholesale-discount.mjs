@@ -5,8 +5,12 @@
 // discount still shows as crossed-out on the storefront).
 //
 // Usage:
-//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs           (dry run)
-//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs --apply   (writes changes)
+//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs                     (dry run, all brands in DISCOUNTS)
+//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs --apply              (writes changes, all brands)
+//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs --brand=MB           (dry run, only MB)
+//   node --env-file=.env.local scripts/apply-wholesale-discount.mjs --brand=MB --apply   (writes changes, only MB)
+// --brand accepts a comma-separated list (--brand=MB,VS) to scope a run to specific
+// brands without touching brands already processed in an earlier run.
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -29,6 +33,11 @@ const DISCOUNTS = {
 
 const apply = process.argv.includes('--apply')
 
+const brandArg = process.argv.find((a) => a.startsWith('--brand='))
+const brandFilter = brandArg
+  ? new Set(brandArg.slice('--brand='.length).split(',').map((b) => b.trim().toUpperCase()))
+  : null
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -49,6 +58,7 @@ for (const p of products) {
   const brand = (p.sku_prefix ?? '').split('-')[0].toUpperCase()
   const discount = DISCOUNTS[brand]
   if (discount === undefined) continue
+  if (brandFilter && !brandFilter.has(brand)) continue
 
   const sourcePrice = p.compare_at_price ?? p.base_price
   const newBasePrice = Math.round(sourcePrice * (1 - discount / 100) * 100) / 100

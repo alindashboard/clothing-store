@@ -555,3 +555,7 @@ STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT
 - **`MB` added to the `DISCOUNTS` map at 50%** (2026-09-22) — was one of the brands
   deliberately left untouched in the 2026-09-19 run above. Not yet applied to the DB;
   someone still needs to run the script (dry-run first) with `.env.local` present.
+  `DISCOUNTS` now keeps every brand ever processed (a historical record), so a bare
+  `--apply` reprocesses all of them, not just the newest addition — added an optional
+  `--brand=MB` (comma-separated) filter to scope a run to specific brands without
+  touching ones already applied in an earlier run.
