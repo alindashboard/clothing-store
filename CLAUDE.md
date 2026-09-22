@@ -552,3 +552,6 @@ STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT
   second pass with the *same* percentages would re-discount an already-discounted price
   if `compare_at_price` reflects the reduced price rather than the original one — verify
   `compare_at_price` still holds the pre-wholesale price before reusing this script.
+- **`MB` added to the `DISCOUNTS` map at 50%** (2026-09-22) — was one of the brands
+  deliberately left untouched in the 2026-09-19 run above. Not yet applied to the DB;
+  someone still needs to run the script (dry-run first) with `.env.local` present.

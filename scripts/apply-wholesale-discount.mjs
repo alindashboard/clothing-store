@@ -24,6 +24,7 @@ const DISCOUNTS = {
   NB: 50,
   EX: 40,
   BR: 50,
+  MB: 50,
 }
 
 const apply = process.argv.includes('--apply')
