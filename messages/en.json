@@ -132,7 +132,22 @@
     "allProducts": "All products →",
     "featured": "Featured",
     "viewAllFeatured": "View All →",
-    "testimonials": "What our customers say"
+    "testimonials": "What our customers say",
+    "about": {
+      "eyebrow": "About us",
+      "lead": "KAYA Studio Outlet was born from a simple idea: making designer fashion more accessible.",
+      "intro": "We personally select clothing, footwear and accessories from Italian and international brands, constantly looking for new opportunities, stock and collections on favorable terms.",
+      "pricesTitle": "Why are our prices so affordable?",
+      "prices1": "Our concept is built on sourcing and selecting stock, end-of-line pieces, past-season collections and limited availability, purchased through professional suppliers and trade channels.",
+      "prices2": "This lets us lower the final price and offer our customers original products at outlet prices, often far below the standard retail price.",
+      "prices3": "At KAYA you won’t necessarily find large quantities of the same item: many products are available in just a few pieces, colors or sizes. That is the very heart of our concept.",
+      "arrivalsTitle": "New arrivals, new deals, all the time.",
+      "arrivals1": "Our goal is to choose products with an excellent balance of style, quality and price, offering a selection that changes frequently.",
+      "conceptTitle": "Our concept",
+      "concept1": "We don’t want to be just a store.",
+      "concept2": "We want to create a place, in store and online, where you discover something new every time and where you can buy designer fashion without necessarily paying full price.",
+      "tagline": "Big brands. Small prices. New deals every time."
+    }
   },
   "store": {
     "physicalStore": "Physical Store",

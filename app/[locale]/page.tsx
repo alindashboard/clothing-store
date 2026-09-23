@@ -13,6 +13,7 @@ import { getCategories, getCategoriesForLanding } from '@/lib/actions/categories
 import { CategoryImageSlider } from '@/components/layout/category-image-slider'
 import { VisitUsSection } from '@/components/layout/visit-us-section'
 import { InstagramSection } from '@/components/layout/instagram-section'
+import { AboutSection } from '@/components/layout/about-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 import { TESTIMONIALS } from '@/lib/testimonials'
@@ -266,6 +267,9 @@ export default async function HomePage() {
             <ProductGrid products={featuredProducts} columns={4} variant="dark" />
           </section>
         )}
+
+        {/* ── ABOUT ───────────────────────────────────────────────────────── */}
+        <AboutSection />
 
         {/* ── TESTIMONIALS ──────────────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-16 pb-20">
