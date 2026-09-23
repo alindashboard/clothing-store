@@ -5,6 +5,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { Toaster } from '@/components/ui/sonner'
 import { ConsentProvider } from '@/components/consent/consent-context'
 import { FacebookPixel } from '@/components/analytics/facebook-pixel'
+import { GoogleTag } from '@/components/analytics/google-tag'
 import { SitePageView } from '@/components/analytics/site-pageview'
 import { VercelAnalytics } from '@/components/analytics/vercel-analytics'
 import { headers } from 'next/headers'
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ConsentProvider>
           {children}
           <FacebookPixel />
+          <GoogleTag />
           <SitePageView />
         </ConsentProvider>
         <Toaster position="bottom-right" />

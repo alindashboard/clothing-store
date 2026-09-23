@@ -19,7 +19,7 @@ import { getAlternates } from '@/lib/seo/alternates'
  * periods and the controller's legal identity need confirming before any paid
  * advertising goes live. See also STORE_INFO.legalName / vatNumber.
  */
-const LAST_UPDATED = '2026-09-09'
+const LAST_UPDATED = '2026-09-23'
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -88,6 +88,7 @@ export default async function PrivacyPage({ params }: PageProps) {
         <h2>{t('cookies.heading')}</h2>
         <p>{t('cookies.necessary')}</p>
         <p>{t('cookies.pixel')}</p>
+        <p>{t('cookies.google')}</p>
         <p>{t('cookies.manage')}</p>
 
         <h2>{t('sharing.heading')}</h2>

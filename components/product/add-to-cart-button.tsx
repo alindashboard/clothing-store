@@ -7,6 +7,7 @@ import type { Product, ProductVariant } from '@/lib/types'
 import { toast } from 'sonner'
 import { track } from '@/lib/analytics/fpixel'
 import { siteTrack } from '@/lib/analytics/site-track'
+import { gtagEvent } from '@/lib/analytics/gtag'
 import { SITE_CONFIG } from '@/lib/config'
 
 interface AddToCartButtonProps {
@@ -50,6 +51,11 @@ export function AddToCartButton({ product, variant, allOutOfStock = false, size 
       contents: [{ id: product.id, quantity: 1, item_price: unitPrice }],
       value: unitPrice,
       currency: SITE_CONFIG.brand.currency,
+    })
+    gtagEvent('add_to_cart', {
+      currency: SITE_CONFIG.brand.currency,
+      value: unitPrice,
+      items: [{ item_id: product.id, item_name: product.name, item_variant: variant.size, price: unitPrice, quantity: 1 }],
     })
     siteTrack('add_to_cart', { productId: product.id, value: unitPrice })
 

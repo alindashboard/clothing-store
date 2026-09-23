@@ -95,6 +95,8 @@ export const SITE_CONFIG = {
     showWipBanner: false,
     /** Meta Pixel — loads only after cookie consent (see components/consent). */
     facebookPixel: true,
+    /** Google Analytics 4 (also feeds Google Ads conversions) — consent-gated like the Pixel. */
+    googleAnalytics: true,
     /**
      * First-party site analytics (visits + on-site actions), stored in Supabase.
      * Cookieless — not gated on cookie consent. See lib/analytics/site-track.ts
@@ -115,5 +117,11 @@ export const SITE_CONFIG = {
      * Set to '' (or features.facebookPixel = false) to disable.
      */
     facebookPixelId: '2947865605550878',
+    /**
+     * GA4 measurement ID (public, visible in page source). GA4 property
+     * 555632142 is linked to Google Ads account 489-718-9421; the `purchase`
+     * event is imported into Ads as the conversion.
+     */
+    googleMeasurementId: 'G-F9KBCYVES4',
   },
 }

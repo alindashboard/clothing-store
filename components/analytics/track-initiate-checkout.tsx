@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { track } from '@/lib/analytics/fpixel'
 import { siteTrack } from '@/lib/analytics/site-track'
+import { gtagEvent } from '@/lib/analytics/gtag'
 import type { CartItem } from '@/lib/store/cart'
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
   currency: string
 }
 
-/** Fires a Meta `InitiateCheckout` and a first-party `checkout_start` event once when the checkout page loads with items. */
+/** Fires a Meta `InitiateCheckout`, a GA4 `begin_checkout` and a first-party `checkout_start` event once when the checkout page loads with items. */
 export function TrackInitiateCheckout({ items, value, currency }: Props) {
   const fired = useRef(false)
 
@@ -25,6 +26,11 @@ export function TrackInitiateCheckout({ items, value, currency }: Props) {
       num_items: items.reduce((sum, i) => sum + i.quantity, 0),
       value,
       currency,
+    })
+    gtagEvent('begin_checkout', {
+      currency,
+      value,
+      items: items.map((i) => ({ item_id: i.productId, item_name: i.productName, price: i.price, quantity: i.quantity })),
     })
     siteTrack('checkout_start', { value })
   }, [items, value, currency])

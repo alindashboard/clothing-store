@@ -370,6 +370,16 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   cookies section — **TODO_CONFIRM: full privacy/cookie policy needs the client's
   legal review.**
 
+- **Google tag (GA4 `G-F9KBCYVES4`) is consent-gated exactly like the Pixel** (added 2026-09-23).
+  `GoogleTag` (`components/analytics/google-tag.tsx`, root layout) loads gtag.js only on
+  `consent === 'granted'` and never on an internal-visitor device; it sends Consent Mode v2
+  as all-`granted` since it never loads otherwise. Events via `gtagEvent` (`lib/analytics/gtag.ts`)
+  at the same four trigger points: `view_item`/`add_to_cart`/`begin_checkout`/`purchase`
+  (`transaction_id` = order number, dedupes reloads). No manual `page_view` — GA4 enhanced
+  measurement tracks history changes; adding one double-counts. GA4 property 555632142 is
+  linked to Google Ads 489-718-9421; the Ads conversion is `purchase` imported from GA4
+  (mark it a key event in GA4 first). Privacy/cookie texts name Google — keep them in sync.
+
 - **First-party site analytics is separate from the Meta Pixel and NOT consent-gated.**
   `analytics_events` (Supabase) stores page views + the same four funnel events as the
   Pixel (`view_product`/`add_to_cart`/`checkout_start`/`purchase`), written only via

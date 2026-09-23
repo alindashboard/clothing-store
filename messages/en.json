@@ -26,7 +26,7 @@
   },
   "cookieConsent": {
     "label": "Cookie preferences",
-    "message": "We use technical cookies required for the site to work and, with your consent, third-party cookies (Meta Pixel) to measure and improve our advertising.",
+    "message": "We use technical cookies required for the site to work and, with your consent, third-party cookies (Meta Pixel, Google Analytics) to measure and improve our advertising.",
     "learnMore": "Learn more",
     "accept": "Accept",
     "reject": "Reject"
@@ -47,7 +47,7 @@
         "Order data — your name, email address, phone number, shipping address and the contents of your order. You provide this at checkout; without it we cannot fulfil an order.",
         "Contact data — the name, email address and message you send us through the contact form or WhatsApp.",
         "Technical data — IP address, browser type, device type and the pages you visit. This is generated automatically by our hosting provider and is used to keep the site running and secure.",
-        "Advertising data — if, and only if, you accept cookies, the Meta Pixel records the pages and products you view, items you add to the cart, and completed orders, and sends this to Meta together with an identifier stored in a cookie."
+        "Advertising data — if, and only if, you accept cookies, the Meta Pixel records the pages and products you view, items you add to the cart, and completed orders, and sends this to Meta together with an identifier stored in a cookie. Google Analytics records the same events and sends them to Google, also with a cookie identifier."
       ]
     },
     "purposes": {
@@ -58,14 +58,15 @@
         "To answer your messages — performance of a contract, or our legitimate interest in responding to enquiries (Art. 6(1)(b) and (f)).",
         "To keep the site available, secure and free of fraud — our legitimate interest in protecting the business (Art. 6(1)(f)).",
         "To keep accounting and tax records — compliance with a legal obligation under Italian law (Art. 6(1)(c)).",
-        "To measure and target advertising through the Meta Pixel — your consent, and only your consent (Art. 6(1)(a)). You can withdraw it at any time, and we do nothing with this data if you decline."
+        "To measure site traffic and advertising results and target advertising through the Meta Pixel and Google Analytics — your consent, and only your consent (Art. 6(1)(a)). You can withdraw it at any time, and we do nothing with this data if you decline."
       ]
     },
     "cookies": {
       "heading": "Cookies and tracking",
       "necessary": "We use a small number of strictly necessary cookies and similar local storage to keep your cart, your language choice and your cookie decision. These cannot be switched off and do not require consent.",
       "pixel": "With your consent we also load the Meta Pixel, a tracking tool provided by Meta Platforms Ireland Ltd. It sets cookies in your browser and sends Meta information about how you use this site, so that we can measure our advertising and show ads to people who have shown interest in our products. Meta may combine this with data it already holds about you. If you decline, the Pixel is never loaded and no data is sent.",
-      "manage": "The banner appears on your first visit and your choice is stored in your browser. To change it later, clear this site's data in your browser settings and the banner will appear again. You can also block cookies entirely in your browser, and you can adjust how Meta uses your data in your Facebook or Instagram ad settings."
+      "google": "With the same consent we load Google Analytics, provided by Google Ireland Ltd. It sets cookies and sends Google information about the pages you visit, the products you view and add to the cart, and completed orders. We use it to understand how the site is used and to measure the results of our Google Ads campaigns, which may use this data to show our ads to people who visited the site. If you decline, Google Analytics is never loaded.",
+      "manage": "The banner appears on your first visit and your choice is stored in your browser. To change it later, clear this site's data in your browser settings and the banner will appear again. You can also block cookies entirely in your browser, and you can adjust how Meta and Google use your data in your Facebook or Instagram ad settings and in your Google account's ad settings."
     },
     "sharing": {
       "heading": "Who we share it with",
@@ -74,7 +75,7 @@
         "Our hosting and database providers, who store the site and your order records.",
         "Our email provider, used to send order confirmations and to deliver contact-form messages to us.",
         "Couriers and shipping partners, who receive the name and address needed to deliver your parcel.",
-        "Meta Platforms Ireland Ltd., but only if you accepted cookies.",
+        "Meta Platforms Ireland Ltd. and Google Ireland Ltd., but only if you accepted cookies.",
         "Our accountant and, where the law requires it, the tax authorities."
       ],
       "transfers": "Some of these providers may process data outside the European Economic Area. Where that happens, the transfer is covered by the European Commission's Standard Contractual Clauses or an equivalent safeguard."
@@ -86,7 +87,7 @@
         "Contact messages — up to 24 months after our last exchange with you.",
         "Technical and server logs — a short period set by our hosting provider, typically a few weeks.",
         "Your cookie choice — up to 12 months, after which the banner is shown again.",
-        "Data held by Meta following your consent — for the period set out in Meta's own policy, which we do not control."
+        "Data held by Meta and Google following your consent — for the periods set out in their own policies, which we do not control."
       ]
     },
     "rights": {

@@ -2,12 +2,14 @@
 
 import { useEffect } from 'react'
 import { track } from '@/lib/analytics/fpixel'
+import { gtagEvent } from '@/lib/analytics/gtag'
 import { siteTrack } from '@/lib/analytics/site-track'
 import { LAST_ORDER_KEY, type PixelOrder } from '@/lib/analytics/order-tracking'
 import { useCartStore } from '@/lib/store/cart'
 
 /**
- * Fires a Meta `Purchase` event on the checkout success page, and clears the
+ * Fires a Meta `Purchase` and a GA4 `purchase` event (the Google Ads
+ * conversion) on the checkout success page, and clears the
  * cart now that the order has actually landed here.
  *
  * Clearing used to happen in `CheckoutForm` right before the redirect, which
@@ -25,6 +27,20 @@ import { useCartStore } from '@/lib/store/cart'
  * passes `stripeOrder`, already resolved server-side from the DB's
  * `payment_status`, and we fire straight from that instead of sessionStorage.
  */
+/**
+ * `transaction_id` lets GA4 drop duplicates, which matters for Stripe: that
+ * path re-fires on every reload of the success page.
+ */
+function gtagPurchase(order: Partial<PixelOrder>) {
+  if (!order.orderNumber) return
+  gtagEvent('purchase', {
+    transaction_id: order.orderNumber,
+    value: order.value,
+    currency: order.currency ?? 'EUR',
+    items: (order.contents ?? []).map((c) => ({ item_id: c.id, price: c.item_price, quantity: c.quantity })),
+  })
+}
+
 export function TrackPurchase({ stripeOrder }: { stripeOrder?: PixelOrder } = {}) {
   const clearCart = useCartStore((state) => state.clearCart)
 
@@ -40,6 +56,7 @@ export function TrackPurchase({ stripeOrder }: { stripeOrder?: PixelOrder } = {}
         value: stripeOrder.value,
         currency: stripeOrder.currency,
       })
+      gtagPurchase(stripeOrder)
       siteTrack('purchase', { value: stripeOrder.value, paymentMethod: stripeOrder.paymentMethod })
       return
     }
@@ -63,6 +80,7 @@ export function TrackPurchase({ stripeOrder }: { stripeOrder?: PixelOrder } = {}
         value: order.value,
         currency: order.currency ?? 'EUR',
       })
+      gtagPurchase(order)
       siteTrack('purchase', { value: order.value, paymentMethod: order.paymentMethod })
     } catch {
       // malformed payload — nothing to report
