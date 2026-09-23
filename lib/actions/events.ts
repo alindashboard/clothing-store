@@ -3,6 +3,7 @@
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import type { Event } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function getPublishedEvents(): Promise<{ upcoming: Event[]; past: Event[] }> {
   const supabase = createSupabaseAdminClient()
@@ -30,6 +31,7 @@ export async function getPublishedEvents(): Promise<{ upcoming: Event[]; past: E
 }
 
 export async function getAllEventsAdmin(filter?: 'upcoming' | 'past' | 'drafts'): Promise<Event[]> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const now = new Date().toISOString()
   let query = supabase.from('events').select('*')
@@ -50,6 +52,7 @@ export async function getAllEventsAdmin(filter?: 'upcoming' | 'past' | 'drafts')
 }
 
 export async function getEventAdmin(id: string): Promise<Event | null> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase.from('events').select('*').eq('id', id).single()
   if (error) return null
@@ -70,6 +73,7 @@ export interface EventPayload {
 }
 
 export async function createEvent(payload: EventPayload): Promise<{ id?: string; error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('events')
@@ -87,6 +91,7 @@ export async function updateEvent(
   id: string,
   payload: Partial<EventPayload>
 ): Promise<{ error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('events').update(payload).eq('id', id)
   if (error) return { error: error.message }
@@ -96,6 +101,7 @@ export async function updateEvent(
 }
 
 export async function deleteEvent(id: string): Promise<{ error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('events').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -108,5 +114,6 @@ export async function toggleEventStatus(
   id: string,
   current: 'draft' | 'published'
 ): Promise<{ error?: string }> {
+  await requireAdmin()
   return updateEvent(id, { status: current === 'published' ? 'draft' : 'published' })
 }

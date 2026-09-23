@@ -13,12 +13,15 @@ import {
   sendShippingConfirmation,
   type OrderEmailData,
 } from '@/lib/email/send'
+import { buildOrderEmailData, type OrderEmailItemInput } from '@/lib/orders/payment'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function getOrdersAdmin(options?: {
   status?: string
   search?: string
   limit?: number
 }): Promise<Order[]> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   let query = supabase
     .from('orders')
@@ -59,6 +62,7 @@ export async function getOrderByNumber(
 }
 
 export async function getOrderAdmin(id: string): Promise<Order | null> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('orders')
@@ -71,6 +75,7 @@ export async function getOrderAdmin(id: string): Promise<Order | null> {
 }
 
 export async function updateOrderStatus(id: string, status: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { data: existing } = await supabase
@@ -113,6 +118,7 @@ export async function updateOrderStatus(id: string, status: string) {
  * Does NOT touch stock for items whose variant was since deleted.
  */
 export async function deleteOrder(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { data: items } = await supabase
@@ -149,6 +155,7 @@ export async function deleteOrder(id: string) {
 export async function getOrderStatusHistory(
   orderId: string
 ): Promise<{ status: string; created_at: string }[]> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('order_status_history')
@@ -161,6 +168,7 @@ export async function getOrderStatusHistory(
 }
 
 export async function updateOrderTracking(id: string, trackingNumber: string, trackingUrl: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase
     .from('orders')
@@ -172,6 +180,7 @@ export async function updateOrderTracking(id: string, trackingNumber: string, tr
 }
 
 export async function updateOrderNotes(id: string, notes: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('orders').update({ notes }).eq('id', id)
   if (error) return { error: error.message }
@@ -281,45 +290,6 @@ export async function createOrder(
   return { orderId: order.id, orderNumber: order.order_number }
 }
 
-interface OrderEmailItemInput {
-  productName: string
-  variantSize: string
-  variantColor: string
-  quantity: number
-  price: number
-}
-
-function buildOrderEmailData(order: Order, items: OrderEmailItemInput[]): OrderEmailData {
-  return {
-    orderNumber: order.order_number,
-    customerName: order.customer_name,
-    customerEmail: order.customer_email,
-    customerPhone: order.customer_phone,
-    paymentMethod: order.payment_method,
-    locale: 'it',
-    items: items.map((item) => ({
-      name: item.productName,
-      size: item.variantSize,
-      color: item.variantColor,
-      quantity: item.quantity,
-      price: item.price,
-    })),
-    subtotal: order.subtotal,
-    shippingCost: order.shipping_cost,
-    total: order.total,
-    currency: order.currency,
-    shippingAddress: {
-      line1: order.shipping_address_line1,
-      line2: order.shipping_address_line2,
-      city: order.shipping_city,
-      state: order.shipping_state,
-      postalCode: order.shipping_postal_code,
-      country: order.shipping_country,
-    },
-    shippingMethod: `Standard · ${SITE_CONFIG.shipping.estimatedDays.standard} giorni lavorativi`,
-  }
-}
-
 /**
  * Creates a Stripe Checkout Session for an order already saved as
  * pending/unpaid by createOrder, and stashes the session id on
@@ -406,69 +376,8 @@ export async function createStripeCheckoutSession(
   }
 }
 
-/**
- * Marks an order paid from the Stripe webhook once `checkout.session.completed`
- * fires, and sends the confirmation/notification emails that createOrder held
- * back for stripe orders. Idempotent — Stripe retries webhooks, and re-delivery
- * of an already-paid session must not re-send the emails.
- *
- * Looked up by orderId (from the session's client_reference_id), not by
- * payment_intent_id — that column gets overwritten below from the session id
- * to the real PaymentIntent id, so a retried delivery of the same event would
- * no longer match if we looked it up by that column instead.
- */
-export async function markStripeOrderPaid(orderId: string, paymentIntentId: string | null) {
-  const supabase = createSupabaseAdminClient()
-
-  const { data: order, error } = await supabase
-    .from('orders')
-    .select('*, items:order_items(*)')
-    .eq('id', orderId)
-    .single()
-
-  if (error || !order) {
-    console.error('[stripe webhook] no order found for id', orderId, error?.message)
-    return { error: 'Order not found' }
-  }
-
-  if (order.payment_status === 'paid') {
-    return { success: true, alreadyProcessed: true }
-  }
-
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({
-      status: 'paid',
-      payment_status: 'paid',
-      payment_intent_id: paymentIntentId ?? order.payment_intent_id,
-    })
-    .eq('id', order.id)
-  if (updateError) return { error: updateError.message }
-
-  const { error: historyError } = await supabase
-    .from('order_status_history')
-    .insert({ order_id: order.id, status: 'paid' })
-  if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
-
-  const items: OrderEmailItemInput[] = (order.items ?? []).map((item: OrderItem) => ({
-    productName: item.product_name,
-    variantSize: item.variant_size,
-    variantColor: item.variant_color,
-    quantity: item.quantity,
-    price: item.unit_price,
-  }))
-
-  const emailData = buildOrderEmailData(order, items)
-  await Promise.allSettled([
-    sendOrderConfirmation(emailData),
-    sendNewOrderNotification(emailData),
-  ])
-
-  revalidatePath('/admin/orders')
-  return { success: true }
-}
-
 export async function getDashboardStats() {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const today = new Date().toISOString().slice(0, 10)
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()

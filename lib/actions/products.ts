@@ -8,6 +8,7 @@ import type { Product, ProductVariant, ProductImage } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
 import { deleteProductImageFromStorage } from './upload'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 const PAGE_LIMIT = 48
 
@@ -150,6 +151,7 @@ export async function getAllProductsAdmin(options?: {
   search?: string
   status?: 'active' | 'draft' | 'incomplete' | 'all'
 }): Promise<{ products: Product[]; totalCount: number }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const pageSize = options?.pageSize ?? 50
   const page = Math.max(1, options?.page ?? 1)
@@ -246,6 +248,7 @@ export async function getCategoryImages(
 export async function getCategoryPhotoOptions(
   categoryId: string
 ): Promise<{ productName: string; url: string }[]> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { data: children } = await supabase
@@ -275,6 +278,7 @@ export async function getCategoryPhotoOptions(
 }
 
 export async function getProductAdmin(id: string): Promise<Product | null> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('products')
@@ -292,6 +296,7 @@ export async function getProductAdmin(id: string): Promise<Product | null> {
 }
 
 export async function createProduct(formData: FormData) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const name = formData.get('name') as string
   const slug = (formData.get('slug') as string) || slugify(name)
@@ -321,6 +326,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const name = formData.get('name') as string
   const slug = (formData.get('slug') as string) || slugify(name)
@@ -351,6 +357,7 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { data: images } = await supabase
@@ -381,6 +388,7 @@ export async function deleteProduct(id: string) {
 }
 
 export async function upsertVariant(variant: Partial<ProductVariant> & { product_id: string; _dirty?: boolean; _new?: boolean; _saving?: boolean }) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { _dirty, _new, _saving, ...payload } = variant
 
@@ -403,6 +411,7 @@ export async function upsertVariant(variant: Partial<ProductVariant> & { product
 }
 
 export async function deleteVariant(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('product_variants').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -411,6 +420,7 @@ export async function deleteVariant(id: string) {
 }
 
 export async function upsertImage(image: Partial<ProductImage> & { product_id: string }) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   if (image.id) {
@@ -430,6 +440,7 @@ export async function upsertImage(image: Partial<ProductImage> & { product_id: s
 }
 
 export async function deleteImage(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('product_images').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -437,6 +448,7 @@ export async function deleteImage(id: string) {
 }
 
 export async function setImageAsPrimary(productId: string, imageId: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   await supabase.from('product_images').update({ is_primary: false }).eq('product_id', productId)
   const { error } = await supabase.from('product_images').update({ is_primary: true }).eq('id', imageId)

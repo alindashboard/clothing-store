@@ -410,6 +410,17 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   PDP; X/Esc call `history.back()` to pop that entry — keep the two in sync. The inline
   gallery is `object-contain` too (it used to crop with `object-cover`).
 
+- **Every admin Server Action must start with `await requireAdmin()`** (`lib/auth/require-admin.ts`).
+  Each export of a `'use server'` file is a public POST endpoint with a build-stable id;
+  the proxy's `/admin` redirect only covers page navigations, and these actions use the
+  service-role client (RLS bypassed). Until 2026-09-23 none of them checked auth —
+  verified locally that an anonymous POST ran `getOrdersAdmin`. Public actions (catalog
+  reads, `createOrder`, `createStripeCheckoutSession`, `getOrderByNumber`, `submitContact`)
+  stay open. Never export something from a `'use server'` file that only a trusted caller
+  may run: `markStripeOrderPaid` lives in `lib/orders/payment.ts` (plain module) so only
+  the signature-verified webhook can reach it. "Logged in = admin" assumes Supabase
+  public sign-up is disabled — keep it that way.
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.

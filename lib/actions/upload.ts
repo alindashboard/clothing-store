@@ -2,6 +2,7 @@
 
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from './upload-limits'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 const BUCKET = 'product-images'
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -10,6 +11,7 @@ export async function uploadProductImage(
   formData: FormData,
   productId: string
 ): Promise<{ url?: string; error?: string }> {
+  await requireAdmin()
   const file = formData.get('file') as File
   if (!file) return { error: 'No file provided.' }
   if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
@@ -32,6 +34,7 @@ export async function uploadProductImage(
 }
 
 export async function deleteProductImageFromStorage(url: string): Promise<{ error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const path = url.split(`${BUCKET}/`)[1]
   if (!path) return { error: 'Invalid URL.' }
@@ -52,6 +55,7 @@ const CATEGORY_PREFIX = 'categories'
 export async function uploadCategoryImage(
   formData: FormData
 ): Promise<{ url?: string; error?: string }> {
+  await requireAdmin()
   const file = formData.get('file') as File
   if (!file) return { error: 'No file provided.' }
   if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
@@ -78,6 +82,7 @@ const EVENT_BUCKET = 'event-images'
 export async function uploadEventImage(
   formData: FormData
 ): Promise<{ url?: string; error?: string }> {
+  await requireAdmin()
   const file = formData.get('file') as File
   if (!file) return { error: 'No file provided.' }
   if (!ALLOWED_TYPES.includes(file.type)) return { error: 'Only JPG, PNG, and WebP are allowed.' }
@@ -100,6 +105,7 @@ export async function uploadEventImage(
 }
 
 export async function deleteEventImageFromStorage(url: string): Promise<{ error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const path = url.split(`${EVENT_BUCKET}/`)[1]
   if (!path) return { error: 'Invalid URL.' }

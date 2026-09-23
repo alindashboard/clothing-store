@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import type { Product } from '@/lib/types'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export interface NewArrivalEntry {
   id: string
@@ -35,6 +36,7 @@ export async function getNewArrivals(): Promise<NewArrivalEntry[]> {
 
 /** Admin: add a product to the curated list. Position = current count + 1. */
 export async function addToNewArrivals(productId: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const { count } = await supabase
@@ -56,6 +58,7 @@ export async function addToNewArrivals(productId: string) {
 
 /** Admin: remove a single entry by its new_arrivals.id (not product_id). */
 export async function removeFromNewArrivals(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('new_arrivals').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -68,6 +71,7 @@ export async function removeFromNewArrivals(id: string) {
 
 /** Admin: remove all entries (weekly reset). */
 export async function clearAllNewArrivals() {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('new_arrivals').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   if (error) return { error: error.message }
@@ -80,6 +84,7 @@ export async function clearAllNewArrivals() {
 
 /** Admin: full-text search on product name / sku_prefix for the add dialog. */
 export async function searchProductsForNewArrivals(query: string): Promise<Product[]> {
+  await requireAdmin()
   if (!query.trim()) return []
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase

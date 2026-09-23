@@ -3,6 +3,7 @@
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { sendContactNotification } from '@/lib/email/send'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function submitContact(formData: FormData) {
   const supabase = createSupabaseAdminClient()
@@ -32,6 +33,7 @@ export async function submitContact(formData: FormData) {
 }
 
 export async function getContactsAdmin() {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('contact_requests')
@@ -43,6 +45,7 @@ export async function getContactsAdmin() {
 }
 
 export async function markContactRead(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase
     .from('contact_requests')

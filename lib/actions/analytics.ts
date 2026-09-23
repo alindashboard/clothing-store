@@ -1,6 +1,7 @@
 'use server'
 
 import { createSupabaseAdminClient } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export interface AnalyticsSummary {
   from: string
@@ -29,6 +30,7 @@ export interface AnalyticsSummary {
 const ROW_LIMIT = 20000
 
 export async function getAnalyticsSummary(options?: { from?: Date; to?: Date }): Promise<AnalyticsSummary> {
+  await requireAdmin()
   const to = options?.to ?? new Date()
   const from = options?.from ?? new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000)
 

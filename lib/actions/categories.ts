@@ -6,6 +6,7 @@ import type { Category } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { slugify } from '@/lib/utils'
 import { SITE_CONFIG } from '@/lib/config'
+import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function getCategories(): Promise<Category[]> {
   const supabase = await createSupabaseServerClient()
@@ -34,6 +35,7 @@ export async function getCategoriesForLanding(): Promise<Category[]> {
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data, error } = await supabase
     .from('categories')
@@ -45,6 +47,7 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
 }
 
 export async function createCategory(formData: FormData) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const name = formData.get('name') as string
   const slug = (formData.get('slug') as string) || slugify(name)
@@ -78,6 +81,7 @@ export async function createCategory(formData: FormData) {
 
 /** Shows/hides a category on the homepage landing grid. */
 export async function setCategoryOnLanding(id: string, show: boolean) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase
     .from('categories')
@@ -92,6 +96,7 @@ export async function setCategoryOnLanding(id: string, show: boolean) {
 
 /** Rewrites sort_order to match the given id order (1-based, gap-free). */
 export async function reorderCategories(orderedIds: string[]) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
 
   const results = await Promise.all(
@@ -109,6 +114,7 @@ export async function reorderCategories(orderedIds: string[]) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const name = formData.get('name') as string
   const slug = (formData.get('slug') as string) || slugify(name)
@@ -133,6 +139,7 @@ export async function updateCategory(id: string, formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase.from('categories').delete().eq('id', id)
   if (error) return { error: error.message }
@@ -149,6 +156,7 @@ export async function setCategoryImages(
   id: string,
   imageUrls: string[]
 ): Promise<{ error?: string }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { error } = await supabase
     .from('categories')
@@ -171,6 +179,7 @@ export async function updateCategoryDirect(
     is_active: boolean
   }
 ): Promise<{ error?: string; data?: Category }> {
+  await requireAdmin()
   const supabase = createSupabaseAdminClient()
   const { data: result, error } = await supabase
     .from('categories')
