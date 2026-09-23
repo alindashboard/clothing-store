@@ -205,7 +205,17 @@
     "total": "Totale",
     "categoryEyebrow": "Collezione",
     "shopEyebrow": "Shop",
-    "filterAll": "Tutti"
+    "filterAll": "Tutti",
+    "gallery": {
+      "open": "Apri foto a schermo intero",
+      "close": "Chiudi",
+      "previous": "Foto precedente",
+      "next": "Foto successiva",
+      "zoomIn": "Ingrandisci",
+      "zoomOut": "Riduci",
+      "allPhotos": "Tutte le foto",
+      "counter": "{current} / {total}"
+    }
   },
   "footer": {
     "store": "Negozio",

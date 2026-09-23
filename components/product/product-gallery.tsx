@@ -2,8 +2,10 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { ChevronLeft, ChevronRight, Expand } from 'lucide-react'
 import type { ProductImage } from '@/lib/types'
+import { ProductLightbox } from './product-lightbox'
 
 interface ProductGalleryProps {
   images: ProductImage[]
@@ -12,6 +14,7 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images, productName, activeColor }: ProductGalleryProps) {
+  const t = useTranslations('product.gallery')
   const filtered = activeColor
     ? images.filter((i) => !i.color_name || i.color_name === activeColor)
     : images
@@ -25,12 +28,24 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
 
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [mobileIndex, setMobileIndex] = useState(0)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const desktopIndex = Math.max(0, display.findIndex((i) => i.id === activeId))
+  const hasImages = display.length > 0
 
   const scrollToIndex = (index: number) => {
     const el = scrollerRef.current
     if (!el) return
     const clamped = Math.max(0, Math.min(index, display.length - 1))
     el.scrollTo({ left: clamped * el.clientWidth, behavior: 'smooth' })
+  }
+
+  // Follow the photo the viewer was left on, in both inline layouts.
+  const closeLightbox = (lastIndex: number) => {
+    setLightboxIndex(null)
+    setActive(display[lastIndex])
+    const el = scrollerRef.current
+    if (el) el.scrollLeft = lastIndex * el.clientWidth
+    setMobileIndex(lastIndex)
   }
 
   const handleScroll = () => {
@@ -49,28 +64,44 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
           className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: 'none' }}
         >
-          {display.map((img) => (
-            <div key={img.id} className="relative h-full w-full flex-shrink-0 snap-center">
+          {display.map((img, i) => (
+            <button
+              key={img.id}
+              type="button"
+              onClick={() => setLightboxIndex(i)}
+              aria-label={t('open')}
+              className="relative h-full w-full flex-shrink-0 snap-center cursor-zoom-in"
+            >
               <Image
                 src={img.url}
                 alt={img.alt_text ?? productName}
                 fill
-                priority
+                priority={i === 0}
                 sizes="100vw"
-                className="object-cover"
-                style={{ objectPosition: '50% 30%', filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
+                className="object-contain"
+                style={{ filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
                 unoptimized={img.url.startsWith('/')}
               />
-            </div>
+            </button>
           ))}
         </div>
+
+        {hasImages && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm"
+            style={{ background: 'rgba(20,20,18,0.45)' }}
+          >
+            <Expand className="w-3.5 h-3.5" style={{ color: '#EDE9E1' }} />
+          </span>
+        )}
 
         {display.length > 1 && (
           <>
             {mobileIndex > 0 && (
               <button
                 onClick={() => scrollToIndex(mobileIndex - 1)}
-                aria-label="Previous image"
+                aria-label={t('previous')}
                 className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm"
                 style={{ background: 'rgba(20,20,18,0.45)' }}
               >
@@ -80,7 +111,7 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
             {mobileIndex < display.length - 1 && (
               <button
                 onClick={() => scrollToIndex(mobileIndex + 1)}
-                aria-label="Next image"
+                aria-label={t('next')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm"
                 style={{ background: 'rgba(20,20,18,0.45)' }}
               >
@@ -105,18 +136,33 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
       </div>
 
       {/* Desktop: main image */}
-      <div className="hidden md:block relative aspect-[4/5] bg-[#1B1917] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => hasImages && setLightboxIndex(desktopIndex)}
+        disabled={!hasImages}
+        aria-label={t('open')}
+        className="group hidden md:block relative aspect-[4/5] bg-[#1B1917] overflow-hidden cursor-zoom-in disabled:cursor-default"
+      >
         <Image
           src={current.url}
           alt={current.alt_text ?? productName}
           fill
           priority
           sizes="50vw"
-          className="object-cover"
-          style={{ objectPosition: '50% 30%', filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
+          className="object-contain"
+          style={{ filter: 'contrast(1.1) brightness(0.95) saturate(1.05)' }}
           unoptimized={current.url.startsWith('/')}
         />
-      </div>
+        {hasImages && (
+          <span
+            aria-hidden="true"
+            className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full backdrop-blur-sm opacity-70 group-hover:opacity-100 transition-opacity"
+            style={{ background: 'rgba(20,20,18,0.45)' }}
+          >
+            <Expand className="w-4 h-4" style={{ color: '#EDE9E1' }} />
+          </span>
+        )}
+      </button>
 
       {/* Desktop: thumbnail grid */}
       {display.length > 1 && (
@@ -144,6 +190,15 @@ export function ProductGallery({ images, productName, activeColor }: ProductGall
             </button>
           ))}
         </div>
+      )}
+
+      {lightboxIndex !== null && (
+        <ProductLightbox
+          images={display}
+          productName={productName}
+          startIndex={lightboxIndex}
+          onClose={closeLightbox}
+        />
       )}
     </div>
   )

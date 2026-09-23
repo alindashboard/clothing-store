@@ -403,6 +403,13 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   full cart to `/cart`. The checkout form was fully English until 2026-09-23; keep all
   its strings in `checkout.*`.
 
+- **PDP photo viewer** (`components/product/product-lightbox.tsx`, `product.gallery.*`):
+  tapping the inline gallery opens a fullscreen, portal-rendered viewer (object-contain,
+  swipe, tap-to-zoom + pan, grid of all photos, thumbnail strip, arrows/Esc on desktop).
+  It pushes a history entry on open so the phone's Back closes it instead of leaving the
+  PDP; X/Esc call `history.back()` to pop that entry — keep the two in sync. The inline
+  gallery is `object-contain` too (it used to crop with `object-cover`).
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.
