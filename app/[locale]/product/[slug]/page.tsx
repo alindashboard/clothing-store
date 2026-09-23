@@ -16,6 +16,7 @@ import { STORE_INFO } from '@/lib/store-info'
 import { formatPrice } from '@/lib/utils'
 import { getAlternates } from '@/lib/seo/alternates'
 import { ProductDetailClient } from './product-detail-client'
+import { TrustBadges } from '@/components/trust/trust-badges'
 import { TrackViewContent } from '@/components/analytics/track-view-content'
 
 interface Props {
@@ -196,6 +197,8 @@ export default async function ProductPage({ params }: Props) {
             )}
 
             <ProductDetailClient product={product} variants={variants} images={images} />
+
+            <TrustBadges variant="dark" columns={1} className="mt-7" />
 
             {product.description && (
               <div className="border-t mt-7" style={{ borderColor: '#2B2924' }}>

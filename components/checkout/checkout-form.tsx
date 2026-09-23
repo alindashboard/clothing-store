@@ -13,6 +13,8 @@ import { SITE_CONFIG } from '@/lib/config'
 import { formatPrice } from '@/lib/utils'
 import type { CheckoutFormData } from '@/lib/types'
 import { stashOrderForPixel } from '@/lib/analytics/order-tracking'
+import { TrustBadges } from '@/components/trust/trust-badges'
+import { PaymentLogos } from '@/components/trust/payment-logos'
 
 interface CheckoutFormProps {
   items: CartItem[]
@@ -65,10 +67,10 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       const message = encodeURIComponent(
         [
           t('whatsappMessage'),
-          `Order: ${result.orderNumber}`,
+          `${t('waOrder')}: ${result.orderNumber}`,
           ...items.map((i) => `- ${i.productName} (${i.variantColor} / ${i.variantSize}) × ${i.quantity} — ${formatPrice(i.price * i.quantity)}`),
-          `Total: ${formatPrice(subtotal + shippingCost)}`,
-          `Name: ${data.name}`,
+          `${t('waTotal')}: ${formatPrice(subtotal + shippingCost)}`,
+          `${t('waName')}: ${data.name}`,
           `Email: ${data.email}`,
         ].join('\n')
       )
@@ -81,10 +83,10 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
     if (paymentMethod === 'stripe') {
       const result = await createOrder(data, items)
-      if (result.error || !result.orderId) { setError(result.error ?? 'Could not create order'); setLoading(false); return }
+      if (result.error || !result.orderId) { setError(result.error ?? t('errorCreateOrder')); setLoading(false); return }
 
       const session = await createStripeCheckoutSession(result.orderId, items, locale)
-      if (session.error || !session.url) { setError(session.error ?? 'Could not start payment'); setLoading(false); return }
+      if (session.error || !session.url) { setError(session.error ?? t('errorStartPayment')); setLoading(false); return }
 
       window.location.href = session.url
       return
@@ -114,14 +116,14 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Contact */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">Contact</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('contact')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email *</Label>
-            <Input id="email" name="email" type="email" required placeholder="you@example.com" />
+            <Label htmlFor="email">{t('email')} *</Label>
+            <Input id="email" name="email" type="email" required placeholder={t('emailPlaceholder')} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{t('phone')}</Label>
             <Input id="phone" name="phone" type="tel" placeholder="+39 000 000 0000" />
           </div>
         </div>
@@ -129,36 +131,36 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
       {/* Shipping */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">Shipping Address</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('shippingAddress')}</h2>
         <div className="space-y-1.5">
-          <Label htmlFor="name">Full Name *</Label>
-          <Input id="name" name="name" required placeholder="First Last" />
+          <Label htmlFor="name">{t('fullName')} *</Label>
+          <Input id="name" name="name" required placeholder={t('fullNamePlaceholder')} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="address_line1">Address *</Label>
+          <Label htmlFor="address_line1">{t('address')} *</Label>
           <Input id="address_line1" name="address_line1" required placeholder="Via Roma 1" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="address_line2">Apartment, suite, etc.</Label>
-          <Input id="address_line2" name="address_line2" placeholder="Apt 2B" />
+          <Label htmlFor="address_line2">{t('address2')}</Label>
+          <Input id="address_line2" name="address_line2" placeholder={t('address2Placeholder')} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="city">City *</Label>
+            <Label htmlFor="city">{t('city')} *</Label>
             <Input id="city" name="city" required placeholder="Milano" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="postal_code">Postal Code *</Label>
+            <Label htmlFor="postal_code">{t('postalCode')} *</Label>
             <Input id="postal_code" name="postal_code" required placeholder="20100" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="state">Province</Label>
+            <Label htmlFor="state">{t('province')}</Label>
             <Input id="state" name="state" placeholder="MI" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="country">Country</Label>
+            <Label htmlFor="country">{t('country')}</Label>
             <Input id="country" name="country" defaultValue="IT" placeholder="IT" />
           </div>
         </div>
@@ -172,27 +174,27 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
             checked={billingSame}
             onCheckedChange={(v) => setBillingSame(v === true)}
           />
-          <Label htmlFor="billing_same" className="cursor-pointer">Billing same as shipping</Label>
+          <Label htmlFor="billing_same" className="cursor-pointer">{t('sameAsShipping')}</Label>
         </div>
 
         {!billingSame && (
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label htmlFor="billing_address_line1">Billing Address *</Label>
+              <Label htmlFor="billing_address_line1">{t('billingAddress')} *</Label>
               <Input id="billing_address_line1" name="billing_address_line1" required={!billingSame} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="billing_city">City *</Label>
+                <Label htmlFor="billing_city">{t('city')} *</Label>
                 <Input id="billing_city" name="billing_city" required={!billingSame} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="billing_postal_code">Postal Code *</Label>
+                <Label htmlFor="billing_postal_code">{t('postalCode')} *</Label>
                 <Input id="billing_postal_code" name="billing_postal_code" required={!billingSame} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="billing_country">Country</Label>
+              <Label htmlFor="billing_country">{t('country')}</Label>
               <Input id="billing_country" name="billing_country" defaultValue="IT" />
             </div>
           </div>
@@ -201,7 +203,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
       {/* Payment */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">Payment Method</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('paymentMethod')}</h2>
         <div className="space-y-3">
           {SITE_CONFIG.checkout.enableWhatsAppOrder && (
             <label
@@ -220,11 +222,9 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium">Order via WhatsApp</span>
+                  <span className="text-sm font-medium">{t('whatsappTitle')}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  We&apos;ll send your order details directly to WhatsApp. Payment arranged on confirmation.
-                </p>
+                <p className="text-xs text-gray-500 mt-1">{t('whatsappDescription')}</p>
               </div>
             </label>
           )}
@@ -245,11 +245,9 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium">Bank Transfer</span>
+                  <span className="text-sm font-medium">{t('bankTransferOption')}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Transfer payment to our bank account. Order ships after payment confirmed.
-                </p>
+                <p className="text-xs text-gray-500 mt-1">{t('bankTransferDescription')}</p>
               </div>
             </label>
           )}
@@ -273,6 +271,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
                   <span className="text-sm font-medium">{t('stripeTitle')}</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">{t('stripeDescription')}</p>
+                <PaymentLogos className="mt-2" />
               </div>
             </label>
           )}
@@ -288,9 +287,11 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
         {loading
-          ? paymentMethod === 'stripe' ? t('redirectingToPayment') : 'Placing order...'
-          : 'Place Order'}
+          ? paymentMethod === 'stripe' ? t('redirectingToPayment') : t('placingOrder')
+          : t('placeOrder')}
       </button>
+
+      <TrustBadges variant="light" />
     </form>
   )
 }

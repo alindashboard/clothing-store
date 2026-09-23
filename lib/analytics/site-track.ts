@@ -10,6 +10,7 @@
  * swallowed — analytics must never break the page.
  */
 import { SITE_CONFIG } from '@/lib/config'
+import { isInternalVisitor } from './internal-visitor'
 import type { SiteEvent, SiteEventPayload } from './site-events'
 
 export function siteTrack(event: SiteEvent, payload?: Omit<SiteEventPayload, 'event' | 'path' | 'locale' | 'referrer'>) {
@@ -17,6 +18,8 @@ export function siteTrack(event: SiteEvent, payload?: Omit<SiteEventPayload, 'ev
   // The root layout wraps /admin too — don't let the owner's own admin
   // sessions pollute visitor/traffic numbers for the storefront.
   if (window.location.pathname.startsWith('/admin')) return
+  // Devices that have opened /admin are the owner's own — see internal-visitor.ts.
+  if (isInternalVisitor()) return
 
   try {
     // localePrefix: 'always' means the pathname always starts with /it/ or /en/.

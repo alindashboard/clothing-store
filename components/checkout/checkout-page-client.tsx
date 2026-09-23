@@ -11,7 +11,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { TrackInitiateCheckout } from '@/components/analytics/track-initiate-checkout'
 
 export function CheckoutPageClient() {
-  const { items, getTotal } = useCartStore()
+  const { items, getTotal, hasHydrated } = useCartStore()
   const router = useRouter()
   const subtotal = getTotal()
   const shippingCost = subtotal >= SITE_CONFIG.shipping.freeShippingThreshold
@@ -19,11 +19,14 @@ export function CheckoutPageClient() {
     : SITE_CONFIG.shipping.standardShippingCost
   const t = useTranslations('checkout')
 
+  // Wait for the persisted cart to rehydrate (see Header) before deciding the
+  // cart is empty — otherwise a direct load of /checkout (refresh, or Stripe's
+  // cancel_url) bounces a full cart to /cart.
   useEffect(() => {
-    if (items.length === 0) router.push('/cart')
-  }, [items.length])
+    if (hasHydrated && items.length === 0) router.push('/cart')
+  }, [hasHydrated, items.length])
 
-  if (items.length === 0) return null
+  if (!hasHydrated || items.length === 0) return null
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10 flex-1">

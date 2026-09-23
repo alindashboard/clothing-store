@@ -387,6 +387,22 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   alongside it for referrer/country/device breakdowns the Vercel dashboard already
   does well — no need to duplicate those in the admin table.
 
+- **Trust block** (`components/trust/trust-badges.tsx`, `trust.*` keys): authenticity
+  guarantee (full refund if not original — owner-confirmed 2026-09-23), physical store,
+  14-day returns, Stripe payment + Visa/Mastercard/Stripe marks (`payment-logos.tsx`,
+  simple-icons paths inlined — no dependency). Shown on the PDP (`columns={1}`) and under
+  the checkout submit. Returns wording must match `/terms` (which is still English-only
+  and hardcoded). Apple Pay is not advertised: the session uses `payment_method_types: ['card']`.
+- **Owner traffic is excluded from analytics** by device: `AdminShell` sets
+  `localStorage['kaya-internal-visitor']`, and `siteTrack`, the Meta Pixel `call()` and
+  Vercel Analytics (`beforeSend` in `components/analytics/vercel-analytics.tsx`) all
+  skip that device afterwards. Each device must open `/admin` once; rows logged before
+  2026-09-23 still include test traffic.
+- `CheckoutPageClient` must gate its "empty cart → /cart" redirect on `hasHydrated` —
+  before that fix a direct load of `/checkout` (refresh, Stripe `cancel_url`) bounced a
+  full cart to `/cart`. The checkout form was fully English until 2026-09-23; keep all
+  its strings in `checkout.*`.
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.

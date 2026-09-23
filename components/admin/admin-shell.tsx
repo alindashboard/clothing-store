@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { markInternalVisitor } from '@/lib/analytics/internal-visitor'
 import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays, BarChart3 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -53,6 +54,9 @@ function SidebarContent({ pathname, brandName, onNavigate }: { pathname: string;
 export function AdminShell({ children, brandName }: { children: React.ReactNode; brandName: string }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+
+  // Exclude this device from storefront analytics from now on.
+  useEffect(markInternalVisitor, [])
 
   const header = (
     <div className="px-5 py-5 border-b border-gray-100 shrink-0">

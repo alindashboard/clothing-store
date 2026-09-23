@@ -266,7 +266,32 @@
     "stripeDescription": "Paga in modo sicuro con carta tramite Stripe. Verrai reindirizzato per completare il pagamento.",
     "redirectingToPayment": "Reindirizzamento al pagamento...",
     "paymentProcessing": "Stiamo confermando il tuo pagamento — potrebbe richiedere qualche istante.",
-    "paymentReceived": "Pagamento ricevuto"
+    "paymentReceived": "Pagamento ricevuto",
+    "email": "Email",
+    "emailPlaceholder": "tu@esempio.it",
+    "phone": "Telefono",
+    "shippingAddress": "Indirizzo di spedizione",
+    "fullName": "Nome e cognome",
+    "fullNamePlaceholder": "Mario Rossi",
+    "address": "Indirizzo",
+    "address2": "Scala, interno, ecc.",
+    "address2Placeholder": "Interno 2B",
+    "city": "Città",
+    "postalCode": "CAP",
+    "province": "Provincia",
+    "country": "Paese",
+    "paymentMethod": "Metodo di pagamento",
+    "whatsappTitle": "Ordina via WhatsApp",
+    "whatsappDescription": "Ti inviamo i dettagli dell'ordine direttamente su WhatsApp. Il pagamento si concorda alla conferma.",
+    "bankTransferOption": "Bonifico bancario",
+    "bankTransferDescription": "Paga con bonifico sul nostro conto. L'ordine viene spedito dopo la conferma del pagamento.",
+    "placeOrder": "Conferma ordine",
+    "placingOrder": "Invio ordine...",
+    "errorCreateOrder": "Impossibile creare l'ordine. Riprova.",
+    "errorStartPayment": "Impossibile avviare il pagamento. Riprova.",
+    "waOrder": "Ordine",
+    "waTotal": "Totale",
+    "waName": "Nome"
   },
   "contact": {
     "title": "Contatto",
@@ -316,5 +341,16 @@
     "man": "Uomo",
     "woman": "Donna",
     "kids": "Bambini"
+  },
+  "trust": {
+    "authenticTitle": "Originali al 100%",
+    "authenticBody": "Solo capi originali, acquistati tramite fornitori e canali professionali del settore. Se un articolo non risulta originale, ti rimborsiamo per intero.",
+    "storeTitle": "Negozio fisico",
+    "storeBody": "Siamo a Borgo Podgora (LT): puoi vedere e provare i capi di persona.",
+    "returnsTitle": "Reso entro 14 giorni",
+    "returnsBody": "Hai 14 giorni dalla consegna per restituire l'articolo, non indossato e in condizioni originali.",
+    "paymentTitle": "Pagamento sicuro",
+    "paymentBody": "Carta tramite Stripe: non vediamo né conserviamo i dati della tua carta.",
+    "aboutLink": "Scopri chi siamo →"
   }
 }

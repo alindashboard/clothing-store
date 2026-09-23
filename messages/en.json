@@ -266,7 +266,32 @@
     "stripeDescription": "Pay securely by card via Stripe. You'll be redirected to complete payment.",
     "redirectingToPayment": "Redirecting to payment...",
     "paymentProcessing": "We're confirming your payment — this can take a moment.",
-    "paymentReceived": "Payment received"
+    "paymentReceived": "Payment received",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "phone": "Phone",
+    "shippingAddress": "Shipping address",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "First Last",
+    "address": "Address",
+    "address2": "Apartment, suite, etc.",
+    "address2Placeholder": "Apt 2B",
+    "city": "City",
+    "postalCode": "Postal code",
+    "province": "Province",
+    "country": "Country",
+    "paymentMethod": "Payment method",
+    "whatsappTitle": "Order via WhatsApp",
+    "whatsappDescription": "We'll send your order details directly to WhatsApp. Payment is arranged on confirmation.",
+    "bankTransferOption": "Bank transfer",
+    "bankTransferDescription": "Transfer the payment to our bank account. Your order ships once payment is confirmed.",
+    "placeOrder": "Place order",
+    "placingOrder": "Placing order...",
+    "errorCreateOrder": "Could not create the order. Please try again.",
+    "errorStartPayment": "Could not start the payment. Please try again.",
+    "waOrder": "Order",
+    "waTotal": "Total",
+    "waName": "Name"
   },
   "contact": {
     "title": "Contact",
@@ -316,5 +341,16 @@
     "man": "Man",
     "woman": "Woman",
     "kids": "Kids"
+  },
+  "trust": {
+    "authenticTitle": "100% authentic",
+    "authenticBody": "Only original items, sourced through professional suppliers and trade channels. If an item turns out not to be authentic, we refund you in full.",
+    "storeTitle": "Physical store",
+    "storeBody": "We're in Borgo Podgora (LT): you can see and try the pieces in person.",
+    "returnsTitle": "14-day returns",
+    "returnsBody": "You have 14 days from delivery to return an item, unworn and in its original condition.",
+    "paymentTitle": "Secure payment",
+    "paymentBody": "Card payments via Stripe: we never see or store your card details.",
+    "aboutLink": "About us →"
   }
 }

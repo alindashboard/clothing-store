@@ -11,6 +11,7 @@
  * catalog / feed is set up, these must be aligned with whatever id the feed
  * uses (most likely `sku_prefix`) or dynamic ads / catalog matching will miss.
  */
+import { isInternalVisitor } from './internal-visitor'
 import { SITE_CONFIG } from '@/lib/config'
 
 export const FB_PIXEL_ID = SITE_CONFIG.features.facebookPixel
@@ -26,6 +27,7 @@ declare global {
 
 function call(...args: unknown[]) {
   if (typeof window === 'undefined' || typeof window.fbq !== 'function') return
+  if (isInternalVisitor()) return
   ;(window.fbq as (...a: unknown[]) => void)(...args)
 }
 
