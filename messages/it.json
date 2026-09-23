@@ -215,7 +215,8 @@
       "zoomOut": "Riduci",
       "allPhotos": "Tutte le foto",
       "counter": "{current} / {total}"
-    }
+    },
+    "labelPhotoNote": "Etichetta originale del brand visibile nelle foto"
   },
   "footer": {
     "store": "Negozio",

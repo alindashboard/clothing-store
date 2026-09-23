@@ -5,7 +5,7 @@ import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Link } from '@/i18n/navigation'
-import { MapPin } from 'lucide-react'
+import { MapPin, ShieldCheck } from 'lucide-react'
 import { ProductGallery } from '@/components/product/product-gallery'
 import { ProductBadge } from '@/components/product/product-badge'
 import { ProductGrid } from '@/components/product/product-grid'
@@ -15,6 +15,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
 import { formatPrice } from '@/lib/utils'
 import { getAlternates } from '@/lib/seo/alternates'
+import { productCopy } from '@/lib/product-copy'
 import { ProductDetailClient } from './product-detail-client'
 import { TrustBadges } from '@/components/trust/trust-badges'
 import { TrackViewContent } from '@/components/analytics/track-view-content'
@@ -34,12 +35,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: product.meta_title || product.name,
-    description: product.meta_description || product.short_description || undefined,
+    description: product.meta_description || productCopy(product, locale).shortDescription || undefined,
     alternates: getAlternates(locale, `/product/${slug}`),
     openGraph: {
       type: 'website',
       title: product.meta_title || product.name,
-      description: product.meta_description || product.short_description || undefined,
+      description: product.meta_description || productCopy(product, locale).shortDescription || undefined,
       images: [{ url: ogImageUrl, width: 1200, height: 1200, alt: product.name }],
     },
     twitter: {
@@ -65,8 +66,10 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound()
 
+  const copy = productCopy(product, locale)
   const variants = product.variants ?? []
   const images = product.images ?? []
+  const hasLabelPhoto = images.some((img) => img.is_label)
   const activeVariants = variants.filter((v) => v.is_active)
   const isOutOfStock = activeVariants.length > 0 && activeVariants.every((v) => v.stock_quantity <= 0)
 
@@ -83,7 +86,7 @@ export default async function ProductPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.description || product.short_description,
+    description: copy.description || copy.shortDescription,
     sku: product.sku_prefix,
     brand: { '@type': 'Brand', name: SITE_CONFIG.brand.name },
     url: productUrl,
@@ -154,7 +157,18 @@ export default async function ProductPage({ params }: Props) {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-          <ProductGallery images={images} productName={product.name} />
+          <div>
+            <ProductGallery images={images} productName={product.name} />
+            {hasLabelPhoto && (
+              <p
+                className="mt-3 flex items-center gap-2 text-xs"
+                style={{ color: '#a9a598', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" style={{ color: SITE_CONFIG.brand.darkAccent }} aria-hidden="true" />
+                {t('labelPhotoNote')}
+              </p>
+            )}
+          </div>
 
           <div>
             {product.category && (
@@ -190,9 +204,9 @@ export default async function ProductPage({ params }: Props) {
               )}
             </div>
 
-            {product.short_description && (
+            {copy.shortDescription && (
               <p className="text-sm leading-relaxed mb-9 max-w-[460px]" style={{ color: '#a9a598' }}>
-                {product.short_description}
+                {copy.shortDescription}
               </p>
             )}
 
@@ -200,7 +214,7 @@ export default async function ProductPage({ params }: Props) {
 
             <TrustBadges variant="dark" columns={1} className="mt-7" />
 
-            {product.description && (
+            {copy.description && (
               <div className="border-t mt-7" style={{ borderColor: '#2B2924' }}>
                 <details className="group">
                   <summary
@@ -212,7 +226,7 @@ export default async function ProductPage({ params }: Props) {
                     </span>
                     <span className="group-open:rotate-45 transition-transform text-lg leading-none" style={{ color: '#8C8577' }}>+</span>
                   </summary>
-                  <p className="pb-6 text-[13px] leading-[1.9]" style={{ color: '#a9a598' }}>{product.description}</p>
+                  <p className="pb-6 text-[13px] leading-[1.9]" style={{ color: '#a9a598' }}>{copy.description}</p>
                 </details>
               </div>
             )}

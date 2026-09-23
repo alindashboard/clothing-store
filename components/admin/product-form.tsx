@@ -2,13 +2,14 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Sparkles } from 'lucide-react'
 import { useUnsavedChanges } from './use-unsaved-changes'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { Product, Category } from '@/lib/types'
 import { createProduct, updateProduct } from '@/lib/actions/products'
+import { generateProductCopyDraft } from '@/lib/actions/ai'
 import { VariantManager } from './variant-manager'
 import { ImageUploader } from './image-uploader'
 import { slugify } from '@/lib/utils'
@@ -29,6 +30,8 @@ const TEXT_FIELDS = [
   'slug',
   'short_description',
   'description',
+  'short_description_en',
+  'description_en',
   'base_price',
   'compare_at_price',
   'sku_prefix',
@@ -40,6 +43,7 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
   const [loading, setLoading] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [slug, setSlug] = useState(product?.slug ?? '')
   const [isActive, setIsActive] = useState(product?.is_active ?? true)
@@ -53,6 +57,8 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
       slug: product?.slug ?? '',
       short_description: product?.short_description ?? '',
       description: product?.description ?? '',
+      short_description_en: product?.short_description_en ?? '',
+      description_en: product?.description_en ?? '',
       base_price: product?.base_price != null ? String(product.base_price) : '',
       compare_at_price: product?.compare_at_price != null ? String(product.compare_at_price) : '',
       sku_prefix: product?.sku_prefix ?? '',
@@ -88,6 +94,28 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
   )
 
   useUnsavedChanges(dirty && !loading, UNSAVED_MESSAGE)
+
+  /* Fills the four description fields with an AI draft; nothing is saved until
+     the owner reviews it and clicks Save, like any other edit. */
+  async function handleGenerate() {
+    const form = formRef.current
+    if (!product || !form) return
+    const fields = ['short_description', 'description', 'short_description_en', 'description_en'] as const
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null
+    if (fields.some((f) => field(f)?.value.trim()) && !window.confirm('Replace the current descriptions with an AI draft?')) return
+
+    setGenerating(true)
+    const result = await generateProductCopyDraft(product.id)
+    setGenerating(false)
+    if (!result.data) { toast.error(result.error ?? 'Generation failed'); return }
+
+    for (const f of fields) {
+      const el = field(f)
+      if (el) el.value = result.data[f]
+    }
+    recomputeDirty()
+    toast.success('AI draft filled in — review it, then Save')
+  }
 
   function handleDiscard() {
     if (dirty && !window.confirm(UNSAVED_MESSAGE)) return
@@ -157,8 +185,25 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
               />
             </div>
 
+            {product && (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-dashed border-gray-300 px-3 py-2">
+                <p className="text-xs text-gray-500">
+                  Draft IT + EN descriptions from the photos. Tick “Label photo” first so the composition can be read.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={generating || loading}
+                  className="text-xs px-3 py-1.5 bg-black text-white flex items-center gap-1.5 hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                  {generating ? 'Generating…' : 'Generate with AI'}
+                </button>
+              </div>
+            )}
+
             <div className="space-y-1.5">
-              <Label htmlFor="short_description">Short Description</Label>
+              <Label htmlFor="short_description">Short Description (IT)</Label>
               <Input
                 id="short_description"
                 name="short_description"
@@ -168,13 +213,34 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="description">Full Description</Label>
+              <Label htmlFor="description">Full Description (IT)</Label>
               <Textarea
                 id="description"
                 name="description"
                 rows={5}
                 defaultValue={product?.description ?? ''}
                 placeholder="Detailed product description..."
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="short_description_en">Short Description (EN)</Label>
+              <Input
+                id="short_description_en"
+                name="short_description_en"
+                defaultValue={product?.short_description_en ?? ''}
+                placeholder="Empty = English visitors see the Italian text"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description_en">Full Description (EN)</Label>
+              <Textarea
+                id="description_en"
+                name="description_en"
+                rows={5}
+                defaultValue={product?.description_en ?? ''}
+                placeholder="Empty = English visitors see the Italian text"
               />
             </div>
 

@@ -19,6 +19,8 @@ export interface ProductImage {
   alt_text: string | null
   color_name: string | null
   is_primary: boolean
+  /** Photo shows the brand label / composition tag. */
+  is_label?: boolean
   sort_order: number
   created_at: string
 }
@@ -44,6 +46,9 @@ export interface Product {
   slug: string
   description: string | null
   short_description: string | null
+  /** English copy; the storefront falls back to the Italian fields when empty. */
+  description_en?: string | null
+  short_description_en?: string | null
   base_price: number
   compare_at_price: number | null
   currency: string

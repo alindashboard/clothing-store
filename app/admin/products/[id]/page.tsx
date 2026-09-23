@@ -6,6 +6,9 @@ import { getAllCategoriesAdmin } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { DeleteButton } from './delete-button'
 
+// Server Actions on this page include AI description generation (a vision call per product).
+export const maxDuration = 60
+
 interface Props {
   params: Promise<{ id: string }>
   searchParams: Promise<{ categoryId?: string; page?: string; search?: string; status?: string }>

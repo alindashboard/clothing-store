@@ -10,9 +10,13 @@ import { formatPrice } from '@/lib/utils'
 import { ProductFilterBar } from '@/components/admin/product-filter-bar'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { HideImagelessToggle } from '@/components/admin/hide-imageless-toggle'
+import { BulkDescriptionGenerator } from '@/components/admin/bulk-description-generator'
 import { hideProductsWithoutImages } from '@/lib/site-settings'
 
 const PAGE_SIZE = 50
+
+// Server Actions on this page include AI description generation (a vision call per product).
+export const maxDuration = 60
 
 export default async function AdminProductsPage({
   searchParams,
@@ -92,6 +96,7 @@ export default async function AdminProductsPage({
       </div>
 
       <HideImagelessToggle initial={hideImageless} />
+      <BulkDescriptionGenerator />
 
       <Suspense>
         <ProductFilterBar

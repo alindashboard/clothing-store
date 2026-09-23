@@ -215,7 +215,8 @@
       "zoomOut": "Zoom out",
       "allPhotos": "All photos",
       "counter": "{current} / {total}"
-    }
+    },
+    "labelPhotoNote": "Original brand label shown in the photos"
   },
   "footer": {
     "store": "Store",
