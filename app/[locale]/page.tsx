@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { getTranslations } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { getAlternates } from '@/lib/seo/alternates'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
@@ -16,7 +16,7 @@ import { InstagramSection } from '@/components/layout/instagram-section'
 import { AboutSection } from '@/components/layout/about-section'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
-import { TESTIMONIALS } from '@/lib/testimonials'
+import { GoogleReviewsSection } from '@/components/layout/google-reviews-section'
 import { getNewArrivals } from '@/lib/actions/new-arrivals'
 import { AnimatedNewArrivalsText } from '@/components/AnimatedNewArrivalsText'
 import { NewArrivalsCarousel } from '@/components/NewArrivalsCarousel'
@@ -43,6 +43,7 @@ export default async function HomePage() {
     getNewArrivals(),
     getTranslations('home'),
   ])
+  const locale = await getLocale()
 
   // Only categories with no curated slideshow need the product-photo fallback.
   const categoryImages = await getCategoryImages(
@@ -271,44 +272,8 @@ export default async function HomePage() {
         {/* ── ABOUT ───────────────────────────────────────────────────────── */}
         <AboutSection />
 
-        {/* ── TESTIMONIALS ──────────────────────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 py-16 pb-20">
-          <h2
-            className="text-2xl md:text-3xl font-black tracking-tight mb-10 text-[#EDE9E1]"
-            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))' }}
-          >
-            {t('testimonials')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((testimonial, i) => (
-              <div
-                key={i}
-                className="bg-[#1B1917] border border-[#2B2924] rounded-none p-8 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5"
-              >
-                <div
-                  className="text-5xl leading-none mb-3"
-                  style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-archivo, var(--font-sans))' }}
-                >
-                  &ldquo;
-                </div>
-                <p
-                  className="text-sm leading-relaxed text-[#c7c3b8] mb-6 italic"
-                  style={{ fontFamily: 'var(--font-sans)' }}
-                >
-                  {testimonial.quote}
-                </p>
-                <div>
-                  <p className="text-sm font-medium text-[#EDE9E1]" style={{ fontFamily: 'var(--font-sans)' }}>
-                    {testimonial.name}
-                  </p>
-                  <p className="text-xs text-[#8C8577] mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
-                    {testimonial.location}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* ── GOOGLE REVIEWS ───────────────────────────────────────────── */}
+        <GoogleReviewsSection locale={locale} />
       </main>
 
       <VisitUsSection />

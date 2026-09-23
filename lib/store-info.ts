@@ -20,6 +20,12 @@ export const STORE_INFO = {
   email: 'kaya.studio@icloud.com',
   instagram: 'https://instagram.com/kayastudiooutlet',
   instagramHandle: '@kayastudiooutlet',
+  /**
+   * Google Place ID of the Business Profile (find it with Google's Place ID Finder).
+   * TODO_CONFIRM: fill in once the Business Profile is verified. While empty the
+   * homepage reviews section and the "leave a review" links stay hidden.
+   */
+  googlePlaceId: '',
   schedule: {
     weekdaysLabel: 'Mon–Fri',
     morning: '09:00 – 13:00',

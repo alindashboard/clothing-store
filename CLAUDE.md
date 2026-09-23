@@ -421,6 +421,25 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   the signature-verified webhook can reach it. "Logged in = admin" assumes Supabase
   public sign-up is disabled — keep it that way.
 
+- **Product copy is bilingual since migration `20260924000000`**: `description_en` /
+  `short_description_en` fall back to the Italian fields via `productCopy()`
+  (`lib/product-copy.ts`) — use it anywhere product copy is rendered.
+  `product_images.is_label` flags brand-label shots (admin checkbox; PDP shows a note).
+- **AI descriptions** (`lib/ai/product-description.ts`, actions in `lib/actions/ai.ts`):
+  Anthropic SDK, `claude-opus-5`, structured JSON output, `fallbacks: 'default'`. Label
+  photos are sent first and the prompt forbids material claims unless a label shows
+  them — invented composition is a consumer-law problem, not a style issue. The form
+  button returns a draft (saved only on Save); the bulk runner fills **only empty
+  fields**, one product per request, and is resumable. Needs `ANTHROPIC_API_KEY`;
+  admin product pages set `maxDuration = 60` for these actions.
+- **Google reviews replaced the invented homepage testimonials** (fake reviews are an
+  unfair commercial practice under the EU Omnibus rules — never reintroduce
+  placeholder testimonials). `lib/google-reviews.ts` calls Places API (New) Place
+  Details, cached 24h per locale; reviews are shown unfiltered and unedited with
+  Google Maps attribution. Hidden until `STORE_INFO.googlePlaceId` is set; with no
+  reviews (or no `GOOGLE_PLACES_API_KEY`) it shows only a "leave a review" CTA. The
+  shipping email carries the same review link. Still no `aggregateRating` JSON-LD.
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.
@@ -477,7 +496,7 @@ project's memory.
 - No reservations system
 - Events module added (not in template)
 - New arrivals module added (not in template)
-- Extra deps: `zustand`, `react-day-picker`, `date-fns`, `@base-ui/react`, `@vercel/analytics`
+- Extra deps: `zustand`, `react-day-picker`, `date-fns`, `@base-ui/react`, `@vercel/analytics`, `@anthropic-ai/sdk`
 - Brands ticker component on homepage
 - `lib/store-info.ts` and `lib/brands.ts` extracted from `lib/config.ts`
 
@@ -495,6 +514,9 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY # Stripe publishable key (public; unused for 
                                # kept for if Elements/Payment Element is ever added)
 STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT YET SET,
                                # see the Stripe gotcha above
+ANTHROPIC_API_KEY              # AI product descriptions (server-only)
+GOOGLE_PLACES_API_KEY          # Google reviews on the homepage (server-only; restrict
+                               # the key to Places API (New))
 ```
 
 ### Things the client must confirm (TODO_CONFIRM)
@@ -505,6 +527,7 @@ STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT
 - Facebook / TikTok handles (currently empty in config)
 - Brand logo assets in `/public/brands/` (ticker uses text fallback for now)
 - Admin dashboard redirect target (`/admin/dashboard` vs `/admin`)
+- Google Business Profile Place ID (`STORE_INFO.googlePlaceId`)
 
 ### Open items (as of 2026-08-17)
 

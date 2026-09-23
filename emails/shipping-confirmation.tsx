@@ -12,6 +12,7 @@ import {
   Button,
   Preview,
 } from '@react-email/components'
+import { writeReviewUrl } from '@/lib/google-reviews'
 
 type Locale = 'it' | 'en'
 
@@ -33,6 +34,8 @@ const dict = {
     trackingNumberLabel: 'Numero di tracciamento',
     trackButton: 'Traccia il tuo pacco',
     noTrackingYet: 'Riceverai i dettagli di tracciamento a breve.',
+    reviewAsk: 'Quando lo ricevi, ci aiuteresti molto con una recensione su Google: bastano due righe.',
+    reviewButton: 'Lascia una recensione',
     contact: 'Domande? Scrivici a',
     footer: '© 2026 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'Questo è un messaggio transazionale relativo al tuo ordine.',
@@ -46,6 +49,8 @@ const dict = {
     trackingNumberLabel: 'Tracking number',
     trackButton: 'Track your package',
     noTrackingYet: "You'll receive tracking details shortly.",
+    reviewAsk: 'Once it arrives, a short review on Google would help us a lot.',
+    reviewButton: 'Leave a review',
     contact: 'Questions? Contact us at',
     footer: '© 2026 KAYA Studio Outlet · Str. Acque Alte 12, 04100 LT, Italy',
     unsubscribe: 'This is a transactional message related to your order.',
@@ -60,6 +65,7 @@ export function ShippingConfirmation({
   locale = 'it',
 }: ShippingConfirmationProps) {
   const tr = dict[locale]
+  const reviewUrl = writeReviewUrl()
 
   return (
     <Html lang={locale} dir="ltr">
@@ -102,6 +108,15 @@ export function ShippingConfirmation({
               !trackingNumber && <Text style={para}>{tr.noTrackingYet}</Text>
             )}
           </Section>
+
+          {reviewUrl && (
+            <Section style={section}>
+              <Text style={para}>{tr.reviewAsk}</Text>
+              <Link href={reviewUrl} style={accentLink}>
+                {tr.reviewButton} →
+              </Link>
+            </Section>
+          )}
 
           <Hr style={rule} />
 

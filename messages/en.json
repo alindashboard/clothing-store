@@ -132,7 +132,6 @@
     "allProducts": "All products →",
     "featured": "Featured",
     "viewAllFeatured": "View All →",
-    "testimonials": "What our customers say",
     "about": {
       "eyebrow": "About us",
       "lead": "KAYA Studio Outlet was born from a simple idea: making designer fashion more accessible.",
@@ -147,6 +146,16 @@
       "concept1": "We don’t want to be just a store.",
       "concept2": "We want to create a place, in store and online, where you discover something new every time and where you can buy designer fashion without necessarily paying full price.",
       "tagline": "Big brands. Small prices. New deals every time."
+    },
+    "reviews": {
+      "title": "What our customers say",
+      "summary": "{rating} out of 5 · {count} reviews on Google Maps",
+      "readAll": "Read all on Google Maps",
+      "write": "Leave a review",
+      "emptyBody": "Visited our store or received an order? Tell others on Google: your review helps new customers get to know us.",
+      "source": "Google Maps",
+      "ratingLabel": "{rating} out of 5 stars",
+      "emptyTitle": "Your opinion counts"
     }
   },
   "store": {
