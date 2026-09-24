@@ -441,8 +441,10 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   unfair commercial practice under the EU Omnibus rules — never reintroduce
   placeholder testimonials). `lib/google-reviews.ts` calls Places API (New) Place
   Details, cached 24h per locale; reviews are shown unfiltered and unedited with
-  Google Maps attribution. Hidden until `STORE_INFO.googlePlaceId` is set; with no
-  reviews (or no `GOOGLE_PLACES_API_KEY`) it shows only a "leave a review" CTA. The
+  Google Maps attribution. The "leave a review" CTA uses `STORE_INFO.googleReviewUrl`
+  (Business Profile short link, live since 2026-09-24); rating + texts additionally need
+  `googlePlaceId` + `GOOGLE_PLACES_API_KEY`. Use the business's Place ID
+  (`clothing_store`), not `ChIJeXlPr9V0JRMRCJN0DTUs4c4` — that one is the street address. The
   shipping email carries the same review link. Still no `aggregateRating` JSON-LD.
 
 ## Design

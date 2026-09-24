@@ -26,6 +26,14 @@ export const STORE_INFO = {
    * homepage reviews section and the "leave a review" links stay hidden.
    */
   googlePlaceId: '',
+  /**
+   * Official "leave a review" short link from Business Profile → Get more reviews.
+   * Works without the Place ID, so the review CTA (homepage + shipping email) is
+   * live now; the rating and review texts need googlePlaceId + GOOGLE_PLACES_API_KEY.
+   * The Place ID must be the business's (types include clothing_store), NOT the
+   * street address's — both exist on Maps for Str. Acque Alte 12.
+   */
+  googleReviewUrl: 'https://g.page/r/Ccpes1VENOfZEBM/review',
   schedule: {
     weekdaysLabel: 'Mon–Fri',
     morning: '09:00 – 13:00',

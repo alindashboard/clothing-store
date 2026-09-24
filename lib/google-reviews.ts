@@ -27,7 +27,9 @@ export interface GoogleReviewsData {
 // every Place Details call with reviews is billed.
 const REVALIDATE_SECONDS = 60 * 60 * 24
 
+/** The Business Profile short link when configured, else one built from the Place ID. */
 export function writeReviewUrl(placeId: string = STORE_INFO.googlePlaceId): string | null {
+  if (STORE_INFO.googleReviewUrl) return STORE_INFO.googleReviewUrl
   return placeId ? `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}` : null
 }
 
@@ -84,7 +86,7 @@ export async function getGoogleReviews(locale: string): Promise<GoogleReviewsDat
         }))
         .filter((r) => r.text),
       reviewsUri: place.googleMapsLinks?.reviewsUri ?? null,
-      writeReviewUri: place.googleMapsLinks?.writeAReviewUri ?? writeReviewUrl(placeId)!,
+      writeReviewUri: writeReviewUrl(placeId) ?? place.googleMapsLinks?.writeAReviewUri ?? '',
     }
   } catch (err) {
     console.error('[google-reviews] fetch failed', err)
