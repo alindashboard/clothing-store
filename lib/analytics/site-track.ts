@@ -24,11 +24,20 @@ export function siteTrack(event: SiteEvent, payload?: Omit<SiteEventPayload, 'ev
   try {
     // localePrefix: 'always' means the pathname always starts with /it/ or /en/.
     const locale = window.location.pathname.split('/')[1] || undefined
+    // Campaign tags only exist on the landing URL; later client-side navigations
+    // drop the query string, so they are read here and never stored on the device.
+    const params = new URLSearchParams(window.location.search)
+    const utm = {
+      utmSource: params.get('utm_source') ?? undefined,
+      utmMedium: params.get('utm_medium') ?? undefined,
+      utmCampaign: params.get('utm_campaign') ?? undefined,
+    }
     const body = JSON.stringify({
       event,
       path: window.location.pathname,
       locale,
       referrer: document.referrer || null,
+      ...(event === 'page_view' ? utm : {}),
       ...payload,
     } satisfies SiteEventPayload)
 

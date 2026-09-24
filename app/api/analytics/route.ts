@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const country = request.headers.get('x-vercel-ip-country') || null
 
     const supabase = createSupabaseAdminClient()
-    const { error } = await supabase.from('analytics_events').insert({
+    const row = {
       event: body.event,
       path: typeof body.path === 'string' ? body.path.slice(0, 512) : null,
       locale: typeof body.locale === 'string' ? body.locale.slice(0, 8) : null,
@@ -60,7 +60,19 @@ export async function POST(request: NextRequest) {
       device: deviceFromUserAgent(userAgent),
       country,
       visitor_hash: visitorHash(ip, userAgent),
-    })
+    }
+    const utm = {
+      utm_source: typeof body.utmSource === 'string' ? body.utmSource.slice(0, 128) : null,
+      utm_medium: typeof body.utmMedium === 'string' ? body.utmMedium.slice(0, 128) : null,
+      utm_campaign: typeof body.utmCampaign === 'string' ? body.utmCampaign.slice(0, 128) : null,
+    }
+
+    let { error } = await supabase.from('analytics_events').insert({ ...row, ...utm })
+    // PGRST204 = unknown column: the utm migration isn't applied yet. Keep
+    // recording the event without the tags rather than losing it.
+    if (error?.code === 'PGRST204') {
+      ;({ error } = await supabase.from('analytics_events').insert(row))
+    }
 
     if (error) console.error('[analytics] insert failed:', error.message)
   } catch (err) {

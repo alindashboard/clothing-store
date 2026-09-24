@@ -33,4 +33,7 @@ export interface SiteEventPayload {
   category?: string
   paymentMethod?: string
   value?: number
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
 }

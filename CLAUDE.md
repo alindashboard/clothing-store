@@ -393,6 +393,15 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Toggle via `features.siteAnalytics` in `lib/config.ts`. Admin view: `/admin/analytics`
   (`lib/actions/analytics.ts` fetches the date range and aggregates in JS — fine at
   this traffic volume, revisit with an RPC/materialized view if it ever gets slow).
+  Since 2026-09-25 `/admin/analytics` has tabs (Overview / Products / Pages / Sources).
+  **Orders and revenue come from the `orders` table, never from `purchase` events** —
+  events have no link to the order, so deleted/refunded test orders used to linger in
+  the stats; `isCountedOrder()` also skips unpaid Stripe orders. "Visitors" are
+  visitor-days (the hash rotates daily). Source = UTM tag on the landing page_view
+  (migration `20260925000000`, ingest falls back to no-UTM insert until applied), else
+  the referrer — counted per visitor-day, because `document.referrer` never changes
+  on client-side navigation. Brand is derived from the product name
+  (`lib/brand-names.ts`, mirror of the importer's BRANDS table).
   Vercel Web Analytics (`@vercel/analytics`, mounted in `app/layout.tsx`) runs
   alongside it for referrer/country/device breakdowns the Vercel dashboard already
   does well — no need to duplicate those in the admin table.
