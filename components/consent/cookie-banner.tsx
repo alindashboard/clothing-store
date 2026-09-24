@@ -5,15 +5,17 @@ import { Link } from '@/i18n/navigation'
 import { useConsent } from '@/components/consent/consent-context'
 
 /**
- * Bottom cookie-consent banner. Shown only while the visitor is undecided.
- * "Accept" enables the Meta Pixel (see components/analytics/facebook-pixel.tsx);
- * "Reject" keeps it off. The choice persists in localStorage.
+ * Bottom cookie-consent banner. Shown while the visitor is undecided, when the
+ * stored choice is older than 12 months, or when re-opened from the footer's
+ * "Cookie preferences" link. "Accept" enables the Meta Pixel, Google Analytics
+ * and our consent-based visitor cookie; "Reject" (or withdrawing later) keeps
+ * or turns them off. See components/consent/consent-context.tsx.
  */
 export function CookieBanner() {
-  const { consent, ready, setConsent } = useConsent()
+  const { consent, ready, setConsent, preferencesOpen } = useConsent()
   const t = useTranslations('cookieConsent')
 
-  if (!ready || consent !== null) return null
+  if (!ready || (consent !== null && !preferencesOpen)) return null
 
   return (
     <div
@@ -28,6 +30,9 @@ export function CookieBanner() {
           style={{ color: '#c7c3b8', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
         >
           {t('message')}{' '}
+          {preferencesOpen && consent && (
+            <span style={{ color: '#EDE9E1' }}>{t(consent === 'granted' ? 'currentGranted' : 'currentDenied')} </span>
+          )}
           <Link href="/privacy" className="underline underline-offset-2 hover:opacity-80" style={{ color: '#D9B679' }}>
             {t('learnMore')}
           </Link>

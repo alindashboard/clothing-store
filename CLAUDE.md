@@ -393,7 +393,7 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Toggle via `features.siteAnalytics` in `lib/config.ts`. Admin view: `/admin/analytics`
   (`lib/actions/analytics.ts` fetches the date range and aggregates in JS — fine at
   this traffic volume, revisit with an RPC/materialized view if it ever gets slow).
-  Since 2026-09-25 `/admin/analytics` has tabs (Overview / Products / Pages / Sources).
+  Since 2026-09-24 `/admin/analytics` has tabs (Overview / Products / Pages / Sources).
   **Orders and revenue come from the `orders` table, never from `purchase` events** —
   events have no link to the order, so deleted/refunded test orders used to linger in
   the stats; `isCountedOrder()` also skips unpaid Stripe orders. "Visitors" are
@@ -455,6 +455,20 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `googlePlaceId` + `GOOGLE_PLACES_API_KEY`. Use the business's Place ID
   (`clothing_store`), not `ChIJeXlPr9V0JRMRCJN0DTUs4c4` — that one is the street address. The
   shipping email carries the same review link. Still no `aggregateRating` JSON-LD.
+
+- **Consent-based visitor id `kaya_vid` (phase 2, 2026-09-24)** — full description for the
+  lawyer in `docs/legal/tracking-and-cookies.md`: **update that doc (register + changelog)
+  and the privacy texts in the same commit as any change to cookies, tracked data or
+  retention.** Cookie is set/cleared only server-side (`/api/analytics/visitor`, HttpOnly,
+  13 months, never renewed — a JS-set cookie would die after 7 days on Safari). The ingest
+  route and `createOrder` read it into `analytics_events.visitor_id` / `orders.visitor_id`
+  (both fall back on PGRST204 so a missing migration never loses events or blocks a sale).
+  `ConsentProvider` stores `{value, at}` and expires the choice after 12 months (as the
+  policy says), creates/deletes the cookie on grant/deny, and on withdrawal clears
+  `_ga*`/`_fbp`/`_fbc` and reloads; `openPreferences()` (footer "Cookie preferences")
+  re-opens the banner without resetting consent, so Pixel/GA don't re-init.
+  Retention runs in `purge_expired_visitor_ids()` (id after 13 months, events after 25),
+  called whenever an admin opens analytics — no cron yet. Admin tab "Visitors & orders".
 
 ## Design
 
@@ -626,7 +640,7 @@ GOOGLE_PLACES_API_KEY          # Google reviews on the homepage (server-only; re
   `compare_at_price` still holds the pre-wholesale price before reusing this script.
 - **`MB` added to the `DISCOUNTS` map at 50%** (2026-09-22) — was one of the brands
   deliberately left untouched in the 2026-09-19 run above. **Applied to the DB** (owner confirmed
-  2026-09-25 — MB prices on the site are discounted). Do not re-run it for MB.
+  2026-09-24 — MB prices on the site are discounted). Do not re-run it for MB.
   `DISCOUNTS` now keeps every brand ever processed (a historical record), so a bare
   `--apply` reprocesses all of them, not just the newest addition — added an optional
   `--brand=MB` (comma-separated) filter to scope a run to specific brands without

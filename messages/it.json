@@ -26,10 +26,13 @@
   },
   "cookieConsent": {
     "label": "Preferenze cookie",
-    "message": "Utilizziamo cookie tecnici necessari al funzionamento del sito e, con il tuo consenso, cookie di terze parti (Meta Pixel, Google Analytics) per misurare e migliorare le nostre campagne pubblicitarie.",
+    "message": "Utilizziamo cookie tecnici necessari al funzionamento del sito e, con il tuo consenso, un nostro cookie di statistica (senza terze parti) e cookie di terze parti (Meta Pixel, Google Analytics) per capire come viene usato il sito, quali visite portano a un acquisto e per misurare le nostre campagne pubblicitarie.",
     "learnMore": "Scopri di più",
     "accept": "Accetta",
-    "reject": "Rifiuta"
+    "reject": "Rifiuta",
+    "preferences": "Preferenze cookie",
+    "currentGranted": "Al momento hai accettato i cookie.",
+    "currentDenied": "Al momento hai rifiutato i cookie."
   },
   "privacy": {
     "title": "Informativa sulla privacy",
@@ -47,6 +50,8 @@
         "Dati dell'ordine — nome, indirizzo email, numero di telefono, indirizzo di spedizione e contenuto dell'ordine. Li fornisci in fase di acquisto; senza di essi non possiamo evadere l'ordine.",
         "Dati di contatto — nome, indirizzo email e messaggio che ci invii tramite il modulo di contatto o WhatsApp.",
         "Dati tecnici — indirizzo IP, tipo di browser, tipo di dispositivo e pagine visitate. Sono generati automaticamente dal nostro fornitore di hosting e servono a mantenere il sito funzionante e sicuro.",
+        "Statistiche di utilizzo del sito — registriamo direttamente, sui server del nostro fornitore di database, le pagine visitate, i prodotti visualizzati o aggiunti al carrello, l'avvio del checkout, la pagina di provenienza, gli eventuali parametri di campagna presenti nel link (utm), il tipo di dispositivo e il paese. Per stimare il numero di visitatori usiamo un codice calcolato a partire dall'indirizzo IP e dal browser che cambia ogni giorno: l'indirizzo IP non viene salvato e nulla viene memorizzato sul tuo dispositivo. Il nostro fornitore di hosting (Vercel Web Analytics) raccoglie statistiche analoghe, anch'esse senza cookie.",
+        "Identificativo di statistica e collegamento con gli ordini — solo se accetti i cookie, il nostro server salva nel tuo browser un cookie (kaya_vid) con un codice casuale. Ci consente di riconoscere le visite successive dallo stesso browser e di collegare a quelle visite l'eventuale ordine che effettui (ad esempio: da quale fonte è arrivata la prima visita, quante visite e quanti giorni sono trascorsi prima dell'acquisto, quali prodotti hai visualizzato). Il cookie non contiene il tuo nome né altri dati e non viene letto né condiviso da terze parti.",
         "Dati pubblicitari — se e solo se accetti i cookie, il Meta Pixel registra le pagine e i prodotti che visualizzi, gli articoli aggiunti al carrello e gli ordini completati, e li trasmette a Meta insieme a un identificativo memorizzato in un cookie. Google Analytics registra gli stessi eventi e li trasmette a Google, anch'esso con un identificativo memorizzato in un cookie."
       ]
     },
@@ -58,7 +63,8 @@
         "Risposta ai tuoi messaggi — esecuzione di un contratto o nostro legittimo interesse a rispondere alle richieste (art. 6, par. 1, lett. b e f).",
         "Mantenimento della disponibilità e della sicurezza del sito e prevenzione delle frodi — nostro legittimo interesse alla tutela dell'attività (art. 6, par. 1, lett. f).",
         "Tenuta delle scritture contabili e fiscali — adempimento di un obbligo legale previsto dalla normativa italiana (art. 6, par. 1, lett. c).",
-        "Misurazione del traffico e dei risultati pubblicitari e personalizzazione della pubblicità tramite Meta Pixel e Google Analytics — esclusivamente il tuo consenso (art. 6, par. 1, lett. a). Puoi revocarlo in qualsiasi momento e, se rifiuti, nessun dato viene trattato per questa finalità."
+        "Statistiche aggregate sull'uso del sito senza cookie — nostro legittimo interesse a capire come viene utilizzato il negozio e a migliorarlo (art. 6, par. 1, lett. f). I dati non sono collegati alla tua identità.",
+        "Riconoscimento delle visite successive e collegamento tra le visite e i tuoi ordini tramite il cookie kaya_vid, misurazione del traffico e dei risultati pubblicitari e personalizzazione della pubblicità tramite Meta Pixel e Google Analytics — esclusivamente il tuo consenso (art. 6, par. 1, lett. a). Puoi revocarlo in qualsiasi momento dal link «Preferenze cookie» in fondo a ogni pagina; se rifiuti, nessun dato viene trattato per queste finalità."
       ]
     },
     "cookies": {
@@ -66,7 +72,9 @@
       "necessary": "Utilizziamo un numero limitato di cookie tecnici e di strumenti di memorizzazione locale strettamente necessari per conservare il carrello, la lingua selezionata e la tua scelta sui cookie. Non possono essere disattivati e non richiedono consenso.",
       "pixel": "Previo tuo consenso installiamo inoltre il Meta Pixel, uno strumento di tracciamento fornito da Meta Platforms Ireland Ltd. Il Pixel installa cookie nel tuo browser e trasmette a Meta informazioni sul modo in cui utilizzi questo sito, così da consentirci di misurare le nostre campagne e di mostrare annunci a chi ha manifestato interesse per i nostri prodotti. Meta può combinare tali informazioni con i dati che già detiene su di te. Se rifiuti, il Pixel non viene caricato e nessun dato viene trasmesso.",
       "google": "Con lo stesso consenso carichiamo Google Analytics, fornito da Google Ireland Ltd. Installa cookie e trasmette a Google informazioni sulle pagine visitate, sui prodotti visualizzati e aggiunti al carrello e sugli ordini completati. Lo utilizziamo per capire come viene usato il sito e per misurare i risultati delle nostre campagne Google Ads, che possono utilizzare questi dati per mostrare i nostri annunci a chi ha visitato il sito. Se rifiuti, Google Analytics non viene caricato.",
-      "manage": "Il banner compare alla prima visita e la tua scelta viene salvata nel browser. Per modificarla in seguito è sufficiente cancellare i dati di questo sito dalle impostazioni del browser: il banner verrà mostrato nuovamente. Puoi inoltre bloccare integralmente i cookie dal browser e gestire l'utilizzo dei tuoi dati da parte di Meta e Google nelle impostazioni pubblicitarie del tuo account Facebook o Instagram e del tuo account Google."
+      "manage": "Il banner compare alla prima visita e di nuovo dopo 12 mesi. Puoi modificare o revocare la tua scelta in qualsiasi momento dal link «Preferenze cookie» in fondo a ogni pagina: la revoca elimina il cookie kaya_vid e i cookie di Meta e Google presenti nel browser e interrompe il caricamento dei relativi strumenti. Puoi inoltre bloccare integralmente i cookie dal browser e gestire l'utilizzo dei tuoi dati da parte di Meta e Google nelle impostazioni pubblicitarie del tuo account Facebook o Instagram e del tuo account Google.",
+      "stats": "Statistiche senza cookie. Indipendentemente dalla tua scelta registriamo in forma aggregata le visite e le azioni sul sito descritte sopra, senza memorizzare nulla sul tuo dispositivo e senza salvare l'indirizzo IP; il codice usato per contare i visitatori cambia ogni giorno e non consente di riconoscerti nel tempo.",
+      "firstParty": "Cookie di statistica kaya_vid (nostro, previo consenso). Se accetti, il nostro server imposta il cookie kaya_vid, di prima parte e non accessibile agli script della pagina, con un codice casuale. Scade al più tardi 13 mesi dopo l'accettazione e la scadenza non viene prolungata dalle visite successive. Serve a riconoscere il ritorno dello stesso browser e a collegare le visite all'eventuale ordine. Non viene condiviso con Meta, Google o altri terzi. Se rifiuti o revochi il consenso il cookie viene eliminato immediatamente e nessun nuovo dato viene collegato; il collegamento già registrato viene cancellato dai nostri sistemi 13 mesi dopo ciascuna visita o ordine."
     },
     "sharing": {
       "heading": "A chi comunichiamo i dati",
@@ -86,6 +94,8 @@
         "Dati di ordini e fatturazione — 10 anni, come previsto dalla normativa fiscale italiana.",
         "Messaggi di contatto — fino a 24 mesi dall'ultimo scambio con te.",
         "Dati tecnici e log del server — per il periodo limitato stabilito dal fornitore di hosting, in genere alcune settimane.",
+        "Statistiche di utilizzo del sito — 25 mesi, poi cancellate.",
+        "Collegamento tra il cookie kaya_vid, le visite e gli ordini — 13 mesi da ciascuna visita o ordine; il cookie nel browser scade al più tardi 13 mesi dopo il consenso.",
         "Scelta sui cookie — fino a 12 mesi, trascorsi i quali il banner viene nuovamente mostrato.",
         "Dati conservati da Meta e Google a seguito del tuo consenso — per i periodi indicati nelle rispettive informative, sui quali non abbiamo controllo."
       ]

@@ -14,6 +14,11 @@ export const SITE_EVENTS = [
   'add_to_cart',
   'checkout_start',
   'purchase',
+  // The visitor's answer to the cookie banner. Counted cookieless (daily hash)
+  // like every other event, to know what share of traffic the consent-based
+  // visitor id covers.
+  'consent_granted',
+  'consent_denied',
 ] as const
 
 export type SiteEvent = (typeof SITE_EVENTS)[number]

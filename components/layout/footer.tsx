@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
+import { CookiePreferencesLink } from '@/components/consent/cookie-preferences-link'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
 import { KayaMark } from './kaya-mark'
@@ -57,6 +58,7 @@ export async function Footer() {
               <li><Link href="/store" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('storeLink')}</Link></li>
               <li><Link href="/terms" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('terms')}</Link></li>
               <li><Link href="/privacy" className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors">{t('privacy')}</Link></li>
+              <li><CookiePreferencesLink className="text-xs text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors text-left" /></li>
             </ul>
           </div>
 

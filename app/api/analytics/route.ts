@@ -14,6 +14,7 @@ import { createHash } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { isSiteEvent, type SiteEventPayload } from '@/lib/analytics/site-events'
+import { VISITOR_COOKIE, parseVisitorId } from '@/lib/analytics/visitor-cookie'
 
 // Namespaces the daily visitor hash — not a security secret, just keeps it from
 // being a bare sha256(ip+ua+date) that anyone could precompute against known IPs.
@@ -61,15 +62,20 @@ export async function POST(request: NextRequest) {
       country,
       visitor_hash: visitorHash(ip, userAgent),
     }
+    // Present only for visitors who accepted cookies (set by /api/analytics/visitor).
+    const visitorId = parseVisitorId(request.cookies.get(VISITOR_COOKIE)?.value)
     const utm = {
       utm_source: typeof body.utmSource === 'string' ? body.utmSource.slice(0, 128) : null,
       utm_medium: typeof body.utmMedium === 'string' ? body.utmMedium.slice(0, 128) : null,
       utm_campaign: typeof body.utmCampaign === 'string' ? body.utmCampaign.slice(0, 128) : null,
     }
 
-    let { error } = await supabase.from('analytics_events').insert({ ...row, ...utm })
-    // PGRST204 = unknown column: the utm migration isn't applied yet. Keep
-    // recording the event without the tags rather than losing it.
+    let { error } = await supabase
+      .from('analytics_events')
+      .insert({ ...row, ...utm, ...(visitorId ? { visitor_id: visitorId } : {}) })
+    // PGRST204 = unknown column: a newer analytics migration (utm_*, visitor_id)
+    // isn't applied yet. Keep recording the event without those fields rather
+    // than losing it.
     if (error?.code === 'PGRST204') {
       ;({ error } = await supabase.from('analytics_events').insert(row))
     }

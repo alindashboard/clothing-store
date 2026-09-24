@@ -93,6 +93,18 @@ async function fetchEvents(from: Date, to: Date, columns: string, filter?: { eve
   return (data ?? []) as unknown as EventRow[]
 }
 
+/**
+ * Retention stated in the privacy policy (13 months for the visitor-id link,
+ * 25 months for events), enforced by a DB function. Run opportunistically
+ * whenever an admin opens analytics rather than by a cron job — see
+ * docs/legal/tracking-and-cookies.md. Missing function (migration not applied)
+ * is ignored.
+ */
+async function purgeExpired() {
+  const { error } = await createSupabaseAdminClient().rpc('purge_expired_visitor_ids')
+  if (error && error.code !== 'PGRST202') console.error('[analytics] purge failed:', error.message)
+}
+
 function inc<K>(map: Map<K, number>, key: K, by = 1) {
   map.set(key, (map.get(key) ?? 0) + by)
 }
@@ -143,6 +155,7 @@ export async function getAnalyticsSummary(options?: { from?: Date; to?: Date }):
   const to = options?.to ?? new Date()
   const from = options?.from ?? new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000)
 
+  await purgeExpired()
   const [events, orders] = await Promise.all([
     fetchEvents(from, to, 'event, path, product_id, referrer, utm_source, utm_medium, utm_campaign, device, country, visitor_hash, created_at'),
     countedOrders(from, to),
@@ -459,5 +472,226 @@ export async function getProductAnalyticsDetail(options: { productId: string; fr
     daily: series,
     sources: sortedEntries(sources).map(([source, visitors]) => ({ source, label: SOURCE_LABELS[source], visitors })),
     devices: [...devices.entries()].map(([device, set]) => ({ device, visitors: set.size })).sort((a, b) => b.visitors - a.visitors),
+  }
+}
+
+// ── Consented visitors (persistent id) ───────────────────────────────────────
+
+export interface OrderAttribution {
+  orderNumber: string
+  total: number
+  createdAt: string
+  firstSource: string
+  lastSource: string
+  visitDays: number
+  daysToPurchase: number
+  productsViewed: number
+}
+
+export interface VisitorAnalytics {
+  migrationApplied: boolean
+  consent: { granted: number; denied: number }
+  visitors: { total: number; returning: number; new: number }
+  activeDays: { bucket: string; visitors: number }[]
+  reviewedProducts: { productId: string; name: string; visitors: number }[]
+  orders: { counted: number; linked: number }
+  attributions: OrderAttribution[]
+  byFirstSource: { source: string; orders: number; revenue: number }[]
+  byLastSource: { source: string; orders: number; revenue: number }[]
+}
+
+interface IdEvent {
+  visitor_id: string
+  event: string
+  product_id: string | null
+  referrer: string | null
+  utm_source: string | null
+  created_at: string
+}
+
+async function eventsForVisitorIds(ids: string[], until?: Date): Promise<IdEvent[]> {
+  const supabase = createSupabaseAdminClient()
+  const out: IdEvent[] = []
+  // Chunked: the id list goes into the query string.
+  for (let i = 0; i < ids.length; i += 150) {
+    let query = supabase
+      .from('analytics_events')
+      .select('visitor_id, event, product_id, referrer, utm_source, created_at')
+      .in('visitor_id', ids.slice(i, i + 150))
+      .order('created_at', { ascending: true })
+      .limit(ROW_LIMIT)
+    if (until) query = query.lte('created_at', until.toISOString())
+    const { data, error } = await query
+    if (error) {
+      console.error('[analytics] visitor events query failed:', error.message)
+      continue
+    }
+    out.push(...((data ?? []) as IdEvent[]))
+  }
+  return out
+}
+
+/** Source of a visit = the referrer/UTM of the first event of that day. */
+function sourceOfDay(events: IdEvent[], day: string): string {
+  const first = events.find((e) => e.created_at.slice(0, 10) === day)
+  return SOURCE_LABELS[sourceFor(first?.referrer, first?.utm_source)]
+}
+
+export async function getVisitorAnalytics(options: { from: Date; to: Date }): Promise<VisitorAnalytics> {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+  const empty: VisitorAnalytics = {
+    migrationApplied: false,
+    consent: { granted: 0, denied: 0 },
+    visitors: { total: 0, returning: 0, new: 0 },
+    activeDays: [],
+    reviewedProducts: [],
+    orders: { counted: 0, linked: 0 },
+    attributions: [],
+    byFirstSource: [],
+    byLastSource: [],
+  }
+
+  await purgeExpired()
+
+  const [consentRes, rangeRes, ordersRes] = await Promise.all([
+    supabase
+      .from('analytics_events')
+      .select('event')
+      .in('event', ['consent_granted', 'consent_denied'])
+      .gte('created_at', options.from.toISOString())
+      .lte('created_at', options.to.toISOString())
+      .limit(ROW_LIMIT),
+    supabase
+      .from('analytics_events')
+      .select('visitor_id, event, product_id, created_at')
+      .not('visitor_id', 'is', null)
+      .gte('created_at', options.from.toISOString())
+      .lte('created_at', options.to.toISOString())
+      .limit(ROW_LIMIT),
+    supabase
+      .from('orders')
+      .select('id, order_number, status, payment_status, payment_method, total, created_at, visitor_id')
+      .gte('created_at', options.from.toISOString())
+      .lte('created_at', options.to.toISOString()),
+  ])
+
+  const consent = { granted: 0, denied: 0 }
+  for (const row of consentRes.data ?? []) {
+    if (row.event === 'consent_granted') consent.granted++
+    else consent.denied++
+  }
+  if (rangeRes.error || ordersRes.error) {
+    // Most likely migration 20260926000000 (visitor_id columns) isn't applied yet.
+    return { ...empty, consent }
+  }
+
+  // Visitors active in the range: distinct days each, and whether they were
+  // first seen before the range started.
+  const rangeEvents = (rangeRes.data ?? []) as { visitor_id: string; event: string; product_id: string | null; created_at: string }[]
+  const daysByVisitor = new Map<string, Set<string>>()
+  const productDays = new Map<string, Map<string, Set<string>>>() // product -> visitor -> days
+  for (const e of rangeEvents) {
+    const day = e.created_at.slice(0, 10)
+    const set = daysByVisitor.get(e.visitor_id) ?? new Set<string>()
+    set.add(day)
+    daysByVisitor.set(e.visitor_id, set)
+    if (e.event === 'view_product' && e.product_id) {
+      const byVisitor = productDays.get(e.product_id) ?? new Map<string, Set<string>>()
+      const days = byVisitor.get(e.visitor_id) ?? new Set<string>()
+      days.add(day)
+      byVisitor.set(e.visitor_id, days)
+      productDays.set(e.product_id, byVisitor)
+    }
+  }
+
+  const ids = [...daysByVisitor.keys()]
+  const firstSeen = new Map<string, string>()
+  if (ids.length > 0) {
+    for (let i = 0; i < ids.length; i += 150) {
+      const { data } = await supabase
+        .from('analytics_events')
+        .select('visitor_id, created_at')
+        .in('visitor_id', ids.slice(i, i + 150))
+        .lt('created_at', options.from.toISOString())
+        .order('created_at', { ascending: true })
+        .limit(ROW_LIMIT)
+      for (const row of (data ?? []) as { visitor_id: string; created_at: string }[]) {
+        if (!firstSeen.has(row.visitor_id)) firstSeen.set(row.visitor_id, row.created_at)
+      }
+    }
+  }
+
+  let returning = 0
+  const buckets = new Map<string, number>([['1 day', 0], ['2 days', 0], ['3–5 days', 0], ['6+ days', 0]])
+  for (const [id, days] of daysByVisitor) {
+    if (days.size >= 2 || firstSeen.has(id)) returning++
+    const bucket = days.size === 1 ? '1 day' : days.size === 2 ? '2 days' : days.size <= 5 ? '3–5 days' : '6+ days'
+    inc(buckets, bucket)
+  }
+
+  // Products the same visitor came back to on different days.
+  const reviewed = [...productDays.entries()]
+    .map(([productId, byVisitor]) => ({ productId, visitors: [...byVisitor.values()].filter((d) => d.size >= 2).length }))
+    .filter((p) => p.visitors > 0)
+    .sort((a, b) => b.visitors - a.visitors)
+    .slice(0, 10)
+  let names = new Map<string, string>()
+  if (reviewed.length > 0) {
+    const { data } = await supabase.from('products').select('id, name').in('id', reviewed.map((p) => p.productId))
+    names = new Map((data ?? []).map((p) => [p.id, p.name as string]))
+  }
+
+  // Orders: attribution for the ones placed by a consented visitor.
+  const counted = ((ordersRes.data ?? []) as (OrderRow & { order_number: string; visitor_id: string | null })[]).filter(isCountedOrder)
+  const linked = counted.filter((o) => o.visitor_id)
+  const history = await eventsForVisitorIds([...new Set(linked.map((o) => o.visitor_id!))], options.to)
+  const historyByVisitor = new Map<string, IdEvent[]>()
+  for (const e of history) {
+    const list = historyByVisitor.get(e.visitor_id) ?? []
+    list.push(e)
+    historyByVisitor.set(e.visitor_id, list)
+  }
+
+  const attributions: OrderAttribution[] = linked.map((o) => {
+    const before = (historyByVisitor.get(o.visitor_id!) ?? []).filter((e) => e.created_at <= o.created_at)
+    const days = [...new Set(before.map((e) => e.created_at.slice(0, 10)))]
+    const firstDay = days[0]
+    const lastDay = days[days.length - 1]
+    return {
+      orderNumber: o.order_number,
+      total: Number(o.total ?? 0),
+      createdAt: o.created_at,
+      firstSource: firstDay ? sourceOfDay(before, firstDay) : SOURCE_LABELS.direct,
+      lastSource: lastDay ? sourceOfDay(before, lastDay) : SOURCE_LABELS.direct,
+      visitDays: days.length,
+      daysToPurchase: before[0]
+        ? Math.floor((new Date(o.created_at).getTime() - new Date(before[0].created_at).getTime()) / 86400000)
+        : 0,
+      productsViewed: new Set(before.filter((e) => e.event === 'view_product').map((e) => e.product_id)).size,
+    }
+  })
+
+  const bySource = (key: 'firstSource' | 'lastSource') => {
+    const agg = new Map<string, { orders: number; revenue: number }>()
+    for (const a of attributions) {
+      const cur = agg.get(a[key]) ?? { orders: 0, revenue: 0 }
+      cur.orders++
+      cur.revenue += a.total
+      agg.set(a[key], cur)
+    }
+    return [...agg.entries()].map(([source, v]) => ({ source, ...v })).sort((a, b) => b.revenue - a.revenue)
+  }
+
+  return {
+    migrationApplied: true,
+    consent,
+    visitors: { total: daysByVisitor.size, returning, new: daysByVisitor.size - returning },
+    activeDays: [...buckets.entries()].map(([bucket, visitors]) => ({ bucket, visitors })),
+    reviewedProducts: reviewed.map((p) => ({ ...p, name: names.get(p.productId) ?? p.productId })),
+    orders: { counted: counted.length, linked: linked.length },
+    attributions: attributions.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    byFirstSource: bySource('firstSource'),
+    byLastSource: bySource('lastSource'),
   }
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
-import { getAnalyticsSummary, getProductAnalytics, type AnalyticsSummary } from '@/lib/actions/analytics'
+import { getAnalyticsSummary, getProductAnalytics, getVisitorAnalytics, type AnalyticsSummary, type VisitorAnalytics } from '@/lib/actions/analytics'
 import { formatPrice } from '@/lib/utils'
 import { DailyBars } from '@/components/admin/analytics/daily-bars'
 import { ProductTable } from '@/components/admin/analytics/product-table'
@@ -16,6 +16,7 @@ const TABS = [
   { key: 'products', label: 'Products' },
   { key: 'pages', label: 'Pages' },
   { key: 'sources', label: 'Sources' },
+  { key: 'visitors', label: 'Visitors & orders' },
 ] as const
 type Tab = (typeof TABS)[number]['key']
 
@@ -61,9 +62,10 @@ export default async function AdminAnalyticsPage({ searchParams }: Props) {
   const to = new Date()
   const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
 
-  const [summary, products] = await Promise.all([
-    tab === 'products' ? null : getAnalyticsSummary({ from, to }),
+  const [summary, products, visitors] = await Promise.all([
+    tab === 'products' || tab === 'visitors' ? null : getAnalyticsSummary({ from, to }),
     tab === 'products' || tab === 'overview' ? getProductAnalytics({ from, to }) : null,
+    tab === 'visitors' ? getVisitorAnalytics({ from, to }) : null,
   ])
 
   const href = (next: { tab?: Tab; days?: number }) =>
@@ -115,6 +117,7 @@ export default async function AdminAnalyticsPage({ searchParams }: Props) {
         {tab === 'products' && products && <ProductTable rows={products} from={from.toISOString()} to={to.toISOString()} />}
         {tab === 'pages' && summary && <Pages summary={summary} />}
         {tab === 'sources' && summary && <Sources summary={summary} />}
+        {tab === 'visitors' && visitors && <Visitors data={visitors} />}
       </div>
     </div>
   )
@@ -360,6 +363,121 @@ function Sources({ summary }: { summary: AnalyticsSummary }) {
           </tbody>
         </table>
       </Card>
+    </div>
+  )
+}
+
+function Visitors({ data }: { data: VisitorAnalytics }) {
+  const answered = data.consent.granted + data.consent.denied
+  const kpis = [
+    { label: 'Accepted cookies', value: answered ? `${pct(data.consent.granted, answered)} of ${answered}` : '—' },
+    { label: 'Tracked visitors', value: data.visitors.total.toLocaleString('en-GB') },
+    { label: 'Returning', value: data.visitors.total ? `${data.visitors.returning} · ${pct(data.visitors.returning, data.visitors.total)}` : '—' },
+    { label: 'Orders with journey', value: data.orders.counted ? `${data.orders.linked} of ${data.orders.counted}` : '—' },
+  ]
+
+  return (
+    <div className="space-y-6">
+      <p className="text-xs text-gray-500 max-w-3xl">
+        Only visitors who accepted cookies get a persistent anonymous id (cookie <code>kaya_vid</code>, 13 months), so
+        everything on this tab covers that share of traffic — see “Accepted cookies”. Unlike the other tabs, a visitor
+        here is one person across days (per browser/device), not a visitor-day.
+      </p>
+      {!data.migrationApplied && (
+        <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
+          Migration <code>20260926000000_analytics_visitor_id.sql</code> is not applied yet — run{' '}
+          <code>supabase db push --linked</code>. Consent answers are already being counted.
+        </p>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className="bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider">{kpi.label}</p>
+            <p className="text-xl font-semibold mt-1">{kpi.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <Card title="Orders and the visits that led to them" note="First visit = how they discovered the shop; last visit = the visit that ended in the order.">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-xs text-gray-500 border-b border-gray-100">
+              <tr>
+                <th className="px-4 py-2.5 text-left font-medium">Order</th>
+                <th className="px-4 py-2.5 text-right font-medium">Total</th>
+                <th className="px-4 py-2.5 text-left font-medium">First visit from</th>
+                <th className="px-4 py-2.5 text-left font-medium">Last visit from</th>
+                <th className="px-4 py-2.5 text-right font-medium">Visits</th>
+                <th className="px-4 py-2.5 text-right font-medium">Days to buy</th>
+                <th className="px-4 py-2.5 text-right font-medium">Products viewed</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.attributions.map((a) => (
+                <tr key={a.orderNumber}>
+                  <td className="px-4 py-2.5 font-medium">{a.orderNumber}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{formatPrice(a.total)}</td>
+                  <td className="px-4 py-2.5">{a.firstSource}</td>
+                  <td className="px-4 py-2.5">{a.lastSource}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{a.visitDays}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{a.daysToPurchase}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">{a.productsViewed}</td>
+                </tr>
+              ))}
+              {data.attributions.length === 0 && <Empty cols={7} />}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {([['Revenue by first visit source', data.byFirstSource], ['Revenue by last visit source', data.byLastSource]] as const).map(([title, rows]) => (
+          <Card key={title} title={title}>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-50">
+                {rows.map((r) => (
+                  <tr key={r.source}>
+                    <td className="px-4 py-2.5">{r.source}</td>
+                    <td className="px-4 py-2.5 text-right tabular-nums text-gray-500">{r.orders} orders</td>
+                    <td className="px-4 py-2.5 text-right font-medium tabular-nums">{formatPrice(r.revenue)}</td>
+                  </tr>
+                ))}
+                {rows.length === 0 && <Empty cols={3} />}
+              </tbody>
+            </table>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card title="Days active in this period" note="How many different days each tracked visitor came to the site.">
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-gray-50">
+              {data.activeDays.map((d) => (
+                <tr key={d.bucket}>
+                  <td className="px-4 py-2.5">{d.bucket}</td>
+                  <td className="px-4 py-2.5 text-right font-medium tabular-nums">{d.visitors}</td>
+                  <td className="px-4 py-2.5 text-right text-gray-500 tabular-nums w-16">{pct(d.visitors, data.visitors.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+        <Card title="Products people came back for" note="Viewed by the same visitor on two or more different days.">
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-gray-50">
+              {data.reviewedProducts.map((p) => (
+                <tr key={p.productId}>
+                  <td className="px-4 py-2.5 truncate max-w-0">{p.name}</td>
+                  <td className="px-4 py-2.5 text-right font-medium tabular-nums whitespace-nowrap">{p.visitors} visitors</td>
+                </tr>
+              ))}
+              {data.reviewedProducts.length === 0 && <Empty />}
+            </tbody>
+          </table>
+        </Card>
+      </div>
     </div>
   )
 }

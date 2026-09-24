@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase'
 import type { Order, OrderItem, CheckoutFormData } from '@/lib/types'
 import type { CartItem } from '@/lib/store/cart'
 import { revalidatePath } from 'next/cache'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { SITE_CONFIG } from '@/lib/config'
 import { stripe } from '@/lib/stripe'
 import {
@@ -14,6 +14,7 @@ import {
   type OrderEmailData,
 } from '@/lib/email/send'
 import { buildOrderEmailData, type OrderEmailItemInput } from '@/lib/orders/payment'
+import { VISITOR_COOKIE, parseVisitorId } from '@/lib/analytics/visitor-cookie'
 import { requireAdmin } from '@/lib/auth/require-admin'
 
 export async function getOrdersAdmin(options?: {
@@ -231,13 +232,24 @@ export async function createOrder(
     order_number: 'TEMP',
   }
 
-  const { data: order, error: orderError } = await supabase
+  // Consent-based analytics id: only set when the visitor accepted cookies.
+  // Links the order to that visitor's browsing for attribution (see
+  // docs/legal/tracking-and-cookies.md).
+  const visitorId = parseVisitorId((await cookies()).get(VISITOR_COOKIE)?.value)
+
+  let { data: order, error: orderError } = await supabase
     .from('orders')
-    .insert(orderPayload)
+    // Cast: visitor_id isn't in the inferred payload type, it's an optional extra column.
+    .insert((visitorId ? { ...orderPayload, visitor_id: visitorId } : orderPayload) as typeof orderPayload)
     .select()
     .single()
+  // PGRST204 = orders.visitor_id doesn't exist yet (migration 20260926000000 not
+  // applied). Never let analytics block a sale: retry without it.
+  if (orderError?.code === 'PGRST204' && visitorId) {
+    ;({ data: order, error: orderError } = await supabase.from('orders').insert(orderPayload).select().single())
+  }
 
-  if (orderError) return { error: orderError.message }
+  if (orderError || !order) return { error: orderError?.message ?? 'Could not create order' }
 
   const { error: historyError } = await supabase
     .from('order_status_history')
