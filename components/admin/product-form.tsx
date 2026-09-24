@@ -29,6 +29,8 @@ const TEXT_FIELDS = [
   'slug',
   'short_description',
   'description',
+  'short_description_en',
+  'description_en',
   'base_price',
   'compare_at_price',
   'sku_prefix',
@@ -53,6 +55,8 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
       slug: product?.slug ?? '',
       short_description: product?.short_description ?? '',
       description: product?.description ?? '',
+      short_description_en: product?.short_description_en ?? '',
+      description_en: product?.description_en ?? '',
       base_price: product?.base_price != null ? String(product.base_price) : '',
       compare_at_price: product?.compare_at_price != null ? String(product.compare_at_price) : '',
       sku_prefix: product?.sku_prefix ?? '',
@@ -158,7 +162,7 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="short_description">Short Description</Label>
+              <Label htmlFor="short_description">Short Description (IT)</Label>
               <Input
                 id="short_description"
                 name="short_description"
@@ -168,13 +172,34 @@ export function ProductForm({ product, categories, backHref = '/admin/products' 
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="description">Full Description</Label>
+              <Label htmlFor="description">Full Description (IT)</Label>
               <Textarea
                 id="description"
                 name="description"
                 rows={5}
                 defaultValue={product?.description ?? ''}
                 placeholder="Detailed product description..."
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="short_description_en">Short Description (EN)</Label>
+              <Input
+                id="short_description_en"
+                name="short_description_en"
+                defaultValue={product?.short_description_en ?? ''}
+                placeholder="Empty = English visitors see the Italian text"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="description_en">Full Description (EN)</Label>
+              <Textarea
+                id="description_en"
+                name="description_en"
+                rows={5}
+                defaultValue={product?.description_en ?? ''}
+                placeholder="Empty = English visitors see the Italian text"
               />
             </div>
 

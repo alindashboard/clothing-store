@@ -306,6 +306,8 @@ export async function createProduct(formData: FormData) {
     slug,
     description: formData.get('description') as string || null,
     short_description: formData.get('short_description') as string || null,
+    description_en: formData.get('description_en') as string || null,
+    short_description_en: formData.get('short_description_en') as string || null,
     base_price: parseFloat(formData.get('base_price') as string),
     compare_at_price: formData.get('compare_at_price') ? parseFloat(formData.get('compare_at_price') as string) : null,
     category_id: formData.get('category_id') as string || null,
@@ -336,6 +338,8 @@ export async function updateProduct(id: string, formData: FormData) {
     slug,
     description: formData.get('description') as string || null,
     short_description: formData.get('short_description') as string || null,
+    description_en: formData.get('description_en') as string || null,
+    short_description_en: formData.get('short_description_en') as string || null,
     base_price: parseFloat(formData.get('base_price') as string),
     compare_at_price: formData.get('compare_at_price') ? parseFloat(formData.get('compare_at_price') as string) : null,
     category_id: formData.get('category_id') as string || null,
@@ -452,6 +456,14 @@ export async function setImageAsPrimary(productId: string, imageId: string) {
   const supabase = createSupabaseAdminClient()
   await supabase.from('product_images').update({ is_primary: false }).eq('product_id', productId)
   const { error } = await supabase.from('product_images').update({ is_primary: true }).eq('id', imageId)
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function setImageIsLabel(imageId: string, isLabel: boolean) {
+  await requireAdmin()
+  const supabase = createSupabaseAdminClient()
+  const { error } = await supabase.from('product_images').update({ is_label: isLabel }).eq('id', imageId)
   if (error) return { error: error.message }
   return { success: true }
 }

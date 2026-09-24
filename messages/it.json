@@ -133,7 +133,6 @@
     "allProducts": "Tutti i prodotti →",
     "featured": "In evidenza",
     "viewAllFeatured": "Vedi tutto →",
-    "testimonials": "Cosa dicono i nostri clienti",
     "about": {
       "eyebrow": "Chi siamo",
       "lead": "KAYA Studio Outlet nasce da un’idea semplice: rendere la moda firmata più accessibile.",
@@ -148,6 +147,16 @@
       "concept1": "Non vogliamo essere semplicemente un negozio.",
       "concept2": "Vogliamo creare un luogo, fisico e online, dove scoprire ogni volta qualcosa di nuovo e dove acquistare moda firmata senza dover necessariamente pagare il prezzo pieno.",
       "tagline": "Grandi brand. Piccoli prezzi. Nuove occasioni ogni volta."
+    },
+    "reviews": {
+      "title": "Cosa dicono i nostri clienti",
+      "summary": "{rating} su 5 · {count} recensioni su Google Maps",
+      "readAll": "Leggi tutte su Google Maps",
+      "write": "Lascia una recensione",
+      "emptyBody": "Sei già passato da noi o hai ricevuto un ordine? Raccontalo su Google: la tua recensione aiuta altri clienti a conoscerci.",
+      "source": "Google Maps",
+      "ratingLabel": "{rating} stelle su 5",
+      "emptyTitle": "La tua opinione conta"
     }
   },
   "store": {
@@ -216,7 +225,8 @@
       "zoomOut": "Riduci",
       "allPhotos": "Tutte le foto",
       "counter": "{current} / {total}"
-    }
+    },
+    "labelPhotoNote": "Etichetta originale del brand visibile nelle foto"
   },
   "footer": {
     "store": "Negozio",

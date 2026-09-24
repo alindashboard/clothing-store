@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Upload, Trash2, Star } from 'lucide-react'
 import type { ProductImage } from '@/lib/types'
 import { uploadProductImage } from '@/lib/actions/upload'
-import { upsertImage, deleteImage, setImageAsPrimary } from '@/lib/actions/products'
+import { upsertImage, deleteImage, setImageAsPrimary, setImageIsLabel } from '@/lib/actions/products'
 import {
   resizeImageForUpload,
   oversizeMessage,
@@ -124,6 +124,15 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
     toast.success('Primary image updated')
   }
 
+  async function handleToggleLabel(img: ProductImage, isLabel: boolean) {
+    setImages((prev) => prev.map((i) => (i.id === img.id ? { ...i, is_label: isLabel } : i)))
+    const result = await setImageIsLabel(img.id, isLabel)
+    if (result.error) {
+      setImages((prev) => prev.map((i) => (i.id === img.id ? { ...i, is_label: !isLabel } : i)))
+      toast.error(result.error)
+    }
+  }
+
   async function handleAltText(img: ProductImage, altText: string) {
     await upsertImage({ ...img, alt_text: altText })
     setImages((prev) => prev.map((i) => (i.id === img.id ? { ...i, alt_text: altText } : i)))
@@ -154,7 +163,7 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
 
       <p className="text-xs text-gray-400">
         JPG, PNG, WebP, HEIC · select several at once · large photos are converted and
-        compressed automatically · Click ★ to set as primary
+        compressed automatically · Click ★ to set as primary · Tick “Label photo” on shots of the brand label
       </p>
 
       {images.length === 0 ? (
@@ -181,6 +190,11 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
                 {img.is_primary && (
                   <div className="absolute top-1 left-1 bg-black text-white text-[10px] px-1 py-0.5">
                     PRIMARY
+                  </div>
+                )}
+                {img.is_label && (
+                  <div className="absolute top-1 right-1 bg-amber-500 text-white text-[10px] px-1 py-0.5">
+                    LABEL
                   </div>
                 )}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -211,6 +225,16 @@ export function ImageUploader({ productId, initialImages }: ImageUploaderProps) 
                 placeholder="Alt text"
                 className="mt-1 w-full text-[10px] border border-gray-200 px-1.5 py-0.5 focus:outline-none focus:border-gray-400"
               />
+              {/* Visible without hover: the owner manages photos from her phone. */}
+              <label className="mt-1 flex items-center gap-1.5 text-[11px] text-gray-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={img.is_label ?? false}
+                  onChange={(e) => handleToggleLabel(img, e.target.checked)}
+                  className="w-3.5 h-3.5"
+                />
+                Label photo
+              </label>
             </div>
           ))}
         </div>
