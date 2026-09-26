@@ -46,7 +46,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
   const muted = { color: '#8C8577' }
   const paymentOptions: Array<{ id: PaymentMethod; title: string; description: string; aside: React.ReactNode }> = [
     ...(enableStripe
-      ? [{ id: 'stripe' as const, title: t('stripeTitle'), description: t('stripeDescription'), aside: <PaymentLogos variant="dark" /> }]
+      ? [{ id: 'stripe' as const, title: t('stripeTitle'), description: t('stripeDescription'), aside: <PaymentLogos variant="dark" className="shrink-0 flex-nowrap" /> }]
       : []),
     ...(enableBankTransfer
       ? [{ id: 'bank_transfer' as const, title: t('bankTransferOption'), description: t('bankTransferDescription'), aside: <Building2 className="w-4 h-4" style={muted} aria-hidden="true" /> }]
@@ -281,7 +281,8 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
                   {active && <span className="w-2 h-2 rounded-full" style={{ background: GOLD }} />}
                 </span>
                 <span className="flex-1 min-w-0">
-                  <span className="flex items-center justify-between gap-3">
+                  {/* Wraps as a whole: on narrow screens the logo row drops under the title. */}
+                  <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                     <span className={`text-sm font-medium transition-colors ${active ? 'text-[#EDE9E1]' : 'text-[#c7c3b8]'}`}>
                       {option.title}
                     </span>

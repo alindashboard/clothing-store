@@ -435,10 +435,14 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 
 - **Trust block** (`components/trust/trust-badges.tsx`, `trust.*` keys): authenticity
   guarantee (full refund if not original — owner-confirmed 2026-09-23), physical store,
-  14-day returns, Stripe payment + Visa/Mastercard/Stripe marks (`payment-logos.tsx`,
-  simple-icons paths inlined — no dependency). Shown on the PDP (`columns={1}`) and under
-  the checkout submit. Returns wording must match `/terms` (which is still English-only
-  and hardcoded). Apple Pay is not advertised: the session uses `payment_method_types: ['card']`.
+  14-day returns, Stripe payment + Visa/Mastercard/Apple Pay/Google Pay/Stripe marks
+  (`payment-logos.tsx`, simple-icons paths inlined — no dependency). Shown on the PDP
+  (`columns={1}`), under the checkout submit, and — since 2026-09-26 — as `ServiceStrip`
+  on the homepage (between Featured and About). Returns wording must match `/terms`.
+  Apple Pay / Google Pay are advertised because hosted Checkout offers them as wallets
+  of the `card` method (`payment_method_types: ['card']`) on supported devices —
+  **only while they stay enabled in Stripe Dashboard → Settings → Payment methods**;
+  if they're ever switched off, remove them from `LOGOS` and the `stripeTitle` copy.
 - **Owner traffic is excluded from analytics** by device: `AdminShell` sets
   `localStorage['kaya-internal-visitor']`, and `siteTrack`, the Meta Pixel `call()` and
   Vercel Analytics (`beforeSend` in `components/analytics/vercel-analytics.tsx`) all

@@ -14,6 +14,7 @@ import { CategoryImageSlider } from '@/components/layout/category-image-slider'
 import { VisitUsSection } from '@/components/layout/visit-us-section'
 import { InstagramSection } from '@/components/layout/instagram-section'
 import { AboutSection } from '@/components/layout/about-section'
+import { ServiceStrip } from '@/components/trust/service-strip'
 import { SITE_CONFIG } from '@/lib/config'
 import { getSiteSettings } from '@/lib/brand-accent'
 import { GoogleReviewsSection } from '@/components/layout/google-reviews-section'
@@ -271,6 +272,9 @@ export default async function HomePage() {
             <ProductGrid products={featuredProducts} columns={4} variant="dark" />
           </section>
         )}
+
+        {/* ── SERVICE / TRUST ─────────────────────────────────────────────── */}
+        <ServiceStrip />
 
         {/* ── ABOUT ───────────────────────────────────────────────────────── */}
         <AboutSection />
