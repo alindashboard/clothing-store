@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { useLocale, useTranslations } from 'next-intl'
-import { MessageCircle, Building2, CreditCard, Loader2 } from 'lucide-react'
+import { MessageCircle, Building2, Loader2, Lock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -21,8 +21,8 @@ import { KayaCta } from '@/components/layout/kaya-cta'
 const GOLD = SITE_CONFIG.brand.darkAccent
 const grotesk = { fontFamily: 'var(--font-grotesk, var(--font-sans))' }
 const sectionHeading = 'text-xs font-semibold uppercase tracking-[0.22em] text-[#EDE9E1]'
-const optionActive = 'border-[#D9B679] bg-[#1A1917]'
-const optionIdle = 'border-[#2B2924] hover:border-[#3a3833]'
+
+type PaymentMethod = 'stripe' | 'bank_transfer' | 'whatsapp'
 
 interface CheckoutFormProps {
   items: CartItem[]
@@ -37,7 +37,30 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [billingSame, setBillingSame] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'bank_transfer' | 'stripe'>('whatsapp')
+  const { enableStripe, enableBankTransfer, enableWhatsAppOrder } = SITE_CONFIG.checkout
+  // Card first: it's the only method that confirms payment instantly.
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    enableStripe ? 'stripe' : enableBankTransfer ? 'bank_transfer' : 'whatsapp'
+  )
+  const total = formatPrice(subtotal + shippingCost)
+  const muted = { color: '#8C8577' }
+  const paymentOptions: Array<{ id: PaymentMethod; title: string; description: string; aside: React.ReactNode }> = [
+    ...(enableStripe
+      ? [{ id: 'stripe' as const, title: t('stripeTitle'), description: t('stripeDescription'), aside: <PaymentLogos variant="dark" /> }]
+      : []),
+    ...(enableBankTransfer
+      ? [{ id: 'bank_transfer' as const, title: t('bankTransferOption'), description: t('bankTransferDescription'), aside: <Building2 className="w-4 h-4" style={muted} aria-hidden="true" /> }]
+      : []),
+    ...(enableWhatsAppOrder
+      ? [{ id: 'whatsapp' as const, title: t('whatsappTitle'), description: t('whatsappDescription'), aside: <MessageCircle className="w-4 h-4" style={muted} aria-hidden="true" /> }]
+      : []),
+  ]
+  // The button says what happens next, with the amount — not a generic "confirm".
+  const submitLabel =
+    paymentMethod === 'stripe' ? t('payNow', { amount: total })
+    : paymentMethod === 'whatsapp' ? t('sendOnWhatsapp')
+    : t('placeOrderTotal', { amount: total })
+  const submitIcon = paymentMethod === 'stripe' ? <Lock className="w-3.5 h-3.5" aria-hidden="true" /> : undefined
   const syncCart = useCartStore((s) => s.syncCart)
 
   /** Shows createOrder's error; on a stale cart, resyncs prices/stock first. Returns true if it failed. */
@@ -227,90 +250,66 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         )}
       </section>
 
-      {/* Payment */}
+      {/* Payment — one grouped list, card first and pre-selected; only the chosen
+          option shows its description, so the section reads as a single choice. */}
       <section className="space-y-4">
         <h2 className={sectionHeading} style={grotesk}>{t('paymentMethod')}</h2>
-        <div className="space-y-3">
-          {SITE_CONFIG.checkout.enableWhatsAppOrder && (
-            <label
-              className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'whatsapp' ? optionActive : optionIdle
-              }`}
-            >
-              <input
-                type="radio"
-                name="payment"
-                value="whatsapp"
-                checked={paymentMethod === 'whatsapp'}
-                onChange={() => setPaymentMethod('whatsapp')}
-                className="mt-0.5 accent-[#D9B679]"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4" style={{ color: GOLD }} />
-                  <span className="text-sm font-medium text-[#EDE9E1]">{t('whatsappTitle')}</span>
-                </div>
-                <p className="text-xs text-[#8C8577] mt-1">{t('whatsappDescription')}</p>
-              </div>
-            </label>
-          )}
-          {SITE_CONFIG.checkout.enableBankTransfer && (
-            <label
-              className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'bank_transfer' ? optionActive : optionIdle
-              }`}
-            >
-              <input
-                type="radio"
-                name="payment"
-                value="bank_transfer"
-                checked={paymentMethod === 'bank_transfer'}
-                onChange={() => setPaymentMethod('bank_transfer')}
-                className="mt-0.5 accent-[#D9B679]"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4" style={{ color: GOLD }} />
-                  <span className="text-sm font-medium text-[#EDE9E1]">{t('bankTransferOption')}</span>
-                </div>
-                <p className="text-xs text-[#8C8577] mt-1">{t('bankTransferDescription')}</p>
-              </div>
-            </label>
-          )}
-          {SITE_CONFIG.checkout.enableStripe && (
-            <label
-              className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'stripe' ? optionActive : optionIdle
-              }`}
-            >
-              <input
-                type="radio"
-                name="payment"
-                value="stripe"
-                checked={paymentMethod === 'stripe'}
-                onChange={() => setPaymentMethod('stripe')}
-                className="mt-0.5 accent-[#D9B679]"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4" style={{ color: GOLD }} />
-                  <span className="text-sm font-medium text-[#EDE9E1]">{t('stripeTitle')}</span>
-                </div>
-                <p className="text-xs text-[#8C8577] mt-1">{t('stripeDescription')}</p>
-                <PaymentLogos className="mt-2" />
-              </div>
-            </label>
-          )}
+        <div role="radiogroup" aria-label={t('paymentMethod')} className="border border-[#2B2924] divide-y divide-[#2B2924]">
+          {paymentOptions.map((option) => {
+            const active = paymentMethod === option.id
+            return (
+              <label
+                key={option.id}
+                className={`relative flex gap-4 px-5 py-[18px] cursor-pointer transition-colors ${
+                  active ? 'bg-[#1A1917]' : 'hover:bg-[#171614]'
+                }`}
+              >
+                {active && <span className="absolute inset-y-0 left-0 w-[2px]" style={{ background: GOLD }} aria-hidden="true" />}
+                <input
+                  type="radio"
+                  name="payment"
+                  value={option.id}
+                  checked={active}
+                  onChange={() => setPaymentMethod(option.id)}
+                  className="peer sr-only"
+                />
+                <span
+                  className="mt-0.5 w-[18px] h-[18px] shrink-0 rounded-full border flex items-center justify-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#D9B679]/50 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[#141412]"
+                  style={{ borderColor: active ? GOLD : '#4a4741' }}
+                  aria-hidden="true"
+                >
+                  {active && <span className="w-2 h-2 rounded-full" style={{ background: GOLD }} />}
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className={`text-sm font-medium transition-colors ${active ? 'text-[#EDE9E1]' : 'text-[#c7c3b8]'}`}>
+                      {option.title}
+                    </span>
+                    {option.aside}
+                  </span>
+                  {active && <span className="block text-xs leading-relaxed text-[#8C8577] mt-1.5 pr-2">{option.description}</span>}
+                </span>
+              </label>
+            )
+          })}
         </div>
       </section>
 
       {error && <p className="text-sm text-[#f0a39a] bg-[#3a1d1a] px-4 py-3 border border-[#6b2f28]">{error}</p>}
 
-      <KayaCta type="submit" disabled={loading} className="w-full" icon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}>
-        {loading
-          ? paymentMethod === 'stripe' ? t('redirectingToPayment') : t('placingOrder')
-          : t('placeOrder')}
-      </KayaCta>
+      <div className="space-y-3">
+        <KayaCta type="submit" disabled={loading} className="w-full" icon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : submitIcon}>
+          {loading
+            ? paymentMethod === 'stripe' ? t('redirectingToPayment') : t('placingOrder')
+            : submitLabel}
+        </KayaCta>
+        {paymentMethod === 'stripe' && (
+          <p className="flex items-center justify-center gap-1.5 text-[11px] text-[#6b6862]">
+            <Lock className="w-3 h-3" aria-hidden="true" />
+            {t('stripeSecureNote')}
+          </p>
+        )}
+      </div>
 
       <TrustBadges variant="dark" />
     </form>
