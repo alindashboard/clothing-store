@@ -13,6 +13,8 @@ export interface PricedLine {
   sku: string | null
   quantity: number
   price: number
+  /** Pre-discount unit price (compare_at_price) when above `price`, else null. */
+  listPrice: number | null
 }
 
 /** Current price/stock per variant, sent back so the client cart can resync. */
@@ -31,7 +33,7 @@ interface VariantRow {
   price_override: number | null
   stock_quantity: number
   is_active: boolean
-  product: { name: string; base_price: number; is_active: boolean } | null
+  product: { name: string; base_price: number; compare_at_price: number | null; is_active: boolean } | null
 }
 
 const MAX_QTY = 20
@@ -52,7 +54,7 @@ export async function priceCart(supabase: SupabaseClient, cartItems: CartItem[])
   const ids = [...new Set(cartItems.map((i) => i.variantId))]
   const { data, error } = await supabase
     .from('product_variants')
-    .select('id, product_id, size, color_name, sku, price_override, stock_quantity, is_active, product:products(name, base_price, is_active)')
+    .select('id, product_id, size, color_name, sku, price_override, stock_quantity, is_active, product:products(name, base_price, compare_at_price, is_active)')
     .in('id', ids)
   if (error) throw new Error(`priceCart: ${error.message}`)
 
@@ -74,6 +76,7 @@ export async function priceCart(supabase: SupabaseClient, cartItems: CartItem[])
       changed = true
       continue
     }
+    const compareAt = v.product!.compare_at_price == null ? null : Number(v.product!.compare_at_price)
     lines.push({
       productId: v.product_id,
       variantId: v.id,
@@ -83,6 +86,7 @@ export async function priceCart(supabase: SupabaseClient, cartItems: CartItem[])
       sku: v.sku,
       quantity: qty,
       price,
+      listPrice: compareAt != null && compareAt > price ? compareAt : null,
     })
   }
 

@@ -342,7 +342,10 @@
     "waTotal": "Total",
     "waName": "Name",
     "countryItaly": "Italy",
-    "italyOnlyNote": "For now we ship within Italy only. For other EU countries, message us on WhatsApp."
+    "italyOnlyNote": "For now we ship within Italy only. For other EU countries, message us on WhatsApp.",
+    "selectProvince": "Select province",
+    "postalCodeHint": "Italian postal codes have 5 digits",
+    "invalidForm": "Some details are not valid — please check the highlighted fields."
   },
   "contact": {
     "title": "Contact",

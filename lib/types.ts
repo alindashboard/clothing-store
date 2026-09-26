@@ -90,7 +90,11 @@ export interface OrderItem {
   sku: string | null
   quantity: number
   unit_price: number
+  /** Pre-discount unit price at order time; null = sold at list price. */
+  list_unit_price: number | null
   total_price: number
+  /** VAT rate in percent (22), snapshotted at order time. */
+  vat_rate: number
   created_at: string
 }
 
@@ -116,6 +120,8 @@ export interface Order {
   billing_country: string | null
   subtotal: number
   shipping_cost: number
+  shipping_vat_rate: number
+  /** VAT contained in total (prices are VAT-inclusive). */
   tax_amount: number
   discount_amount: number
   total: number
@@ -123,6 +129,7 @@ export interface Order {
   payment_method: PaymentMethod | null
   payment_status: PaymentStatus
   payment_intent_id: string | null
+  paid_at: string | null
   tracking_number: string | null
   tracking_url: string | null
   notes: string | null

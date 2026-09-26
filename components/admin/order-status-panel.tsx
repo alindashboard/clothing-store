@@ -26,6 +26,7 @@ interface OrderStatusPanelProps {
   status: OrderStatus
   paymentStatus: PaymentStatus
   paymentMethod: string | null
+  paidAt: string | null
   trackingNumber: string | null
   trackingUrl: string | null
 }
@@ -35,6 +36,7 @@ export function OrderStatusPanel({
   status,
   paymentStatus,
   paymentMethod,
+  paidAt,
   trackingNumber,
   trackingUrl,
 }: OrderStatusPanelProps) {
@@ -71,6 +73,10 @@ export function OrderStatusPanel({
         <div><OrderStatusBadge status={status} /></div>
         <div><PaymentStatusBadge status={paymentStatus} /></div>
         <p className="text-xs text-gray-400">Payment: {paymentMethod ?? '—'}</p>
+        {paidAt && <p className="text-xs text-gray-400">Paid: {new Date(paidAt).toLocaleString('en-GB')}</p>}
+        {paymentMethod !== 'stripe' && paymentStatus === 'unpaid' && (
+          <p className="text-xs text-gray-500">Set status to <strong>Paid</strong> once the payment has arrived.</p>
+        )}
       </div>
       <div className="mt-4 space-y-2">
         <select

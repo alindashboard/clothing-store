@@ -57,8 +57,17 @@ export default async function OrderDetailPage({ params }: Props) {
                     <div>
                       <p className="font-medium">{item.product_name}</p>
                       <p className="text-gray-500">{item.variant_color} / {item.variant_size} x {item.quantity}</p>
+                      {item.sku && <p className="text-xs text-gray-400 font-mono">{item.sku}</p>}
                     </div>
-                    <p className="font-semibold">{formatPrice(item.total_price)}</p>
+                    <div className="text-right">
+                      <p className="font-semibold">{formatPrice(item.total_price)}</p>
+                      {item.list_unit_price != null && (
+                        <p className="text-xs text-gray-400">
+                          list <span className="line-through">{formatPrice(item.list_unit_price)}</span>
+                          {' '}−{Math.round((1 - item.unit_price / item.list_unit_price) * 100)}%
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -66,6 +75,7 @@ export default async function OrderDetailPage({ params }: Props) {
                 <div className="flex justify-between text-gray-500"><span>Subtotal</span><span>{formatPrice(order.subtotal)}</span></div>
                 <div className="flex justify-between text-gray-500"><span>Shipping</span><span>{order.shipping_cost === 0 ? 'Free' : formatPrice(order.shipping_cost)}</span></div>
                 <div className="flex justify-between font-semibold text-base pt-2 border-t border-gray-200"><span>Total</span><span>{formatPrice(order.total)}</span></div>
+                <div className="flex justify-between text-xs text-gray-400"><span>of which VAT</span><span>{formatPrice(order.tax_amount)}</span></div>
               </div>
             </div>
 
@@ -79,9 +89,22 @@ export default async function OrderDetailPage({ params }: Props) {
                   <p className="text-xs text-gray-400 mb-1">Shipping address</p>
                   <p>{order.shipping_address_line1}</p>
                   {order.shipping_address_line2 && <p>{order.shipping_address_line2}</p>}
-                  <p>{order.shipping_city}, {order.shipping_postal_code}</p>
+                  <p>{order.shipping_postal_code} {order.shipping_city}{order.shipping_state ? ` (${order.shipping_state})` : ''}</p>
                   <p>{order.shipping_country}</p>
                 </div>
+                {/* Pre-2026-09-26 orders stored billing as NULL when same as shipping. */}
+                {!order.billing_same_as_shipping && order.billing_address_line1 && (
+                  <div className="pt-3 mt-3 border-t border-gray-100">
+                    <p className="text-xs text-gray-400 mb-1">Billing address</p>
+                    <p>{order.billing_address_line1}</p>
+                    {order.billing_address_line2 && <p>{order.billing_address_line2}</p>}
+                    <p>{order.billing_postal_code} {order.billing_city}{order.billing_state ? ` (${order.billing_state})` : ''}</p>
+                    <p>{order.billing_country}</p>
+                  </div>
+                )}
+                {order.billing_same_as_shipping && (
+                  <p className="pt-3 mt-3 border-t border-gray-100 text-xs text-gray-400">Billing address same as shipping</p>
+                )}
               </div>
             </div>
 
@@ -115,6 +138,7 @@ export default async function OrderDetailPage({ params }: Props) {
               status={order.status}
               paymentStatus={order.payment_status}
               paymentMethod={order.payment_method}
+              paidAt={order.paid_at}
               trackingNumber={order.tracking_number}
               trackingUrl={order.tracking_url}
             />

@@ -152,8 +152,32 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   a stock re-import wipes that bucket *and* the categories rows, so file and row die
   together instead of leaving orphans.
 - GSC Domain property covers all subdomains; no separate www property needed.
-- `supabase/schema.sql` is the original **template** schema (items/reservations) —
-  the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
+- `schema.sql` (repo root) is the one-off **initial** e-commerce schema: it starts by
+  dropping the template's tables and is the only place `products`/`orders`/
+  `order_items` are created. Later changes live in `supabase/migrations/`.
+  **Never apply schema.sql** — it DROPs tables. For the live schema, query it:
+  `supabase db query --linked "select ... from information_schema.columns ..."`.
+- **Order fiscal data (invoicing phase 1, 2026-09-26)** — groundwork for the owner's
+  gestionale (accounting software run by Pietro, their technician), which will *pull*
+  orders over an API. Prices are VAT-inclusive; `lib/orders/vat.ts` is the contract:
+  VAT is extracted per line from the gross line total and rounded there, order
+  figures are sums of lines. `orders.tax_amount` = VAT *contained in* `total`
+  (it used to be `subtotal × 0.22`, overstated and outside the total).
+  `order_items` snapshots `vat_rate` (22) and `list_unit_price` (compare_at price when
+  above the price paid, else NULL; the line discount = list − unit). `orders.
+  shipping_vat_rate` for the shipping line. Billing fields are always stored in full
+  (copied from shipping when "same"); orders before this date have them NULL.
+  `order_number` comes from `order_number_seq` → `ORD-2026-00001` (the old
+  4-hex-per-day form could collide). Setting status **Paid** in admin is how the owner
+  confirms a bank transfer/WhatsApp payment: it sets `payment_status = paid` +
+  `paid_at` (the Stripe webhook does the same); stepping back to pending/confirmed
+  undoes it for non-Stripe orders. Before this, `payment_status` stayed `unpaid` forever
+  on manual orders.
+- **Checkout validation** is server-side in `lib/orders/validate-checkout.ts` (no zod —
+  hand-written, no new dep), mirrored by HTML constraints in the form: CAP `^\d{5}$`,
+  province from the closed `lib/italy/provinces.ts` list (FatturaPA `Provincia` sigle,
+  incl. old+new Sardinian codes), billing country forced to IT. Failure returns
+  `error: 'invalid_form'` + `invalidFields`, which the form marks `aria-invalid`.
 - **Stripe card payments — LIVE (real money) in production.** Built and tested in
   sandbox 2026-09-18; production switched to live keys (`pk_live_`/`sk_live_`) and a
   live-mode webhook endpoint + `STRIPE_WEBHOOK_SECRET` were added in Vercel on
@@ -223,9 +247,9 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   endpoint's secret (Vercel env); local testing needs its own test-mode secret
   (`stripe listen --forward-to localhost:3000/api/webhooks/stripe` prints a
   `whsec_...`) — the two never share a value.
-  Also unresolved: `createOrder`'s `total` still excludes `tax_amount` (pre-existing,
-  not introduced by this work) — the Stripe Checkout Session amount mirrors that
-  same `total`, so fix the tax bug and the Stripe amount together if it's ever fixed.
+  (The old "total excludes tax_amount" note is resolved: prices are VAT-inclusive, so
+  `total` is right and `tax_amount` is now the VAT contained in it — Stripe amounts
+  were never affected.)
 - **Fixed 2026-09-18 — bank transfer checkout landed on a blank page.** Both
   `whatsapp` and `bank_transfer` submits in `CheckoutForm` called `clearCart()`
   synchronously before `router.push('/checkout/success')`. Clearing the cart

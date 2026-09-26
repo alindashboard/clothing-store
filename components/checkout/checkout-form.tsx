@@ -16,6 +16,8 @@ import { stashOrderForPixel } from '@/lib/analytics/order-tracking'
 import { TrustBadges } from '@/components/trust/trust-badges'
 import { PaymentLogos } from '@/components/trust/payment-logos'
 import { KayaCta } from '@/components/layout/kaya-cta'
+import { ITALIAN_PROVINCES } from '@/lib/italy/provinces'
+import type { CheckoutField } from '@/lib/orders/validate-checkout'
 
 // Dark checkout styling (page is wrapped in `dark kaya-dark`, which themes Input/Label/Checkbox).
 const GOLD = SITE_CONFIG.brand.darkAccent
@@ -23,6 +25,25 @@ const grotesk = { fontFamily: 'var(--font-grotesk, var(--font-sans))' }
 const sectionHeading = 'text-xs font-semibold uppercase tracking-[0.22em] text-[#EDE9E1]'
 
 type PaymentMethod = 'stripe' | 'bank_transfer' | 'whatsapp'
+
+// Same look as <Input>; a native select keeps the OS picker on phones.
+const selectClass =
+  'h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 invalid:text-muted-foreground'
+
+/** Province as a closed list: FatturaPA rejects anything that isn't a valid sigla. */
+function ProvinceSelect({ id, invalid, placeholder }: { id: string; invalid: boolean; placeholder: string }) {
+  return (
+    <select id={id} name={id} required defaultValue="" aria-invalid={invalid || undefined} className={selectClass}>
+      <option value="" disabled>{placeholder}</option>
+      {ITALIAN_PROVINCES.map(([code, name]) => (
+        <option key={code} value={code}>{code} — {name}</option>
+      ))}
+    </select>
+  )
+}
+
+/** Italian CAP: exactly five digits; numeric keypad on phones. */
+const capProps = { inputMode: 'numeric' as const, pattern: '\\d{5}', maxLength: 5, autoComplete: 'postal-code' }
 
 interface CheckoutFormProps {
   items: CartItem[]
@@ -37,6 +58,8 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [billingSame, setBillingSame] = useState(true)
+  const [invalidFields, setInvalidFields] = useState<CheckoutField[]>([])
+  const bad = (field: CheckoutField) => invalidFields.includes(field) || undefined
   const { enableStripe, enableBankTransfer, enableWhatsAppOrder } = SITE_CONFIG.checkout
   // Card first: it's the only method that confirms payment instantly.
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
@@ -69,6 +92,9 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     if (result.cartUpdates) {
       syncCart(result.cartUpdates)
       setError(t('cartChanged'))
+    } else if (result.invalidFields) {
+      setInvalidFields(result.invalidFields)
+      setError(t('invalidForm'))
     } else {
       setError(result.error)
     }
@@ -80,6 +106,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     e.preventDefault()
     setLoading(true)
     setError('')
+    setInvalidFields([])
 
     const form = e.currentTarget
     const get = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value ?? ''
@@ -100,7 +127,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
       billing_city: billingSame ? get('city') : get('billing_city'),
       billing_state: billingSame ? get('state') : get('billing_state'),
       billing_postal_code: billingSame ? get('postal_code') : get('billing_postal_code'),
-      billing_country: billingSame ? (get('country') || 'IT') : get('billing_country'),
+      billing_country: 'IT',
       payment_method: paymentMethod,
     }
 
@@ -166,11 +193,11 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="email">{t('email')} *</Label>
-            <Input id="email" name="email" type="email" required placeholder={t('emailPlaceholder')} />
+            <Input id="email" name="email" type="email" required autoComplete="email" maxLength={254} aria-invalid={bad('email')} placeholder={t('emailPlaceholder')} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">{t('phone')}</Label>
-            <Input id="phone" name="phone" type="tel" placeholder="+39 000 000 0000" />
+            <Input id="phone" name="phone" type="tel" autoComplete="tel" pattern="\+?[0-9 \(\)\.\-]{6,20}" aria-invalid={bad('phone')} placeholder="+39 000 000 0000" />
           </div>
         </div>
       </section>
@@ -180,30 +207,30 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         <h2 className={sectionHeading} style={grotesk}>{t('shippingAddress')}</h2>
         <div className="space-y-1.5">
           <Label htmlFor="name">{t('fullName')} *</Label>
-          <Input id="name" name="name" required placeholder={t('fullNamePlaceholder')} />
+          <Input id="name" name="name" required minLength={2} maxLength={120} autoComplete="name" aria-invalid={bad('name')} placeholder={t('fullNamePlaceholder')} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="address_line1">{t('address')} *</Label>
-          <Input id="address_line1" name="address_line1" required placeholder="Via Roma 1" />
+          <Input id="address_line1" name="address_line1" required minLength={3} maxLength={200} autoComplete="address-line1" aria-invalid={bad('address_line1')} placeholder="Via Roma 1" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="address_line2">{t('address2')}</Label>
-          <Input id="address_line2" name="address_line2" placeholder={t('address2Placeholder')} />
+          <Input id="address_line2" name="address_line2" maxLength={200} autoComplete="address-line2" aria-invalid={bad('address_line2')} placeholder={t('address2Placeholder')} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="city">{t('city')} *</Label>
-            <Input id="city" name="city" required placeholder="Milano" />
+            <Input id="city" name="city" required minLength={2} maxLength={80} autoComplete="address-level2" aria-invalid={bad('city')} placeholder="Milano" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="postal_code">{t('postalCode')} *</Label>
-            <Input id="postal_code" name="postal_code" required placeholder="20100" />
+            <Input id="postal_code" name="postal_code" required {...capProps} title={t('postalCodeHint')} aria-invalid={bad('postal_code')} placeholder="20100" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="state">{t('province')}</Label>
-            <Input id="state" name="state" placeholder="MI" />
+            <Label htmlFor="state">{t('province')} *</Label>
+            <ProvinceSelect id="state" invalid={!!bad('state')} placeholder={t('selectProvince')} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="country">{t('country')}</Label>
@@ -230,21 +257,31 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <Label htmlFor="billing_address_line1">{t('billingAddress')} *</Label>
-              <Input id="billing_address_line1" name="billing_address_line1" required={!billingSame} />
+              <Input id="billing_address_line1" name="billing_address_line1" required minLength={3} maxLength={200} autoComplete="billing address-line1" aria-invalid={bad('billing_address_line1')} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="billing_address_line2">{t('address2')}</Label>
+              <Input id="billing_address_line2" name="billing_address_line2" maxLength={200} autoComplete="billing address-line2" aria-invalid={bad('billing_address_line2')} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="billing_city">{t('city')} *</Label>
-                <Input id="billing_city" name="billing_city" required={!billingSame} />
+                <Input id="billing_city" name="billing_city" required minLength={2} maxLength={80} autoComplete="billing address-level2" aria-invalid={bad('billing_city')} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="billing_postal_code">{t('postalCode')} *</Label>
-                <Input id="billing_postal_code" name="billing_postal_code" required={!billingSame} />
+                <Input id="billing_postal_code" name="billing_postal_code" required {...capProps} autoComplete="billing postal-code" title={t('postalCodeHint')} aria-invalid={bad('billing_postal_code')} />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="billing_country">{t('country')}</Label>
-              <Input id="billing_country" name="billing_country" defaultValue="IT" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="billing_state">{t('province')} *</Label>
+                <ProvinceSelect id="billing_state" invalid={!!bad('billing_state')} placeholder={t('selectProvince')} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="billing_country_display">{t('country')}</Label>
+                <Input id="billing_country_display" value={t('countryItaly')} readOnly />
+              </div>
             </div>
           </div>
         )}

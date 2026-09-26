@@ -87,6 +87,7 @@ export async function markStripeOrderPaid(orderId: string, paymentIntentId: stri
     .update({
       status: 'paid',
       payment_status: 'paid',
+      paid_at: new Date().toISOString(),
       payment_intent_id: paymentIntentId ?? order.payment_intent_id,
     })
     .eq('id', order.id)

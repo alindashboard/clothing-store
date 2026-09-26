@@ -17,6 +17,17 @@ import { buildOrderEmailData, type OrderEmailItemInput } from '@/lib/orders/paym
 import { VISITOR_COOKIE, parseVisitorId } from '@/lib/analytics/visitor-cookie'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { priceCart, type CartUpdates } from '@/lib/orders/cart-pricing'
+import { validateCheckout, type CheckoutField } from '@/lib/orders/validate-checkout'
+import { STANDARD_VAT_RATE, round2, vatIncluded } from '@/lib/orders/vat'
+
+function enabledPaymentMethods(): string[] {
+  const { enableStripe, enableBankTransfer, enableWhatsAppOrder } = SITE_CONFIG.checkout
+  return [
+    ...(enableStripe ? ['stripe'] : []),
+    ...(enableBankTransfer ? ['bank_transfer'] : []),
+    ...(enableWhatsAppOrder ? ['whatsapp'] : []),
+  ]
+}
 
 export async function getOrdersAdmin(options?: {
   status?: string
@@ -82,11 +93,31 @@ export async function updateOrderStatus(id: string, status: string) {
 
   const { data: existing } = await supabase
     .from('orders')
-    .select('status, order_number, customer_name, customer_email, tracking_number, tracking_url')
+    .select('status, payment_status, payment_method, order_number, customer_name, customer_email, tracking_number, tracking_url')
     .eq('id', id)
     .single()
 
-  const { error } = await supabase.from('orders').update({ status }).eq('id', id)
+  // "Paid" in the status dropdown is how the owner confirms a bank transfer or
+  // WhatsApp payment, so it drives payment_status/paid_at too (Stripe orders get
+  // them from the webhook). Stepping a manually-paid order back to pending/
+  // confirmed undoes a mis-click; Stripe payments are never un-marked here.
+  const update: { status: string; payment_status?: string; paid_at?: string | null } = { status }
+  if (existing && existing.status !== status) {
+    if (status === 'paid' && existing.payment_status === 'unpaid') {
+      update.payment_status = 'paid'
+      update.paid_at = new Date().toISOString()
+    } else if (
+      existing.status === 'paid' &&
+      (status === 'pending' || status === 'confirmed') &&
+      existing.payment_method !== 'stripe' &&
+      existing.payment_status === 'paid'
+    ) {
+      update.payment_status = 'unpaid'
+      update.paid_at = null
+    }
+  }
+
+  const { error } = await supabase.from('orders').update(update).eq('id', id)
   if (error) return { error: error.message }
 
   // Only on an actual transition — re-saving the same status must not log a
@@ -199,11 +230,20 @@ export async function createOrder(
   error?: string
   /** Set when the cart no longer matches the DB; the client resyncs and asks to review. */
   cartUpdates?: CartUpdates
+  /** Set with error 'invalid_form': fields that failed server-side validation. */
+  invalidFields?: CheckoutField[]
 }> {
   // The checkout UI fixes the country; this guards a hand-crafted request.
   if (!SITE_CONFIG.shipping.countries.includes(formData.country)) {
     return { error: 'Shipping destination not available' }
   }
+  if (!enabledPaymentMethods().includes(formData.payment_method)) {
+    return { error: 'Payment method not available' }
+  }
+
+  const validation = validateCheckout(formData)
+  if (!validation.ok) return { error: 'invalid_form', invalidFields: validation.invalid }
+  formData = validation.data
 
   const supabase = createSupabaseAdminClient()
 
@@ -212,13 +252,18 @@ export async function createOrder(
   if (!pricing.ok) return { error: 'cart_changed', cartUpdates: pricing.updates }
   const lines = pricing.lines
 
-  const subtotal = lines.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const subtotal = round2(lines.reduce((sum, i) => sum + i.price * i.quantity, 0))
   const shippingCost =
     subtotal >= SITE_CONFIG.shipping.freeShippingThreshold
       ? 0
       : SITE_CONFIG.shipping.standardShippingCost
-  const taxAmount = subtotal * SITE_CONFIG.checkout.taxRate
-  const total = subtotal + shippingCost
+  // Prices are VAT-inclusive: tax_amount is the VAT contained in total, summed
+  // from per-line rounded amounts (see lib/orders/vat.ts).
+  const taxAmount = round2(
+    lines.reduce((sum, i) => sum + vatIncluded(i.price * i.quantity, STANDARD_VAT_RATE), 0) +
+      vatIncluded(shippingCost, STANDARD_VAT_RATE)
+  )
+  const total = round2(subtotal + shippingCost)
 
   const orderPayload = {
     status: 'pending' as const,
@@ -232,15 +277,20 @@ export async function createOrder(
     shipping_postal_code: formData.postal_code,
     shipping_country: formData.country,
     billing_same_as_shipping: formData.billing_same_as_shipping,
-    billing_address_line1: formData.billing_same_as_shipping ? null : formData.billing_address_line1,
-    billing_address_line2: formData.billing_same_as_shipping ? null : formData.billing_address_line2,
-    billing_city: formData.billing_same_as_shipping ? null : formData.billing_city,
-    billing_state: formData.billing_same_as_shipping ? null : formData.billing_state,
-    billing_postal_code: formData.billing_same_as_shipping ? null : formData.billing_postal_code,
-    billing_country: formData.billing_same_as_shipping ? null : formData.billing_country,
+    // Always a complete billing address (validateCheckout copies shipping when
+    // they're the same), so the gestionale never has to know the fallback rule.
+    billing_address_line1: formData.billing_address_line1,
+    billing_address_line2: formData.billing_address_line2 || null,
+    billing_city: formData.billing_city,
+    billing_state: formData.billing_state,
+    billing_postal_code: formData.billing_postal_code,
+    billing_country: formData.billing_country,
     subtotal,
     shipping_cost: shippingCost,
+    shipping_vat_rate: STANDARD_VAT_RATE,
     tax_amount: taxAmount,
+    // Order-level (coupon) discount — none exist. Outlet markdowns are per line,
+    // in order_items.list_unit_price vs unit_price.
     discount_amount: 0,
     total,
     currency: 'EUR',
@@ -283,7 +333,9 @@ export async function createOrder(
     sku: item.sku,
     quantity: item.quantity,
     unit_price: item.price,
-    total_price: item.price * item.quantity,
+    list_unit_price: item.listPrice,
+    total_price: round2(item.price * item.quantity),
+    vat_rate: STANDARD_VAT_RATE,
   }))
 
   const { error: itemsError } = await supabase.from('order_items').insert(orderItems)

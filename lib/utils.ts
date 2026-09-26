@@ -20,8 +20,3 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function generateOrderNumber(id: string): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-  return `ORD-${date}-${id.slice(0, 4).toUpperCase()}`
-}
-

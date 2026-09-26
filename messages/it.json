@@ -342,7 +342,10 @@
     "waTotal": "Totale",
     "waName": "Nome",
     "countryItaly": "Italia",
-    "italyOnlyNote": "Per ora spediamo solo in Italia. Per spedizioni in altri Paesi UE scrivici su WhatsApp."
+    "italyOnlyNote": "Per ora spediamo solo in Italia. Per spedizioni in altri Paesi UE scrivici su WhatsApp.",
+    "selectProvince": "Seleziona la provincia",
+    "postalCodeHint": "Il CAP è composto da 5 cifre",
+    "invalidForm": "Alcuni dati non sono validi: controlla i campi evidenziati."
   },
   "contact": {
     "title": "Contatto",
