@@ -173,6 +173,15 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `paid_at` (the Stripe webhook does the same); stepping back to pending/confirmed
   undoes it for non-Stripe orders. Before this, `payment_status` stayed `unpaid` forever
   on manual orders.
+- **In-store sales (`/admin/store-sales`, 2026-09-26).** The shop's till only rings
+  "one piece + price" and knows no products, so the **site is the only stock ledger**;
+  in-store sales used to be subtracted by hand in the variant editor. The owner now
+  searches name/SKU (Enter on an exact variant SKU jumps to confirm), taps the size,
+  confirms. `record_store_sale` / `undo_store_sale` (Postgres functions, migration
+  `20260926130000`) decrement/restore stock atomically — a conditional UPDATE, so the
+  last piece can't go below zero — and log to `store_sales` (snapshots, FKs `SET NULL`
+  so a stock re-import keeps the log). Both functions are `REVOKE`d from anon/
+  authenticated: functions in `public` are PostgREST-callable by default.
 - **Checkout validation** is server-side in `lib/orders/validate-checkout.ts` (no zod —
   hand-written, no new dep), mirrored by HTML constraints in the form: CAP `^\d{5}$`,
   province from the closed `lib/italy/provinces.ts` list (FatturaPA `Provincia` sigle,

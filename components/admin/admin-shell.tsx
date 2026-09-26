@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { markInternalVisitor } from '@/lib/analytics/internal-visitor'
-import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays, BarChart3 } from 'lucide-react'
+import { Menu, X, LayoutDashboard, Package, ShoppingCart, Tag, MessageSquare, ExternalLink, Sparkles, CalendarDays, BarChart3, Store } from 'lucide-react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/products', label: 'Products', icon: Package, exact: false },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, exact: false },
+  { href: '/admin/store-sales', label: 'In-store sales', icon: Store, exact: false },
   { href: '/admin/categories', label: 'Categories', icon: Tag, exact: false },
   { href: '/admin/new-arrivals', label: 'New Arrivals', icon: Sparkles, exact: false },
   { href: '/admin/events', label: 'Events', icon: CalendarDays, exact: false },
