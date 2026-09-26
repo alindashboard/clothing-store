@@ -19,33 +19,33 @@ export function CartSummary({ subtotal, shippingCost, showShippingBar }: CartSum
   const tCommon = useTranslations('common')
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {showShippingBar && (
-        <div className="text-xs text-gray-600 space-y-1.5">
+        <div className="text-xs space-y-2">
           {freeShippingRemaining > 0 ? (
-            <p>{t('addMore', { amount: formatPrice(freeShippingRemaining) })}</p>
+            <p className="text-[#c7c3b8]">{t('addMore', { amount: formatPrice(freeShippingRemaining) })}</p>
           ) : (
-            <p className="text-green-600 font-medium">{t('freeShippingEarned')}</p>
+            <p className="font-medium" style={{ color: SITE_CONFIG.brand.darkAccent }}>{t('freeShippingEarned')}</p>
           )}
-          <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-[3px] bg-[#2B2924] overflow-hidden">
             <div
-              className="h-full bg-black transition-all duration-500"
-              style={{ width: `${progress}%` }}
+              className="h-full transition-all duration-500"
+              style={{ width: `${progress}%`, background: SITE_CONFIG.brand.darkAccent }}
             />
           </div>
         </div>
       )}
 
-      <div className="space-y-1.5 text-sm">
+      <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-500">{t('subtotal')}</span>
-          <span>{formatPrice(subtotal)}</span>
+          <span className="text-[#8C8577]">{t('subtotal')}</span>
+          <span className="text-[#EDE9E1]">{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">{t('shipping')}</span>
-          <span>{shipping === 0 ? tCommon('free') : formatPrice(shipping)}</span>
+          <span className="text-[#8C8577]">{t('shipping')}</span>
+          <span className="text-[#EDE9E1]">{shipping === 0 ? tCommon('free') : formatPrice(shipping)}</span>
         </div>
-        <div className="flex justify-between font-semibold text-base pt-2 border-t border-gray-200">
+        <div className="flex justify-between font-semibold text-base pt-3 border-t border-[#2B2924] text-[#EDE9E1]">
           <span>{t('total')}</span>
           <span>{formatPrice(subtotal + shipping)}</span>
         </div>

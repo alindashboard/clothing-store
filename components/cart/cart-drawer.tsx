@@ -7,6 +7,7 @@ import { CartItemRow } from './cart-item'
 import { CartSummary } from './cart-summary'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
+import { KayaCta } from '@/components/layout/kaya-cta'
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, getTotal, getItemCount } = useCartStore()
@@ -16,26 +17,29 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && closeCart()}>
-      <SheetContent side="right" className="flex flex-col w-full sm:max-w-md p-0" showCloseButton={false}>
-        <SheetHeader className="px-5 py-4 border-b border-gray-100 flex flex-row items-center justify-between">
-          <SheetTitle className="text-base font-semibold">
-            {t('title')} {count > 0 && <span className="text-gray-400 font-normal">({count})</span>}
+      <SheetContent
+        side="right"
+        className="dark kaya-dark flex flex-col w-full sm:max-w-md p-0 border-l border-[#2B2924]"
+        showCloseButton={false}
+      >
+        <SheetHeader className="px-5 py-4 border-b border-[#2B2924] flex flex-row items-center justify-between">
+          <SheetTitle
+            className="text-xs font-semibold tracking-[0.22em] uppercase text-[#EDE9E1]"
+            style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
+          >
+            {t('title')} {count > 0 && <span className="text-[#8C8577] font-normal">({count})</span>}
           </SheetTitle>
-          <button onClick={closeCart} className="p-1 hover:opacity-60 transition-opacity">
+          <button onClick={closeCart} className="p-1 text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-5">
-            <p className="text-gray-500 text-sm">{t('empty')}</p>
-            <Link
-              href="/products"
-              onClick={closeCart}
-              className="text-sm font-medium underline underline-offset-4"
-            >
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center px-5">
+            <p className="text-[#8C8577] text-sm">{t('empty')}</p>
+            <KayaCta href="/products" onClick={closeCart} variant="outline">
               {t('continueShopping')}
-            </Link>
+            </KayaCta>
           </div>
         ) : (
           <>
@@ -45,21 +49,19 @@ export function CartDrawer() {
               ))}
             </div>
 
-            <div className="px-5 py-5 border-t border-gray-100 space-y-4">
+            <div className="px-5 py-5 border-t border-[#2B2924] space-y-4">
               <CartSummary subtotal={total} showShippingBar />
 
-              <div className="space-y-2">
-                <Link
-                  href="/checkout"
-                  onClick={closeCart}
-                  className="block w-full h-11 bg-black text-white text-sm font-semibold tracking-wider uppercase flex items-center justify-center hover:bg-gray-800 transition-colors"
-                >
+              <div className="flex flex-col gap-2.5">
+                <KayaCta href="/checkout" onClick={closeCart}>
                   {t('checkout')}
-                </Link>
+                </KayaCta>
                 <Link
                   href="/cart"
+                  prefetch={false}
                   onClick={closeCart}
-                  className="block w-full h-11 border border-gray-300 text-sm font-medium flex items-center justify-center hover:border-black transition-colors"
+                  className="py-2 text-center text-xs tracking-[0.18em] uppercase text-[#c7c3b8] hover:text-[#EDE9E1] underline-offset-4 hover:underline transition-colors"
+                  style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
                 >
                   {t('viewCart')}
                 </Link>

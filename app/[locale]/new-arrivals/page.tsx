@@ -40,7 +40,7 @@ export default async function NewArrivalsPage() {
       <AnnouncementBar />
       <Header categories={categories} />
 
-      <main className="flex-1">
+      <main className="flex-1 bg-[#141412]">
         <section
           className="relative flex flex-col items-center justify-center py-16 px-4 text-center overflow-hidden"
           style={{ background: '#0b0b0c', minHeight: 250 }}
@@ -66,10 +66,10 @@ export default async function NewArrivalsPage() {
 
         <section className="max-w-7xl mx-auto px-4 py-8 pb-24">
           {products.length > 0 ? (
-            <ProductGrid products={products} columns={4} />
+            <ProductGrid products={products} columns={4} variant="dark" />
           ) : (
             <div className="py-24 text-center">
-              <p className="text-gray-400 text-sm">{t('noArrivals')}</p>
+              <p className="text-[#8C8577] text-sm">{t('noArrivals')}</p>
             </div>
           )}
         </section>

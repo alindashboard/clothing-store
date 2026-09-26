@@ -7,6 +7,7 @@ import { getCategories } from '@/lib/actions/categories'
 import { ContactFormClient } from './contact-form-client'
 import { SITE_CONFIG } from '@/lib/config'
 import { getAlternates } from '@/lib/seo/alternates'
+import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 interface MetaProps {
   params: Promise<{ locale: string }>
@@ -23,9 +24,10 @@ export async function generateMetadata({ params }: MetaProps): Promise<Metadata>
 }
 
 export default async function ContactPage() {
-  const [categories, t] = await Promise.all([
+  const [categories, t, tProduct] = await Promise.all([
     getCategories(),
     getTranslations('contact'),
+    getTranslations('product'),
   ])
 
   return (
@@ -33,24 +35,27 @@ export default async function ContactPage() {
       <AnnouncementBar />
       <Header categories={categories} />
 
-      <main className="max-w-2xl mx-auto px-4 py-16 flex-1">
-        <h1 className="text-2xl font-light tracking-wider mb-2">{t('title')}</h1>
-        <p className="text-sm text-gray-500 mb-10">{t('subtitle')}</p>
-        <ContactFormClient />
+      <main className="dark kaya-dark flex-1 pb-20 md:pb-28">
+        <DarkPageHeader title={t('title')} eyebrow={SITE_CONFIG.brand.name} homeLabel={tProduct('breadcrumbHome')} narrow>
+          {t('subtitle')}
+        </DarkPageHeader>
+        <div className="max-w-3xl mx-auto px-4">
+          <ContactFormClient />
 
-        <div className="mt-10 pt-8 border-t border-gray-100 space-y-3">
-          {SITE_CONFIG.contact.email && (
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">{t('emailLabel')}:</span>{' '}
-              <a href={`mailto:${SITE_CONFIG.contact.email}`} className="underline">{SITE_CONFIG.contact.email}</a>
-            </p>
-          )}
-          {SITE_CONFIG.contact.phone && (
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">{t('phoneLabel')}:</span>{' '}
-              <a href={`tel:${SITE_CONFIG.contact.phone}`} className="underline">{SITE_CONFIG.contact.phone}</a>
-            </p>
-          )}
+          <div className="mt-10 pt-8 border-t border-[#2B2924] space-y-3">
+            {SITE_CONFIG.contact.email && (
+              <p className="text-sm text-[#8C8577]">
+                <span className="font-medium text-[#c7c3b8]">{t('emailLabel')}:</span>{' '}
+                <a href={`mailto:${SITE_CONFIG.contact.email}`} className="underline underline-offset-4 text-[#EDE9E1] hover:text-[#D9B679] transition-colors">{SITE_CONFIG.contact.email}</a>
+              </p>
+            )}
+            {SITE_CONFIG.contact.phone && (
+              <p className="text-sm text-[#8C8577]">
+                <span className="font-medium text-[#c7c3b8]">{t('phoneLabel')}:</span>{' '}
+                <a href={`tel:${SITE_CONFIG.contact.phone}`} className="underline underline-offset-4 text-[#EDE9E1] hover:text-[#D9B679] transition-colors">{SITE_CONFIG.contact.phone}</a>
+              </p>
+            )}
+          </div>
         </div>
       </main>
 

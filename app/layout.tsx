@@ -55,14 +55,18 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers()
   // next-intl middleware sets x-next-intl-locale on every public request
-  const locale = h.get('x-next-intl-locale') ?? 'it'
+  const intlLocale = h.get('x-next-intl-locale')
+  const locale = intlLocale ?? 'it'
+  // Every public page is dark; only /admin (no locale header) stays light. Setting it on
+  // <body> keeps overscroll/bounce areas and short pages from flashing white.
+  const bodyTheme = intlLocale ? 'bg-[#141412] text-[#EDE9E1]' : 'bg-white text-[#111111]'
 
   return (
     <html
       lang={locale}
       className={`${dmSans.variable} ${cormorant.variable} ${archivo.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-[#111111]">
+      <body className={`min-h-full flex flex-col ${bodyTheme}`}>
         <ConsentProvider>
           {children}
           <FacebookPixel />

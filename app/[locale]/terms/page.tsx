@@ -8,6 +8,7 @@ import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
 import { getAlternates } from '@/lib/seo/alternates'
+import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 /**
  * Date these terms were last substantively revised — bump it by hand whenever
@@ -35,9 +36,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TermsPage({ params }: PageProps) {
   const { locale } = await params
-  const [categories, t] = await Promise.all([
+  const [categories, t, tProduct] = await Promise.all([
     getCategories(),
     getTranslations({ locale, namespace: 'terms' }),
+    getTranslations({ locale, namespace: 'product' }),
   ])
 
   const email = SITE_CONFIG.contact.email
@@ -65,9 +67,11 @@ export default async function TermsPage({ params }: PageProps) {
     <>
       <AnnouncementBar />
       <Header categories={categories} />
-      <main className="max-w-2xl mx-auto px-4 py-16 flex-1 prose prose-sm">
-        <h1>{t('title')}</h1>
-        <p className="text-gray-500">{t('lastUpdated', { date: formattedDate })}</p>
+      <main className="bg-[#141412] flex-1">
+        <DarkPageHeader title={t('title')} eyebrow={SITE_CONFIG.brand.name} homeLabel={tProduct('breadcrumbHome')} narrow>
+          {t('lastUpdated', { date: formattedDate })}
+        </DarkPageHeader>
+        <div className="legal-prose max-w-3xl mx-auto px-4 pb-20 md:pb-28">
         <p>{t('intro', { site: 'kayaoutlet.com' })}</p>
 
         <h2>{t('seller.heading')}</h2>
@@ -105,7 +109,7 @@ export default async function TermsPage({ params }: PageProps) {
           ))}
         </ul>
         <h3>{t('withdrawal.formHeading')}</h3>
-        <p>{t('withdrawal.form', { name: seller.name, brand: seller.brand, address: seller.address, email })}</p>
+        <p className="legal-box">{t('withdrawal.form', { name: seller.name, brand: seller.brand, address: seller.address, email })}</p>
 
         <h2>{t('warranty.heading')}</h2>
         <ul>
@@ -123,6 +127,7 @@ export default async function TermsPage({ params }: PageProps) {
             privacy: (chunks) => <Link href="/privacy">{chunks}</Link>,
           })}
         </p>
+        </div>
       </main>
       <Footer />
     </>

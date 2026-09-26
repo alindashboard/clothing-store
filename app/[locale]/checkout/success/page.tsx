@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server'
-import { Link } from '@/i18n/navigation'
 import { CheckCircle } from 'lucide-react'
+import { KayaCta } from '@/components/layout/kaya-cta'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
@@ -42,37 +42,37 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
       <AnnouncementBar />
       <Header categories={categories} />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-20">
+      <main className="dark kaya-dark flex-1 flex items-center justify-center px-4 py-20 md:py-28">
         <div className={`text-center ${orderRecord?.payment_method === 'bank_transfer' ? 'max-w-lg' : 'max-w-md'}`}>
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-light mb-2">{t('orderConfirmed')}</h1>
+          <CheckCircle className="w-14 h-14 mx-auto mb-6" style={{ color: SITE_CONFIG.brand.darkAccent }} strokeWidth={1.5} />
+          <h1
+            className="font-black uppercase leading-none text-[#EDE9E1] mb-4"
+            style={{ fontFamily: 'var(--font-archivo, var(--font-sans))', fontSize: 'clamp(28px, 4vw, 44px)', letterSpacing: '-0.02em' }}
+          >
+            {t('orderConfirmed')}
+          </h1>
           {order && (
-            <p className="text-sm text-gray-500 mb-4">
-              {t('orderNumber')}: <span className="font-semibold text-gray-900">{order}</span>
+            <p className="text-sm text-[#8C8577] mb-4">
+              {t('orderNumber')}: <span className="font-semibold text-[#EDE9E1]">{order}</span>
             </p>
           )}
           {isStripePending ? (
-            <p className="text-sm text-gray-500 mb-8">{t('paymentProcessing')}</p>
+            <p className="text-sm text-[#8C8577] mb-8">{t('paymentProcessing')}</p>
           ) : email ? (
-            <p className="text-sm text-gray-500 mb-8">
-              {t('confirmationEmail')} <strong>{email}</strong>
+            <p className="text-sm text-[#8C8577] mb-8">
+              {t('confirmationEmail')} <strong className="text-[#EDE9E1]">{email}</strong>
             </p>
           ) : (
-            <p className="text-sm text-gray-500 mb-8">
+            <p className="text-sm text-[#8C8577] mb-8">
               {t('confirmationSoon')}<br />
               {t('questionsContact')}{' '}
-              <a href={`mailto:${SITE_CONFIG.contact.email}`} className="underline">
+              <a href={`mailto:${SITE_CONFIG.contact.email}`} className="underline underline-offset-4" style={{ color: SITE_CONFIG.brand.darkAccent }}>
                 {SITE_CONFIG.contact.email}
               </a>
             </p>
           )}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/products"
-              className="px-8 py-3 bg-black text-white text-sm font-medium tracking-wider uppercase hover:bg-gray-800 transition-colors"
-            >
-              {t('continueShopping')}
-            </Link>
+            <KayaCta href="/products" variant="outline">{t('continueShopping')}</KayaCta>
           </div>
 
           {orderRecord?.payment_method === 'bank_transfer' && (

@@ -14,48 +14,54 @@ export function CartItemRow({ item, compact }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore()
 
   return (
-    <div className="flex gap-3 py-4 border-b border-gray-100 last:border-0">
-      <div className="relative w-16 h-20 shrink-0 bg-gray-50">
+    <div className="flex gap-4 py-5 border-b border-[#2B2924] last:border-0">
+      <div className="relative w-20 h-24 shrink-0 bg-[#1A1917]">
         <Image
           src={item.imageUrl}
           alt={item.productName}
           fill
-          sizes="64px"
+          sizes="80px"
           className="object-cover"
           unoptimized={item.imageUrl.startsWith('/')}
         />
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col">
         <div className="flex justify-between gap-2">
-          <p className="text-sm font-medium leading-snug truncate">{item.productName}</p>
+          <p className="text-sm font-medium leading-snug text-[#EDE9E1] line-clamp-2">{item.productName}</p>
           {!compact && (
-            <button onClick={() => removeItem(item.variantId)} className="text-gray-400 hover:text-gray-700 shrink-0">
+            <button
+              onClick={() => removeItem(item.variantId)}
+              className="text-[#6b6862] hover:text-[#EDE9E1] shrink-0 transition-colors"
+              aria-label="Remove"
+            >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
-        <p className="text-xs text-gray-500 mt-0.5">
+        <p className="text-xs text-[#8C8577] mt-1">
           {item.variantColor} / {item.variantSize}
         </p>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center border border-gray-200">
+        <div className="flex items-center justify-between mt-auto pt-3">
+          <div className="flex items-center border border-[#3a3833]">
             <button
               onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-              className="w-7 h-7 flex items-center justify-center hover:bg-gray-100"
+              className="w-8 h-8 flex items-center justify-center text-[#c7c3b8] hover:bg-[#201f1c] hover:text-[#EDE9E1] transition-colors"
+              aria-label="-1"
             >
               <Minus className="w-3 h-3" />
             </button>
-            <span className="w-8 text-center text-sm">{item.quantity}</span>
+            <span className="w-8 text-center text-sm text-[#EDE9E1]">{item.quantity}</span>
             <button
               onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
               disabled={item.quantity >= item.maxStock}
-              className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30"
+              className="w-8 h-8 flex items-center justify-center text-[#c7c3b8] hover:bg-[#201f1c] hover:text-[#EDE9E1] transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+              aria-label="+1"
             >
               <Plus className="w-3 h-3" />
             </button>
           </div>
-          <span className="text-sm font-semibold">{formatPrice(item.price * item.quantity)}</span>
+          <span className="text-sm font-semibold text-[#EDE9E1]">{formatPrice(item.price * item.quantity)}</span>
         </div>
       </div>
     </div>

@@ -228,3 +228,88 @@
 @media (prefers-reduced-motion: reduce) {
   .na-scroll-track { animation-play-state: paused; }
 }
+/* ── KAYA dark scope ────────────────────────────────────────────────────────
+   The public site is dark (#141412 / cream #EDE9E1 / gold #D9B679) but the
+   shadcn tokens default to light for the admin. Put `kaya-dark` (together with
+   `dark`, which turns on the ui components' dark: variants) on a page or panel
+   to re-point the tokens at the brand palette, so Input/Label/Checkbox/Sheet
+   render dark without per-component overrides. Declared after `.dark` so it wins.
+────────────────────────────────────────────────────────────────────────── */
+.kaya-dark {
+  --background: #141412;
+  --foreground: #EDE9E1;
+  --card: #1A1917;
+  --card-foreground: #EDE9E1;
+  --popover: #1A1917;
+  --popover-foreground: #EDE9E1;
+  --primary: #D9B679;
+  --primary-foreground: #141412;
+  --secondary: #201f1c;
+  --secondary-foreground: #EDE9E1;
+  --muted: #201f1c;
+  --muted-foreground: #8C8577;
+  --accent: #201f1c;
+  --accent-foreground: #EDE9E1;
+  --border: #2B2924;
+  --input: #3a3833;
+  --ring: #D9B679;
+  /* The KAYA chrome is square-edged (buttons, cards, size chips). */
+  --radius: 0px;
+  color-scheme: dark;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* ── Legal / long-form text ─────────────────────────────────────────────────
+   Privacy + terms. Tailwind's typography plugin isn't installed (no `prose`),
+   so this is the minimal readable set for the dark chrome.
+────────────────────────────────────────────────────────────────────────── */
+.legal-prose {
+  color: #c7c3b8;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.legal-prose > * + * { margin-top: 1rem; }
+.legal-prose h2 {
+  margin-top: 2.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid #2B2924;
+  color: #EDE9E1;
+  font-family: var(--font-grotesk, var(--font-sans));
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.legal-prose h3 {
+  margin-top: 1.75rem;
+  color: #EDE9E1;
+  font-size: 15px;
+  font-weight: 600;
+}
+.legal-prose ul { padding-left: 1.25rem; list-style: none; }
+.legal-prose li { position: relative; }
+.legal-prose li + li { margin-top: 0.6rem; }
+.legal-prose li::before {
+  content: '';
+  position: absolute;
+  left: -1.1rem;
+  top: 0.75em;
+  width: 6px;
+  height: 1px;
+  background: #D9B679;
+}
+.legal-prose a {
+  color: #D9B679;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-prose a:hover { color: #EDE9E1; }
+.legal-prose strong { color: #EDE9E1; font-weight: 600; }
+/* Boxed block inside legal text (e.g. the model withdrawal form). */
+.legal-prose .legal-box {
+  border: 1px solid #2B2924;
+  background: #1A1917;
+  padding: 1.25rem 1.5rem;
+  font-size: 14px;
+}

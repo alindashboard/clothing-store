@@ -27,15 +27,15 @@ function CopyField({ label, value, monospace }: { label: string; value: string; 
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 py-3 border-b border-gray-200 last:border-b-0">
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-[#2B2924] last:border-b-0">
       <div className="min-w-0">
-        <p className="text-xs text-gray-500 uppercase tracking-wider">{label}</p>
-        <p className={`text-sm text-gray-900 break-all ${monospace ? 'font-mono' : ''}`}>{value}</p>
+        <p className="text-[11px] text-[#8C8577] uppercase tracking-[0.18em]">{label}</p>
+        <p className={`text-sm text-[#EDE9E1] break-all ${monospace ? 'font-mono' : ''}`}>{value}</p>
       </div>
       <button
         type="button"
         onClick={handleCopy}
-        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-gray-300 hover:border-black transition-colors"
+        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-[#3a3833] text-[#c7c3b8] hover:border-[#D9B679] hover:text-[#EDE9E1] transition-colors"
       >
         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         {copied ? t('copied') : t('copy')}
@@ -49,9 +49,9 @@ export function BankTransferPanel({ orderNumber, total, currency }: BankTransfer
   const { bankName, accountHolder, iban, bic } = SITE_CONFIG.checkout.bankTransfer
 
   return (
-    <div className="mt-8 text-left border border-gray-200 p-6">
-      <h2 className="text-sm font-semibold uppercase tracking-wider mb-2">{t('bankTransferTitle')}</h2>
-      <p className="text-xs text-gray-500 mb-4">{t('bankTransferInstructions')}</p>
+    <div className="mt-10 text-left border border-[#2B2924] bg-[#1A1917] p-6">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[#EDE9E1] mb-2" style={{ fontFamily: 'var(--font-grotesk, var(--font-sans))' }}>{t('bankTransferTitle')}</h2>
+      <p className="text-xs text-[#8C8577] mb-4">{t('bankTransferInstructions')}</p>
       <div>
         <CopyField label={t('amountDue')} value={formatPrice(total, currency)} />
         <CopyField label={t('paymentReference')} value={orderNumber} monospace />

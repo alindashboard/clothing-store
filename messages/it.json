@@ -16,7 +16,10 @@
     "scrollHint": "↓ Scorri",
     "noImage": "Nessuna immagine",
     "contact": "Contatto",
-    "online": "Online"
+    "online": "Online",
+    "notFoundTitle": "Pagina non trovata",
+    "notFoundBody": "La pagina che cerchi non esiste o è stata spostata.",
+    "backHome": "Torna alla home"
   },
   "announcement": {
     "freeShipping": "Spedizione gratuita per ordini superiori a <gold>{threshold}</gold>"

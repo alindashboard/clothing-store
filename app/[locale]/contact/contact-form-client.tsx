@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { submitContact } from '@/lib/actions/contact'
 import { Loader2, CheckCircle } from 'lucide-react'
+import { KayaCta } from '@/components/layout/kaya-cta'
 
 export function ContactFormClient() {
   const [loading, setLoading] = useState(false)
@@ -28,8 +29,8 @@ export function ContactFormClient() {
 
   if (success) {
     return (
-      <div className="flex items-center gap-3 text-green-700 bg-green-50 px-4 py-4 border border-green-200">
-        <CheckCircle className="w-5 h-5 shrink-0" />
+      <div className="flex items-center gap-3 text-[#EDE9E1] bg-[#1A1917] px-4 py-4 border border-[#D9B679]">
+        <CheckCircle className="w-5 h-5 shrink-0 text-[#D9B679]" />
         <p className="text-sm">{t('success')}</p>
       </div>
     )
@@ -55,15 +56,15 @@ export function ContactFormClient() {
         <Label htmlFor="message">{t('message')} *</Label>
         <Textarea id="message" name="message" rows={5} required />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
+      {error && <p className="text-sm text-[#f0a39a]">{error}</p>}
+      <KayaCta
         type="submit"
         disabled={loading}
-        className="w-full h-11 bg-black text-white font-semibold text-sm tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50"
+        className="w-full"
+        icon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}
       >
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
         {loading ? t('sending') : t('send')}
-      </button>
+      </KayaCta>
     </form>
   )
 }

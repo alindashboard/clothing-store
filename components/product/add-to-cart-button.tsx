@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useCartStore } from '@/lib/store/cart'
 import { useTranslations } from 'next-intl'
 import type { Product, ProductVariant } from '@/lib/types'
-import { toast } from 'sonner'
 import { track } from '@/lib/analytics/fpixel'
 import { siteTrack } from '@/lib/analytics/site-track'
 import { gtagEvent } from '@/lib/analytics/gtag'
@@ -59,10 +58,9 @@ export function AddToCartButton({ product, variant, allOutOfStock = false, size 
     })
     siteTrack('add_to_cart', { productId: product.id, value: unitPrice })
 
+    // Feedback is the button's "Added!" state followed by the cart drawer opening —
+    // no toast (it duplicated the drawer and wasn't translated or themed).
     setAdded(true)
-    toast.success(`${product.name} added to cart`, {
-      description: `${variant.color_name} / ${variant.size}`,
-    })
     setTimeout(() => {
       setAdded(false)
       openCart()

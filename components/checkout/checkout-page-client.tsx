@@ -9,6 +9,7 @@ import { OrderSummary } from '@/components/checkout/order-summary'
 import { useCartStore } from '@/lib/store/cart'
 import { SITE_CONFIG } from '@/lib/config'
 import { TrackInitiateCheckout } from '@/components/analytics/track-initiate-checkout'
+import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 export function CheckoutPageClient() {
   const { items, getTotal, hasHydrated } = useCartStore()
@@ -29,25 +30,28 @@ export function CheckoutPageClient() {
   if (!hasHydrated || items.length === 0) return null
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-10 flex-1">
+    <main className="dark kaya-dark flex-1 pb-20 md:pb-28">
       <TrackInitiateCheckout
         items={items}
         value={subtotal + shippingCost}
         currency={SITE_CONFIG.brand.currency}
       />
-      <div className="mb-6">
-        <Link href="/cart" className="text-xs text-gray-400 hover:text-black underline-offset-4 underline">
+      <DarkPageHeader title={t('title')} eyebrow={SITE_CONFIG.brand.name}>
+        <Link
+          href="/cart"
+          prefetch={false}
+          className="text-xs text-[#8C8577] hover:text-[#EDE9E1] underline-offset-4 underline transition-colors"
+        >
           {t('backToCart')}
         </Link>
-        <h1 className="text-2xl font-light tracking-wider mt-3">{t('title')}</h1>
-      </div>
+      </DarkPageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10">
-        <CheckoutForm items={items} subtotal={subtotal} shippingCost={shippingCost} />
-
-        <div className="lg:sticky lg:top-20 h-fit border border-gray-200 p-6">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-14">
+        {/* Summary first on mobile so the total is visible before the long form. */}
+        <div className="order-first lg:order-last lg:sticky lg:top-24 h-fit border border-[#2B2924] bg-[#1A1917] p-6">
           <OrderSummary items={items} subtotal={subtotal} shippingCost={shippingCost} />
         </div>
+        <CheckoutForm items={items} subtotal={subtotal} shippingCost={shippingCost} />
       </div>
     </main>
   )

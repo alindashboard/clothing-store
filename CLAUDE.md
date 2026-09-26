@@ -324,8 +324,21 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   **all-products page** (`/products`) are **always dark** (`#141412`/`#0A0A0A`,
   cream `#EDE9E1` text) per the "Kaya Outlet Landing (Final)", "Kaya Product
   Page", "Kaya Category Page", "Kaya Store Page", and "Kaya Events Page"
-  Claude Design files — cart/checkout page bodies still stay on the original
-  light theme (no design for those yet; ask before converting them).
+  Claude Design files. **Since 2026-09-26 the whole public site is dark** — cart,
+  cart drawer, checkout, success, contact, new-arrivals, privacy, terms and the 404
+  were converted too (no Claude Design file for those; they reuse the category-page
+  header). There is **no light/dark mode switch**: themes are fixed per surface —
+  public = dark, `/admin` = light. The root layout picks the `<body>` colours from
+  the `x-next-intl-locale` header (present on public requests only), so overscroll
+  never flashes white. The shadcn `.dark` tokens in `globals.css` are template
+  leftovers; public pages that use shadcn inputs wrap in `dark kaya-dark`, which
+  re-points the tokens at the brand palette (and `--radius: 0`). Shared pieces:
+  `DarkPageHeader` (breadcrumb + eyebrow + Archivo title), `KayaCta` (bracketed
+  solid-gold / outline CTA, link or button), `.legal-prose` (the typography plugin
+  is NOT installed — `prose` classes do nothing). New public pages: use these,
+  never `bg-white`/`text-gray-*`. The unused `next-themes` dep only feeds the
+  admin Toaster; the add-to-cart toast was removed (the drawer is the feedback).
+  `app/[locale]/[...rest]` sends unknown URLs to the branded `[locale]/not-found`.
   `/products` and `/category/[slug]` share `ProductGridInfinite` — it takes the
   same `variant: 'light' | 'dark'` prop pattern, default `'light'`; `/products`
   now passes `variant="dark"` and reuses the same breadcrumb/eyebrow/header
@@ -343,7 +356,7 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   `StoreGallery` (used only on `/store`) is likewise hardcoded dark.
   The corner-bracket CTA decoration (four absolutely-positioned gold border
   spans) is shared via `components/layout/corner-brackets.tsx` — used by
-  `/store`'s CTAs and `/events`' RSVP links. The homepage hero CTA and
+  `KayaCta` (store, cart, checkout, contact, 404) and `/events`' RSVP links. The homepage hero CTA and
   `AddToCartButton` still inline their own copy (different sizing/disabled-state
   color logic) — migrate those to the shared component if they ever need to
   change in lockstep with the others.

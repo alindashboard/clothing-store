@@ -15,6 +15,14 @@ import type { CheckoutFormData } from '@/lib/types'
 import { stashOrderForPixel } from '@/lib/analytics/order-tracking'
 import { TrustBadges } from '@/components/trust/trust-badges'
 import { PaymentLogos } from '@/components/trust/payment-logos'
+import { KayaCta } from '@/components/layout/kaya-cta'
+
+// Dark checkout styling (page is wrapped in `dark kaya-dark`, which themes Input/Label/Checkbox).
+const GOLD = SITE_CONFIG.brand.darkAccent
+const grotesk = { fontFamily: 'var(--font-grotesk, var(--font-sans))' }
+const sectionHeading = 'text-xs font-semibold uppercase tracking-[0.22em] text-[#EDE9E1]'
+const optionActive = 'border-[#D9B679] bg-[#1A1917]'
+const optionIdle = 'border-[#2B2924] hover:border-[#3a3833]'
 
 interface CheckoutFormProps {
   items: CartItem[]
@@ -116,7 +124,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Contact */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('contact')}</h2>
+        <h2 className={sectionHeading} style={grotesk}>{t('contact')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="email">{t('email')} *</Label>
@@ -131,7 +139,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
       {/* Shipping */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('shippingAddress')}</h2>
+        <h2 className={sectionHeading} style={grotesk}>{t('shippingAddress')}</h2>
         <div className="space-y-1.5">
           <Label htmlFor="name">{t('fullName')} *</Label>
           <Input id="name" name="name" required placeholder={t('fullNamePlaceholder')} />
@@ -206,12 +214,12 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
       {/* Payment */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">{t('paymentMethod')}</h2>
+        <h2 className={sectionHeading} style={grotesk}>{t('paymentMethod')}</h2>
         <div className="space-y-3">
           {SITE_CONFIG.checkout.enableWhatsAppOrder && (
             <label
               className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'whatsapp' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+                paymentMethod === 'whatsapp' ? optionActive : optionIdle
               }`}
             >
               <input
@@ -220,21 +228,21 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
                 value="whatsapp"
                 checked={paymentMethod === 'whatsapp'}
                 onChange={() => setPaymentMethod('whatsapp')}
-                className="mt-0.5"
+                className="mt-0.5 accent-[#D9B679]"
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium">{t('whatsappTitle')}</span>
+                  <MessageCircle className="w-4 h-4" style={{ color: GOLD }} />
+                  <span className="text-sm font-medium text-[#EDE9E1]">{t('whatsappTitle')}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{t('whatsappDescription')}</p>
+                <p className="text-xs text-[#8C8577] mt-1">{t('whatsappDescription')}</p>
               </div>
             </label>
           )}
           {SITE_CONFIG.checkout.enableBankTransfer && (
             <label
               className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'bank_transfer' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+                paymentMethod === 'bank_transfer' ? optionActive : optionIdle
               }`}
             >
               <input
@@ -243,21 +251,21 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
                 value="bank_transfer"
                 checked={paymentMethod === 'bank_transfer'}
                 onChange={() => setPaymentMethod('bank_transfer')}
-                className="mt-0.5"
+                className="mt-0.5 accent-[#D9B679]"
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium">{t('bankTransferOption')}</span>
+                  <Building2 className="w-4 h-4" style={{ color: GOLD }} />
+                  <span className="text-sm font-medium text-[#EDE9E1]">{t('bankTransferOption')}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{t('bankTransferDescription')}</p>
+                <p className="text-xs text-[#8C8577] mt-1">{t('bankTransferDescription')}</p>
               </div>
             </label>
           )}
           {SITE_CONFIG.checkout.enableStripe && (
             <label
               className={`flex items-start gap-3 p-4 border cursor-pointer transition-all ${
-                paymentMethod === 'stripe' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-400'
+                paymentMethod === 'stripe' ? optionActive : optionIdle
               }`}
             >
               <input
@@ -266,14 +274,14 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
                 value="stripe"
                 checked={paymentMethod === 'stripe'}
                 onChange={() => setPaymentMethod('stripe')}
-                className="mt-0.5"
+                className="mt-0.5 accent-[#D9B679]"
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-purple-600" />
-                  <span className="text-sm font-medium">{t('stripeTitle')}</span>
+                  <CreditCard className="w-4 h-4" style={{ color: GOLD }} />
+                  <span className="text-sm font-medium text-[#EDE9E1]">{t('stripeTitle')}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{t('stripeDescription')}</p>
+                <p className="text-xs text-[#8C8577] mt-1">{t('stripeDescription')}</p>
                 <PaymentLogos className="mt-2" />
               </div>
             </label>
@@ -281,20 +289,15 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
         </div>
       </section>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-3 border border-red-200">{error}</p>}
+      {error && <p className="text-sm text-[#f0a39a] bg-[#3a1d1a] px-4 py-3 border border-[#6b2f28]">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full h-12 bg-black text-white font-semibold text-sm tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+      <KayaCta type="submit" disabled={loading} className="w-full" icon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}>
         {loading
           ? paymentMethod === 'stripe' ? t('redirectingToPayment') : t('placingOrder')
           : t('placeOrder')}
-      </button>
+      </KayaCta>
 
-      <TrustBadges variant="light" />
+      <TrustBadges variant="dark" />
     </form>
   )
 }

@@ -7,8 +7,8 @@ import { StoreGallery } from '@/components/store/store-gallery'
 import { getCategories } from '@/lib/actions/categories'
 import { STORE_INFO } from '@/lib/store-info'
 import { SITE_CONFIG } from '@/lib/config'
-import { MapPin, Phone, Mail } from 'lucide-react'
-import { CornerBrackets } from '@/components/layout/corner-brackets'
+import { MapPin, Phone, Mail, Navigation } from 'lucide-react'
+import { KayaCta } from '@/components/layout/kaya-cta'
 import { getAlternates } from '@/lib/seo/alternates'
 import { StoreMap } from '@/components/store/store-map'
 
@@ -174,35 +174,23 @@ export default async function StorePage() {
 
         {/* CTAs */}
         <section className="max-w-7xl mx-auto px-4 pb-11 md:pb-16 flex flex-col sm:flex-row gap-3">
-          <a
+          <KayaCta
             href={STORE_INFO.googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative px-7 py-4 text-center hover:opacity-80 transition-opacity"
+            external
+            icon={<Navigation className="w-4 h-4" aria-hidden="true" />}
+            className="sm:min-w-[260px]"
           >
-            <CornerBrackets />
-            <span
-              className="font-semibold text-xs tracking-[1.5px]"
-              style={{ color: SITE_CONFIG.brand.darkAccent, fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-            >
-              {t('getDirections')} →
-            </span>
-          </a>
-          <a
+            {t('getDirections')}
+          </KayaCta>
+          <KayaCta
             href={STORE_INFO.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative px-7 py-4 flex items-center justify-center gap-2.5 hover:opacity-80 transition-opacity"
+            external
+            variant="outline"
+            icon={<WhatsAppIcon className="w-4 h-4" />}
+            className="sm:min-w-[260px]"
           >
-            <CornerBrackets />
-            <WhatsAppIcon className="w-[15px] h-[15px] text-[#EDE9E1]" />
-            <span
-              className="font-semibold text-xs tracking-[1.5px]"
-              style={{ color: '#EDE9E1', fontFamily: 'var(--font-grotesk, var(--font-sans))' }}
-            >
-              {t('whatsapp').toUpperCase()}
-            </span>
-          </a>
+            {t('chatWhatsapp')}
+          </KayaCta>
         </section>
 
         {/* In-store callout */}

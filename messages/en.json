@@ -16,7 +16,10 @@
     "scrollHint": "↓ Scroll",
     "noImage": "No image",
     "contact": "Contact",
-    "online": "Online"
+    "online": "Online",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for doesn't exist or has moved.",
+    "backHome": "Back to home"
   },
   "announcement": {
     "freeShipping": "Free shipping on orders over <gold>{threshold}</gold>"
