@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
-import { markStripeOrderPaid } from '@/lib/orders/payment'
+import { markStripeOrderPaid, markStripeOrderRefunded } from '@/lib/orders/payment'
 
 /**
  * Stripe requires the raw, unparsed request body to verify the signature —
@@ -38,6 +38,17 @@ export async function POST(request: NextRequest) {
       if (result.error) {
         console.error('[stripe webhook] markStripeOrderPaid failed:', result.error)
       }
+    }
+  }
+
+  // Refunds are issued from the Stripe Dashboard; mirror them on the order.
+  // The Dashboard endpoint must be subscribed to `charge.refunded` too.
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object as Stripe.Charge
+    const paymentIntentId = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id
+    if (paymentIntentId) {
+      const result = await markStripeOrderRefunded(paymentIntentId, charge.amount_refunded, charge.amount_captured, charge.currency)
+      if (result.error) console.error('[stripe webhook] markStripeOrderRefunded failed:', result.error)
     }
   }
 

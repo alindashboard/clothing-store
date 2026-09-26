@@ -161,9 +161,13 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   then refunded from the Stripe Dashboard. `.env.local` deliberately keeps **test** keys
   (`sk_test_`/`pk_test_`) — never put live keys in local env. `enableStripe` has been
   `true` since the initial build, so no older branch/worktree can disable it by merge.
-  **Refunds are Dashboard-only and not synced**: the webhook handles only
-  `checkout.session.completed`, so a refund in Stripe leaves the order `paid` on our
-  side — set its status by hand in `/admin/orders` (or add `charge.refunded` handling).
+  **Refunds** are issued from the Stripe Dashboard and mirrored by the webhook's
+  `charge.refunded` handler (`markStripeOrderRefunded`, since 2026-09-26): full refund →
+  order + payment status `refunded` (+ timeline row, drops out of sales stats);
+  partial → a dated line in the order notes, status unchanged. Matched by
+  `payment_intent_id`, falling back to the Checkout Session's `client_reference_id`.
+  Stock is never restored automatically. The live Dashboard endpoint must be
+  subscribed to **both** `checkout.session.completed` and `charge.refunded`.
   Original sandbox notes follow (`checkout.enableStripe:
   true`). Uses hosted Stripe Checkout (redirect), not Elements — we never touch card
   data. Flow: `CheckoutForm` calls `createOrder` first (status `pending`/`unpaid`,

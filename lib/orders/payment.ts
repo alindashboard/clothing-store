@@ -2,6 +2,8 @@ import { revalidatePath } from 'next/cache'
 import { createSupabaseAdminClient } from '@/lib/supabase'
 import { SITE_CONFIG } from '@/lib/config'
 import type { Order, OrderItem } from '@/lib/types'
+import { stripe } from '@/lib/stripe'
+import { formatPrice } from '@/lib/utils'
 import {
   sendOrderConfirmation,
   sendNewOrderNotification,
@@ -108,6 +110,77 @@ export async function markStripeOrderPaid(orderId: string, paymentIntentId: stri
     sendOrderConfirmation(emailData),
     sendNewOrderNotification(emailData),
   ])
+
+  revalidatePath('/admin/orders')
+  return { success: true }
+}
+
+/**
+ * Mirrors a refund issued in the Stripe Dashboard (webhook `charge.refunded`).
+ * Full refund → order + payment status `refunded` (+ a timeline row), which also
+ * drops it from admin sales stats. Partial refund → a dated line in the order
+ * notes, status unchanged. Stock is NOT restored: a refund doesn't mean the piece
+ * came back — restock by hand when it does. Idempotent for Stripe's retries.
+ */
+export async function markStripeOrderRefunded(
+  paymentIntentId: string,
+  amountRefunded: number,
+  amountCaptured: number,
+  currency: string
+) {
+  const supabase = createSupabaseAdminClient()
+
+  let { data: order } = await supabase
+    .from('orders')
+    .select('id, status, payment_status, notes')
+    .eq('payment_intent_id', paymentIntentId)
+    .maybeSingle()
+
+  // Fallback: an order paid while the webhook couldn't read the PaymentIntent
+  // still stores the Checkout Session id — ask Stripe which session owns it.
+  if (!order) {
+    const sessions = await stripe.checkout.sessions.list({ payment_intent: paymentIntentId, limit: 1 })
+    const orderId = sessions.data[0]?.client_reference_id
+    if (orderId) {
+      ;({ data: order } = await supabase
+        .from('orders')
+        .select('id, status, payment_status, notes')
+        .eq('id', orderId)
+        .maybeSingle())
+    }
+  }
+  if (!order) {
+    console.error('[stripe webhook] refund: no order for payment intent', paymentIntentId)
+    return { error: 'Order not found' }
+  }
+
+  const refunded = formatPrice(amountRefunded / 100, currency.toUpperCase())
+  const today = new Date().toISOString().slice(0, 10)
+
+  if (amountRefunded < amountCaptured) {
+    const line = `Stripe: rimborso parziale, totale rimborsato ${refunded}`
+    if (order.notes?.includes(line)) return { success: true, alreadyProcessed: true }
+    const notes = [order.notes, `[${today}] ${line}`].filter(Boolean).join('\n')
+    const { error } = await supabase.from('orders').update({ notes }).eq('id', order.id)
+    if (error) return { error: error.message }
+    revalidatePath('/admin/orders')
+    return { success: true }
+  }
+
+  if (order.payment_status === 'refunded') return { success: true, alreadyProcessed: true }
+
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: 'refunded', payment_status: 'refunded' })
+    .eq('id', order.id)
+  if (error) return { error: error.message }
+
+  if (order.status !== 'refunded') {
+    const { error: historyError } = await supabase
+      .from('order_status_history')
+      .insert({ order_id: order.id, status: 'refunded' })
+    if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
+  }
 
   revalidatePath('/admin/orders')
   return { success: true }
