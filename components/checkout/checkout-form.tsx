@@ -161,9 +161,12 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="country">{t('country')}</Label>
-            <Input id="country" name="country" defaultValue="IT" placeholder="IT" />
+            {/* Italy only (SITE_CONFIG.shipping.countries) — shown read-only, submitted as the ISO code. */}
+            <Input id="country" value={t('countryItaly')} readOnly aria-describedby="country-note" />
+            <input type="hidden" name="country" value="IT" />
           </div>
         </div>
+        <p id="country-note" className="text-xs text-muted-foreground">{t('italyOnlyNote')}</p>
       </section>
 
       {/* Billing */}

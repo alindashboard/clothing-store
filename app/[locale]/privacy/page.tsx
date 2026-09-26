@@ -15,11 +15,11 @@ import { getAlternates } from '@/lib/seo/alternates'
  * both untrue and the kind of thing a regulator notices.
  *
  * TODO_CONFIRM: this text is a working draft pending review by the owner's
- * lawyer. It describes the site's actual behaviour accurately, but the retention
- * periods and the controller's legal identity need confirming before any paid
- * advertising goes live. See also STORE_INFO.legalName / vatNumber.
+ * lawyer. It describes the site's actual behaviour accurately; the retention
+ * periods still need confirming. Controller identity comes from STORE_INFO
+ * (Registro Imprese extract, filled 2026-09-26).
  */
-const LAST_UPDATED = '2026-09-24'
+const LAST_UPDATED = '2026-09-26'
 
 interface PageProps {
   params: Promise<{ locale: string }>
@@ -63,11 +63,18 @@ export default async function PrivacyPage({ params }: PageProps) {
         <p>
           {t.rich('controller.body', {
             ...withMail,
-            name: STORE_INFO.legalName || STORE_INFO.name,
-            address: STORE_INFO.address,
+            name: STORE_INFO.legalName,
+            brand: SITE_CONFIG.brand.name,
+            address: STORE_INFO.legalAddress,
           })}
         </p>
-        {STORE_INFO.vatNumber && <p>{t('controller.vatLabel', { vat: STORE_INFO.vatNumber })}</p>}
+        <p>
+          {t('controller.vatLabel', {
+            vat: STORE_INFO.vatNumber,
+            rea: STORE_INFO.reaNumber,
+            pec: STORE_INFO.pec,
+          })}
+        </p>
 
         <h2>{t('collect.heading')}</h2>
         <p>{t('collect.intro')}</p>
@@ -91,6 +98,7 @@ export default async function PrivacyPage({ params }: PageProps) {
         <p>{t('cookies.firstParty')}</p>
         <p>{t('cookies.pixel')}</p>
         <p>{t('cookies.google')}</p>
+        <p>{t('cookies.maps')}</p>
         <p>{t('cookies.manage')}</p>
 
         <h2>{t('sharing.heading')}</h2>

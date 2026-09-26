@@ -40,8 +40,8 @@
     "intro": "This policy explains what personal data {store} collects when you visit this site or place an order, why we collect it, who we share it with, and the rights you have over it. It applies to this website only.",
     "controller": {
       "heading": "Who is responsible for your data",
-      "body": "The data controller is {name}, {address}. For any question about this policy or about your personal data, write to <mail>{email}</mail>.",
-      "vatLabel": "VAT number: {vat}"
+      "body": "The data controller is {name}, a sole proprietorship trading as {brand}, registered at {address}. For any question about this policy or about your personal data, write to <mail>{email}</mail>.",
+      "vatLabel": "VAT number: {vat} · REA: {rea} · PEC (certified email): {pec}"
     },
     "collect": {
       "heading": "What we collect",
@@ -74,7 +74,8 @@
       "google": "With the same consent we load Google Analytics, provided by Google Ireland Ltd. It sets cookies and sends Google information about the pages you visit, the products you view and add to the cart, and completed orders. We use it to understand how the site is used and to measure the results of our Google Ads campaigns, which may use this data to show our ads to people who visited the site. If you decline, Google Analytics is never loaded.",
       "manage": "The banner appears on your first visit and again after 12 months. You can change or withdraw your choice at any time from the “Cookie preferences” link at the bottom of every page: withdrawing deletes the kaya_vid cookie and the Meta and Google cookies in your browser and stops those tools from loading. You can also block cookies entirely in your browser and manage how Meta and Google use your data in the ad settings of your Facebook or Instagram account and your Google account.",
       "stats": "Cookieless statistics. Regardless of your choice we record the visits and on-site actions described above in aggregate form, without storing anything on your device and without saving your IP address; the code used to count visitors changes every day and cannot recognise you over time.",
-      "firstParty": "kaya_vid statistics cookie (our own, with consent). If you accept, our server sets the kaya_vid cookie — first-party and not readable by scripts on the page — containing a random code. It expires at the latest 13 months after you accept, and later visits do not extend it. It is used to recognise the same browser returning and to link visits to any order. It is not shared with Meta, Google or any other third party. If you decline or withdraw consent the cookie is deleted immediately and no new data is linked; links already recorded are deleted from our systems 13 months after each visit or order."
+      "firstParty": "kaya_vid statistics cookie (our own, with consent). If you accept, our server sets the kaya_vid cookie — first-party and not readable by scripts on the page — containing a random code. It expires at the latest 13 months after you accept, and later visits do not extend it. It is used to recognise the same browser returning and to link visits to any order. It is not shared with Meta, Google or any other third party. If you decline or withdraw consent the cookie is deleted immediately and no new data is linked; links already recorded are deleted from our systems 13 months after each visit or order.",
+      "maps": "Google Maps. The map on the store page is provided by Google and may set cookies: it loads only if you accepted cookies, or if you choose to show it with its button, which applies to that view only."
     },
     "sharing": {
       "heading": "Who we share it with",
@@ -82,6 +83,8 @@
       "items": [
         "Our hosting and database providers, who store the site and your order records.",
         "Our email provider, used to send order confirmations and to deliver contact-form messages to us.",
+        "Stripe Payments Europe Ltd., for card payments: you enter your card details directly on Stripe's payment page, and they never pass through or are stored on our systems. Stripe receives your email address and the order amount.",
+        "WhatsApp Ireland Ltd., only if you choose to order or message us through WhatsApp.",
         "Couriers and shipping partners, who receive the name and address needed to deliver your parcel.",
         "Meta Platforms Ireland Ltd. and Google Ireland Ltd., but only if you accepted cookies.",
         "Our accountant and, where the law requires it, the tax authorities."
@@ -189,7 +192,12 @@
     "chatWhatsapp": "Chat on WhatsApp",
     "storeDetails": "Store Details",
     "weekdays": "Mon–Fri",
-    "weekend": "Sat–Sun: Closed"
+    "weekend": "Sat–Sun: Closed",
+    "map": {
+      "notice": "The map is provided by Google, which may set cookies. It loads automatically if you accept cookies.",
+      "show": "Show the map",
+      "open": "Open in Google Maps"
+    }
   },
   "newArrivals": {
     "freshDrops": "Fresh drops, every week.",
@@ -248,7 +256,8 @@
     "storeLink": "Store",
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "legalLine": "{brand} is a trading name of {name}, sole proprietorship · {address} · VAT {vat} · REA {rea}"
   },
   "cart": {
     "title": "Cart",
@@ -322,7 +331,9 @@
     "errorStartPayment": "Could not start the payment. Please try again.",
     "waOrder": "Order",
     "waTotal": "Total",
-    "waName": "Name"
+    "waName": "Name",
+    "countryItaly": "Italy",
+    "italyOnlyNote": "For now we ship within Italy only. For other EU countries, message us on WhatsApp."
   },
   "contact": {
     "title": "Contact",
@@ -383,5 +394,62 @@
     "paymentTitle": "Secure payment",
     "paymentBody": "Card payments via Stripe: we never see or store your card details.",
     "aboutLink": "About us →"
+  },
+  "terms": {
+    "title": "Terms and conditions of sale",
+    "lastUpdated": "Last updated: {date}",
+    "intro": "These terms govern purchases made on {site}. By placing an order you confirm that you have read and accepted them. The contract is concluded in Italian; this English version is provided for information.",
+    "seller": {
+      "heading": "Seller",
+      "body": "The seller is {name}, a sole proprietorship trading as {brand}, registered at {address}, VAT number {vat}, entered in the Frosinone-Latina Companies Register, REA {rea}. Email: <mail>{email}</mail> · PEC (certified email): {pec} · Phone: {phone}."
+    },
+    "contract": {
+      "heading": "Orders and formation of the contract",
+      "body": "Products shown on the site are an invitation to make an offer. The contract is formed when we send you the order confirmation email. Our items are often one-offs or in limited supply: if an item you ordered is no longer available, we will tell you promptly and refund anything already paid within 14 days."
+    },
+    "prices": {
+      "heading": "Prices",
+      "body": "Prices are in euro and are final prices, inclusive of all applicable taxes. Shipping costs are shown separately at checkout, before you confirm the order."
+    },
+    "payment": {
+      "heading": "Payment",
+      "items": [
+        "Payment card (Visa, Mastercard and the other cards Stripe accepts), through Stripe's secure payment page. The order is confirmed once Stripe tells us the payment has gone through.",
+        "Bank transfer: the bank details and payment reference are shown at the end of checkout and in the confirmation email. The order ships once the funds have arrived.",
+        "WhatsApp: the order is recorded and the payment details are agreed with you in the chat before shipping."
+      ]
+    },
+    "shipping": {
+      "heading": "Shipping and delivery",
+      "body": "Through the website we ship within Italy only; for delivery to other EU countries, contact us on WhatsApp and we will agree costs and times. Standard shipping: €{standardCost}, estimated delivery in {standardDays} business days. Express shipping: €{expressCost}, estimated delivery in {expressDays} business days. Standard shipping is free on orders of €{freeThreshold} or more. Times are estimates and run from dispatch. When your order ships you receive an email with tracking details where available. Risk of loss or damage passes to you on delivery."
+    },
+    "withdrawal": {
+      "heading": "Right of withdrawal",
+      "intro": "If you are a consumer, you may withdraw from the contract without giving any reason within 14 days of the day on which you, or a third party you designate, receive the products.",
+      "items": [
+        "To withdraw, send us a clear statement of your decision before the deadline, to <mail>{email}</mail> or to our PEC {pec}, quoting your order number. You may use the form below, but you do not have to.",
+        "You must send the products back within 14 days of telling us you are withdrawing, to {address}. You bear the direct cost of returning them.",
+        "We will refund all payments received from you, including standard delivery costs, within 14 days of the day we are informed of your withdrawal, using the same payment method you used unless agreed otherwise. We may withhold the refund until we have received the products back or you have supplied proof of having sent them.",
+        "Products must be returned intact, unworn and with their original tags. You are liable for any reduction in value resulting from handling beyond what is needed to establish their nature, characteristics and functioning.",
+        "The right of withdrawal does not apply to sealed goods that are not suitable for return for hygiene reasons (for example underwear and swimwear) once unsealed after delivery."
+      ],
+      "formHeading": "Model withdrawal form",
+      "form": "To: {name} ({brand}), {address}, {email}. I hereby give notice that I withdraw from my contract of sale of the following goods: … — Ordered on / received on: … — Order number: … — Name of consumer: … — Address of consumer: … — Signature (only if this form is sent on paper) — Date: …"
+    },
+    "warranty": {
+      "heading": "Legal guarantee and authenticity",
+      "items": [
+        "All products are original. If an item turns out not to be authentic, we refund you in full.",
+        "As a consumer you benefit from the legal guarantee of conformity under articles 128 et seq. of the Italian Consumer Code: we are liable for any lack of conformity that becomes apparent within two years of delivery. To claim, write to <mail>{email}</mail> describing the defect, ideally within two months of discovering it."
+      ]
+    },
+    "law": {
+      "heading": "Complaints, governing law and jurisdiction",
+      "body": "For any complaint, write to <mail>{email}</mail> and we will reply as soon as possible. The contract is governed by Italian law, without prejudice to the mandatory protections of the law of your country of residence. Disputes with consumers fall under the courts of the consumer's place of residence or domicile. You may also use alternative dispute resolution procedures."
+    },
+    "privacy": {
+      "heading": "Personal data",
+      "body": "Data you provide with your order is processed as described in our <privacy>Privacy Policy</privacy>."
+    }
   }
 }

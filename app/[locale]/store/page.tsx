@@ -10,6 +10,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { MapPin, Phone, Mail } from 'lucide-react'
 import { CornerBrackets } from '@/components/layout/corner-brackets'
 import { getAlternates } from '@/lib/seo/alternates'
+import { StoreMap } from '@/components/store/store-map'
 
 interface MetaProps {
   params: Promise<{ locale: string }>
@@ -77,7 +78,7 @@ export default async function StorePage() {
         closes: '20:00',
       },
     ],
-    sameAs: [STORE_INFO.instagram],
+    sameAs: [STORE_INFO.instagram, STORE_INFO.tiktok],
   }
 
   return (
@@ -247,15 +248,11 @@ export default async function StorePage() {
             {t('findUs')}
           </p>
           <div className="h-[220px] md:h-[420px] overflow-hidden" style={{ border: '1px solid #2B2924' }}>
-            <iframe
-              src={STORE_INFO.googleMapsEmbedUrl}
-              width="100%"
-              height="100%"
-              style={{ border: 0, display: 'block' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+            <StoreMap
+              embedUrl={STORE_INFO.googleMapsEmbedUrl}
+              mapsUrl={STORE_INFO.googleMapsUrl}
               title={`Map – ${STORE_INFO.name}`}
+              accent={SITE_CONFIG.brand.darkAccent}
             />
           </div>
         </section>

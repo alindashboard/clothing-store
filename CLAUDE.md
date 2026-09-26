@@ -18,7 +18,9 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - Supabase (auth, DB, storage) — **active**
 - Resend for all transactional email
 - next-intl for i18n (IT default + EN)
-- Vercel: hosting, push-to-deploy on `main`, DNS via ns1/ns2.vercel-dns.com
+- Vercel: hosting, push-to-deploy on `main`. **DNS is on Cloudflare**
+  (arnold/tess.ns.cloudflare.com) — all DNS/email-routing changes happen in the
+  Cloudflare dashboard, not Vercel
 
 ## Working rules
 
@@ -152,7 +154,17 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
 - GSC Domain property covers all subdomains; no separate www property needed.
 - `supabase/schema.sql` is the original **template** schema (items/reservations) —
   the actual production schema is in `supabase/migrations/`. Do not apply schema.sql.
-- **Stripe card payments — live in sandbox as of 2026-09-18** (`checkout.enableStripe:
+- **Stripe card payments — LIVE (real money) in production.** Built and tested in
+  sandbox 2026-09-18; production switched to live keys (`pk_live_`/`sk_live_`) and a
+  live-mode webhook endpoint + `STRIPE_WEBHOOK_SECRET` were added in Vercel on
+  2026-09-19. Verified 2026-09-26 by the owner: a real card purchase on kayaoutlet.com,
+  then refunded from the Stripe Dashboard. `.env.local` deliberately keeps **test** keys
+  (`sk_test_`/`pk_test_`) — never put live keys in local env. `enableStripe` has been
+  `true` since the initial build, so no older branch/worktree can disable it by merge.
+  **Refunds are Dashboard-only and not synced**: the webhook handles only
+  `checkout.session.completed`, so a refund in Stripe leaves the order `paid` on our
+  side — set its status by hand in `/admin/orders` (or add `charge.refunded` handling).
+  Original sandbox notes follow (`checkout.enableStripe:
   true`). Uses hosted Stripe Checkout (redirect), not Elements — we never touch card
   data. Flow: `CheckoutForm` calls `createOrder` first (status `pending`/`unpaid`,
   same as whatsapp/bank_transfer), then `createStripeCheckoutSession`
@@ -203,12 +215,10 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   items/amount matched the cart exactly, a real `4242...` test card payment) and
   the webhook route was exercised locally with `stripe.webhooks.generateTestHeaderString`
   (no Stripe CLI install needed) — including the retry/idempotency case above.
-  **Not yet done: the sandbox's `STRIPE_WEBHOOK_SECRET` isn't registered anywhere.**
-  Get it by running `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
-  locally (prints a `whsec_...`), or by adding the endpoint in the Stripe Dashboard
-  (Developers → Webhooks) for `checkout.session.completed` once deployed — a
-  deployed endpoint needs its own separate `STRIPE_WEBHOOK_SECRET` in Vercel env
-  vars, listening locally does not share a secret with the Dashboard's.
+  Webhook secrets are per endpoint and per mode: production uses the live Dashboard
+  endpoint's secret (Vercel env); local testing needs its own test-mode secret
+  (`stripe listen --forward-to localhost:3000/api/webhooks/stripe` prints a
+  `whsec_...`) — the two never share a value.
   Also unresolved: `createOrder`'s `total` still excludes `tax_amount` (pre-existing,
   not introduced by this work) — the Stripe Checkout Session amount mirrors that
   same `total`, so fix the tax bug and the Stripe amount together if it's ever fixed.
@@ -470,6 +480,33 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Retention runs in `purge_expired_visitor_ids()` (id after 13 months, events after 25),
   called whenever an admin opens analytics — no cron yet. Admin tab "Visitors & orders".
 
+- **Email (set up 2026-09-26).** DNS is on Cloudflare. *Outbound*: Resend (EU region)
+  sends from `orders@kayaoutlet.com` (`lib/email/config.ts`); its records live on the
+  `send.` subdomain + `resend._domainkey` — never delete them. *Inbound*: Cloudflare
+  Email Routing (root MX `route{1,2,3}.mx.cloudflare.net`) forwards `orders@` to the
+  store's Gmail; the store replies as `orders@` from Gmail via Resend SMTP
+  (`smtp.resend.com`, its own sending-only API key, separate from the site's).
+  `OWNER_EMAIL` (Vercel, sensitive) = the store Gmail since 2026-09-26 — new-order and
+  contact-form notifications. DMARC `p=none` via Cloudflare DMARC Management; move
+  to `p=quarantine` once reports are clean (~late Oct 2026). Account logins for these
+  services are deliberately not recorded in this public repo.
+- **Seller identity** (impresa individuale, from the Registro Imprese extract) lives in
+  `STORE_INFO.legalName/legalAddress/vatNumber/reaNumber/pec` and renders in the footer
+  (art. 35 DPR 633/72 requires the P.IVA on the site), `/privacy`, `/terms` and the
+  Organization JSON-LD (`vatID`). Never publish the owner's codice fiscale or home
+  address — both are in the extract, neither is required. `/terms` (Condizioni
+  generali di vendita, `terms.*` keys) is the Codice del Consumo disclosure: keep its
+  withdrawal/returns text in sync with `trust.returnsBody`. Don't link the EU ODR
+  platform — it was shut down in July 2025. Owner-confirmed 2026-09-26: customer pays
+  return shipping; the site ships to **Italy only** (`shipping.countries`, checkout
+  country is read-only and `createOrder` rejects anything else) — EU orders go via
+  WhatsApp. Public contact email (`STORE_INFO.email`) is the store Gmail.
+- **The `/store` Google Maps iframe is consent-gated** (`components/store/store-map.tsx`):
+  it sets Google cookies, so it renders only when `useConsent()` is `granted` — it
+  appears live the moment the banner is accepted, no reload — or after a one-off
+  "show map" tap that does not change the site-wide choice. Never embed another
+  third-party iframe (YouTube, Instagram…) without the same gate.
+
 ## Design
 
 Design tokens (colors, radii, fonts) are defined in `globals.css` `@theme inline`.
@@ -501,8 +538,8 @@ project's memory.
 - Cart (Zustand store) + checkout
 - WhatsApp order flow (`enableWhatsAppOrder: true`)
 - Bank transfer checkout (`enableBankTransfer: true`)
-- Stripe card payments via hosted Checkout (`enableStripe: true`) — sandbox as of
-  2026-09-18, see the gotcha above before touching payment/webhook code
+- Stripe card payments via hosted Checkout (`enableStripe: true`) — **live, takes real
+  payments**; see the gotcha above before touching payment/webhook code
 - New Arrivals curated list (admin-managed, carousel on homepage)
 - Events module (admin CRUD, public listing page)
 - Contact form → Supabase `contact_requests` table
@@ -538,25 +575,29 @@ NEXT_PUBLIC_SUPABASE_URL      # Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY # Supabase anon key (public)
 SUPABASE_SERVICE_ROLE_KEY     # Supabase service role (server-only)
 RESEND_API_KEY                # Resend API key for transactional email
-STRIPE_SECRET_KEY             # Stripe secret key (server-only; sk_test_... in sandbox)
+STRIPE_SECRET_KEY             # Stripe secret key (server-only; sk_live_ in Vercel prod,
+                               # sk_test_ in .env.local)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY # Stripe publishable key (public; unused for now —
                                # hosted Checkout needs only the secret key server-side,
                                # kept for if Elements/Payment Element is ever added)
-STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — NOT YET SET,
-                               # see the Stripe gotcha above
+STRIPE_WEBHOOK_SECRET          # Signing secret for /api/webhooks/stripe — set in
+                               # Vercel prod (live endpoint); local uses its own
 GOOGLE_PLACES_API_KEY          # Google reviews on the homepage (server-only; restrict
                                # the key to Places API (New))
 ```
 
 ### Things the client must confirm (TODO_CONFIRM)
 
-- Verified sender domain in Resend (required for production email delivery)
 - Shipping rates / free shipping threshold (currently: free ≥ €150, standard €9.90, express €14.90)
 - Tax rate (currently 22% VAT — confirm applies to all products)
-- Facebook / TikTok handles (currently empty in config)
+- Facebook page URL (empty in config — owner checking the page is active). TikTok is
+  set: `STORE_INFO.tiktok` → footer + Organization `sameAs`.
+- Variant `MB-0033-UNIVERSAL` (Marcelo Burlon Cappello) has color `TODO_CONFIRM` —
+  the only one left in the DB as of 2026-09-26; fix it from the admin.
 - Brand logo assets in `/public/brands/` (ticker uses text fallback for now)
 - Admin dashboard redirect target (`/admin/dashboard` vs `/admin`)
-- Google Business Profile Place ID (`STORE_INFO.googlePlaceId`)
+- `GOOGLE_PLACES_API_KEY` — Place ID is set (2026-09-26); the key is blocked on a
+  Google Cloud billing sign-up error, so homepage review texts stay hidden until then
 
 ### Open items (as of 2026-08-17)
 

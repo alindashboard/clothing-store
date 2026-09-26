@@ -54,7 +54,9 @@ export default async function LocaleLayout({ children, params }: Props) {
     name: SITE_CONFIG.brand.name,
     url: siteUrl,
     logo: `${siteUrl}/kaya-logo.png`,
-    sameAs: [STORE_INFO.instagram],
+    legalName: STORE_INFO.legalName,
+    vatID: `IT${STORE_INFO.vatNumber}`,
+    sameAs: [STORE_INFO.instagram, STORE_INFO.tiktok],
   }
 
   const webSiteJsonLd = {

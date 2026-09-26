@@ -1,8 +1,8 @@
 # Tracciamento, cookie e statistiche — scheda tecnica per la revisione legale
 
-**Sito:** kayaoutlet.com · **Titolare:** KAYA Studio Outlet (ragione sociale e P. IVA: TODO_CONFIRM)
+**Sito:** kayaoutlet.com · **Titolare:** LABIS POP DRAGOS COSMIN, ditta individuale (insegna KAYA Studio Outlet), Via Acque Alte 12, 04100 Latina (LT) · P.IVA 03361320595 · REA LT-335179
 **Stato:** bozza tecnica redatta dallo sviluppatore, **non ancora validata da un legale**.
-**Ultimo aggiornamento:** 2026-09-24
+**Ultimo aggiornamento:** 2026-09-26
 
 Questo documento descrive *come funziona davvero* il sito, così che la revisione legale
 possa confrontarlo con l'informativa pubblicata (`/it/privacy`) e con il banner cookie.
@@ -24,6 +24,7 @@ registrata qui (sezione 8) nello stesso momento in cui viene pubblicata.
 | **`kaya_vid`** | Cookie HttpOnly, prima parte | **Nostro server** | **Sì** | Codice casuale (UUID) per riconoscere lo stesso browser e collegare visite e ordini — vedi sezione 3 | **Max 13 mesi dal consenso, non rinnovato** |
 | `_fbp`, `_fbc` | Cookie | Meta Pixel | Sì | Misurazione e pubblicità Meta | Secondo Meta |
 | `_ga`, `_ga_*` | Cookie | Google Analytics 4 | Sì | Misurazione e pubblicità Google (collegato a Google Ads) | Secondo Google |
+| Cookie di Google Maps (es. `NID`, `AEC`) | Cookie di terza parte (iframe) | Google, tramite la mappa incorporata in `/store` | Sì — oppure tocco su «Mostra la mappa» (solo per quella visualizzazione) | Funzionamento della mappa e finalità proprie di Google | Secondo Google |
 
 Nessuno strumento soggetto a consenso viene caricato prima che il visitatore clicchi
 «Accetta». Vercel Web Analytics (statistiche del fornitore di hosting) **non** memorizza
@@ -156,3 +157,5 @@ cancellazione slitta. Soluzione possibile: job giornaliero (`pg_cron` su Supabas
 | 2026-09-24 | Cookie `kaya_vid` e collegamento visite–ordini, con consenso | Sì (2026-09-24) |
 | 2026-09-24 | Scadenza della scelta dopo 12 mesi; link «Preferenze cookie»; revoca con cancellazione dei cookie | Sì (2026-09-24) |
 | 2026-09-24 | Cancellazione automatica: eventi dopo 25 mesi, `visitor_id` dopo 13 mesi | Sì (2026-09-24) |
+| 2026-09-26 | Nessun nuovo strumento. Informativa: dati del titolare dalla visura camerale; aggiunti Stripe (pagamenti con carta) e WhatsApp tra i destinatari; nuove condizioni generali di vendita | Sì (2026-09-26) |
+| 2026-09-26 | Mappa Google Maps nella pagina del negozio: prima si caricava sempre (cookie Google senza consenso); ora solo con consenso o dopo un tocco su «Mostra la mappa», valido per quella sola visualizzazione | Sì (2026-09-26) |

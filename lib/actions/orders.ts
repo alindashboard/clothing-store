@@ -193,6 +193,11 @@ export async function createOrder(
   formData: CheckoutFormData,
   cartItems: CartItem[]
 ): Promise<{ orderId?: string; orderNumber?: string; error?: string }> {
+  // The checkout UI fixes the country; this guards a hand-crafted request.
+  if (!SITE_CONFIG.shipping.countries.includes(formData.country)) {
+    return { error: 'Shipping destination not available' }
+  }
+
   const supabase = createSupabaseAdminClient()
 
   const subtotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)

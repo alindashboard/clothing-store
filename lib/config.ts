@@ -74,6 +74,9 @@ export const SITE_CONFIG = {
     standardShippingCost: 9.90,
     expressShippingCost: 14.90,
     estimatedDays: { standard: '3-5', express: '1-2' },
+    /** ISO codes the online checkout ships to (owner, 2026-09-26: Italy only; EU
+     *  orders are arranged case by case over WhatsApp). */
+    countries: ['IT'] as string[],
   },
   checkout: {
     enableStripe: true,
@@ -107,7 +110,7 @@ export const SITE_CONFIG = {
   social: {
     instagram: STORE_INFO.instagram,
     facebook: '',
-    tiktok: '',
+    tiktok: STORE_INFO.tiktok,
   },
   analytics: {
     /**

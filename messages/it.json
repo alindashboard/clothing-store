@@ -40,8 +40,8 @@
     "intro": "La presente informativa spiega quali dati personali {store} raccoglie quando visiti questo sito o effettui un ordine, per quali finalità, con chi li condividiamo e quali diritti puoi esercitare. Si applica esclusivamente a questo sito web.",
     "controller": {
       "heading": "Titolare del trattamento",
-      "body": "Il titolare del trattamento è {name}, {address}. Per qualsiasi domanda relativa alla presente informativa o ai tuoi dati personali puoi scrivere a <mail>{email}</mail>.",
-      "vatLabel": "Partita IVA: {vat}"
+      "body": "Il titolare del trattamento è {name}, ditta individuale che opera con l'insegna {brand}, con sede in {address}. Per qualsiasi domanda relativa alla presente informativa o ai tuoi dati personali puoi scrivere a <mail>{email}</mail>.",
+      "vatLabel": "Partita IVA: {vat} · REA: {rea} · PEC: {pec}"
     },
     "collect": {
       "heading": "Quali dati raccogliamo",
@@ -74,7 +74,8 @@
       "google": "Con lo stesso consenso carichiamo Google Analytics, fornito da Google Ireland Ltd. Installa cookie e trasmette a Google informazioni sulle pagine visitate, sui prodotti visualizzati e aggiunti al carrello e sugli ordini completati. Lo utilizziamo per capire come viene usato il sito e per misurare i risultati delle nostre campagne Google Ads, che possono utilizzare questi dati per mostrare i nostri annunci a chi ha visitato il sito. Se rifiuti, Google Analytics non viene caricato.",
       "manage": "Il banner compare alla prima visita e di nuovo dopo 12 mesi. Puoi modificare o revocare la tua scelta in qualsiasi momento dal link «Preferenze cookie» in fondo a ogni pagina: la revoca elimina il cookie kaya_vid e i cookie di Meta e Google presenti nel browser e interrompe il caricamento dei relativi strumenti. Puoi inoltre bloccare integralmente i cookie dal browser e gestire l'utilizzo dei tuoi dati da parte di Meta e Google nelle impostazioni pubblicitarie del tuo account Facebook o Instagram e del tuo account Google.",
       "stats": "Statistiche senza cookie. Indipendentemente dalla tua scelta registriamo in forma aggregata le visite e le azioni sul sito descritte sopra, senza memorizzare nulla sul tuo dispositivo e senza salvare l'indirizzo IP; il codice usato per contare i visitatori cambia ogni giorno e non consente di riconoscerti nel tempo.",
-      "firstParty": "Cookie di statistica kaya_vid (nostro, previo consenso). Se accetti, il nostro server imposta il cookie kaya_vid, di prima parte e non accessibile agli script della pagina, con un codice casuale. Scade al più tardi 13 mesi dopo l'accettazione e la scadenza non viene prolungata dalle visite successive. Serve a riconoscere il ritorno dello stesso browser e a collegare le visite all'eventuale ordine. Non viene condiviso con Meta, Google o altri terzi. Se rifiuti o revochi il consenso il cookie viene eliminato immediatamente e nessun nuovo dato viene collegato; il collegamento già registrato viene cancellato dai nostri sistemi 13 mesi dopo ciascuna visita o ordine."
+      "firstParty": "Cookie di statistica kaya_vid (nostro, previo consenso). Se accetti, il nostro server imposta il cookie kaya_vid, di prima parte e non accessibile agli script della pagina, con un codice casuale. Scade al più tardi 13 mesi dopo l'accettazione e la scadenza non viene prolungata dalle visite successive. Serve a riconoscere il ritorno dello stesso browser e a collegare le visite all'eventuale ordine. Non viene condiviso con Meta, Google o altri terzi. Se rifiuti o revochi il consenso il cookie viene eliminato immediatamente e nessun nuovo dato viene collegato; il collegamento già registrato viene cancellato dai nostri sistemi 13 mesi dopo ciascuna visita o ordine.",
+      "maps": "Google Maps. La mappa nella pagina del negozio è fornita da Google e può impostare cookie: viene caricata solo se hai accettato i cookie oppure se scegli di mostrarla con l'apposito pulsante, che vale solo per quella visualizzazione."
     },
     "sharing": {
       "heading": "A chi comunichiamo i dati",
@@ -82,6 +83,8 @@
       "items": [
         "I fornitori di hosting e di database, che ospitano il sito e conservano i dati degli ordini.",
         "Il fornitore del servizio di posta elettronica, utilizzato per inviare le conferme d'ordine e per recapitarci i messaggi del modulo di contatto.",
+        "Stripe Payments Europe Ltd., per i pagamenti con carta: i dati della carta vengono inseriti direttamente sulla pagina di pagamento di Stripe e non transitano né vengono conservati sui nostri sistemi. Stripe riceve il tuo indirizzo email e l'importo dell'ordine.",
+        "WhatsApp Ireland Ltd., solo se scegli di ordinare o di scriverci tramite WhatsApp.",
         "I corrieri e i partner logistici, che ricevono il nome e l'indirizzo necessari alla consegna.",
         "Meta Platforms Ireland Ltd. e Google Ireland Ltd., unicamente se hai prestato il consenso ai cookie.",
         "Il nostro consulente contabile e, nei casi previsti dalla legge, l'Amministrazione finanziaria."
@@ -189,7 +192,12 @@
     "chatWhatsapp": "Chatta su WhatsApp",
     "storeDetails": "Dettagli negozio",
     "weekdays": "Lun–Ven",
-    "weekend": "Sab–Dom: Chiuso"
+    "weekend": "Sab–Dom: Chiuso",
+    "map": {
+      "notice": "La mappa è fornita da Google, che può impostare cookie. Si carica automaticamente se accetti i cookie.",
+      "show": "Mostra la mappa",
+      "open": "Apri in Google Maps"
+    }
   },
   "newArrivals": {
     "freshDrops": "Novità ogni settimana.",
@@ -248,7 +256,8 @@
     "storeLink": "Negozio",
     "terms": "Termini e condizioni",
     "privacy": "Informativa sulla privacy",
-    "allRightsReserved": "Tutti i diritti riservati."
+    "allRightsReserved": "Tutti i diritti riservati.",
+    "legalLine": "{brand} è un'insegna di {name}, ditta individuale · {address} · P.IVA {vat} · REA {rea}"
   },
   "cart": {
     "title": "Carrello",
@@ -322,7 +331,9 @@
     "errorStartPayment": "Impossibile avviare il pagamento. Riprova.",
     "waOrder": "Ordine",
     "waTotal": "Totale",
-    "waName": "Nome"
+    "waName": "Nome",
+    "countryItaly": "Italia",
+    "italyOnlyNote": "Per ora spediamo solo in Italia. Per spedizioni in altri Paesi UE scrivici su WhatsApp."
   },
   "contact": {
     "title": "Contatto",
@@ -383,5 +394,62 @@
     "paymentTitle": "Pagamento sicuro",
     "paymentBody": "Carta tramite Stripe: non vediamo né conserviamo i dati della tua carta.",
     "aboutLink": "Scopri chi siamo →"
+  },
+  "terms": {
+    "title": "Condizioni generali di vendita",
+    "lastUpdated": "Ultimo aggiornamento: {date}",
+    "intro": "Le presenti condizioni regolano gli acquisti effettuati sul sito {site}. Effettuando un ordine dichiari di averle lette e accettate. Il contratto è concluso in lingua italiana; la versione inglese ha valore informativo.",
+    "seller": {
+      "heading": "Venditore",
+      "body": "Il venditore è {name}, ditta individuale che opera con l'insegna {brand}, con sede in {address}, P.IVA {vat}, iscritta al Registro delle Imprese di Frosinone-Latina, REA {rea}. Email: <mail>{email}</mail> · PEC: {pec} · Telefono: {phone}."
+    },
+    "contract": {
+      "heading": "Ordini e conclusione del contratto",
+      "body": "I prodotti presentati sul sito costituiscono un invito a proporre. Il contratto si conclude quando ti inviamo l'email di conferma dell'ordine. I nostri articoli sono spesso pezzi unici o disponibili in quantità limitata: se un articolo ordinato non fosse più disponibile ti avviseremo tempestivamente e rimborseremo quanto eventualmente già pagato entro 14 giorni."
+    },
+    "prices": {
+      "heading": "Prezzi",
+      "body": "I prezzi sono espressi in euro e sono prezzi finali, comprensivi di ogni imposta applicabile. Le spese di spedizione sono indicate separatamente al checkout, prima della conferma dell'ordine."
+    },
+    "payment": {
+      "heading": "Pagamento",
+      "items": [
+        "Carta di pagamento (Visa, Mastercard e le altre carte accettate da Stripe), tramite la pagina di pagamento sicura di Stripe. L'ordine viene confermato quando Stripe ci comunica l'avvenuto pagamento.",
+        "Bonifico bancario: le coordinate e la causale sono indicate al termine dell'ordine e nell'email di conferma. L'ordine viene spedito dopo l'accredito dell'importo.",
+        "WhatsApp: l'ordine viene registrato e i dettagli del pagamento vengono concordati con te in chat prima della spedizione."
+      ]
+    },
+    "shipping": {
+      "heading": "Spedizione e consegna",
+      "body": "Tramite il sito spediamo solo in Italia; per spedizioni in altri Paesi dell'Unione europea contattaci su WhatsApp e concorderemo costi e tempi. Spedizione standard: € {standardCost}, consegna stimata in {standardDays} giorni lavorativi. Spedizione espressa: € {expressCost}, consegna stimata in {expressDays} giorni lavorativi. La spedizione standard è gratuita per ordini da € {freeThreshold}. I tempi sono indicativi e decorrono dalla spedizione. Quando l'ordine viene spedito ricevi un'email con i dati di tracciamento, se disponibili. Il rischio di perdita o danneggiamento passa a te al momento della consegna."
+    },
+    "withdrawal": {
+      "heading": "Diritto di recesso",
+      "intro": "Se sei un consumatore hai diritto di recedere dal contratto, senza indicarne le ragioni, entro 14 giorni dal giorno in cui tu, o un terzo da te designato, ricevi i prodotti.",
+      "items": [
+        "Per esercitarlo inviaci, prima della scadenza, una dichiarazione esplicita della tua decisione a <mail>{email}</mail> o alla PEC {pec}, indicando il numero d'ordine. Puoi usare il modulo riportato qui sotto, ma non è obbligatorio.",
+        "Devi restituire i prodotti entro 14 giorni dalla comunicazione del recesso, all'indirizzo {address}. I costi diretti della restituzione sono a tuo carico.",
+        "Ti rimborseremo tutti i pagamenti ricevuti, comprese le spese di consegna standard, entro 14 giorni dal giorno in cui siamo informati del recesso, con lo stesso mezzo di pagamento da te usato salvo diverso accordo. Possiamo trattenere il rimborso finché non abbiamo ricevuto i prodotti o la prova della loro spedizione.",
+        "I prodotti devono essere restituiti integri, non indossati e con le etichette originali. Sei responsabile della diminuzione di valore dovuta a una manipolazione diversa da quella necessaria per verificarne natura, caratteristiche e funzionamento.",
+        "Il recesso è escluso per i beni sigillati che non si prestano a essere restituiti per motivi igienici (ad esempio biancheria intima e costumi da bagno) e che sono stati aperti dopo la consegna."
+      ],
+      "formHeading": "Modulo di recesso tipo",
+      "form": "Destinatario: {name} ({brand}), {address}, {email}. Con la presente notifico il recesso dal mio contratto di vendita dei seguenti beni: … — Ordinato il / ricevuto il: … — Numero d'ordine: … — Nome del consumatore: … — Indirizzo del consumatore: … — Firma (solo se il modulo è inviato in versione cartacea) — Data: …"
+    },
+    "warranty": {
+      "heading": "Garanzia legale e autenticità",
+      "items": [
+        "Tutti i prodotti sono originali. Se un articolo si rivelasse non autentico, ti rimborsiamo integralmente.",
+        "Come consumatore benefici della garanzia legale di conformità prevista dagli articoli 128 e seguenti del Codice del Consumo: rispondiamo dei difetti di conformità che si manifestano entro due anni dalla consegna. Per farla valere scrivici a <mail>{email}</mail> descrivendo il difetto, possibilmente entro due mesi dalla sua scoperta."
+      ]
+    },
+    "law": {
+      "heading": "Reclami, legge applicabile e foro competente",
+      "body": "Per qualsiasi reclamo scrivi a <mail>{email}</mail>: ti risponderemo il prima possibile. Il contratto è regolato dalla legge italiana, fatte salve le tutele inderogabili previste dalla legge del tuo Paese di residenza. Per le controversie con i consumatori è competente il giudice del luogo di residenza o di domicilio del consumatore. Resta salva la possibilità di ricorrere a procedure di risoluzione alternativa delle controversie."
+    },
+    "privacy": {
+      "heading": "Dati personali",
+      "body": "I dati forniti con l'ordine sono trattati secondo la nostra <privacy>Informativa sulla privacy</privacy>."
+    }
   }
 }
