@@ -10,7 +10,7 @@ import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { SITE_CONFIG } from '@/lib/config'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -20,10 +20,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
   const supabase = await createSupabaseServerClient()
   const { data: cat } = await supabase.from('categories').select('name').eq('slug', slug).single()
-  return {
-    title: cat ? cat.name : SITE_CONFIG.brand.name,
-    alternates: getAlternates(locale, `/category/${slug}`),
-  }
+  if (!cat) return { title: SITE_CONFIG.brand.name, robots: { index: false } }
+  const t = await getTranslations({ locale, namespace: 'meta' })
+  return pageMetadata({
+    locale,
+    path: `/category/${slug}`,
+    title: cat.name,
+    description: t('category.description', { name: cat.name }),
+  })
 }
 
 export default async function CategoryPage({ params }: Props) {

@@ -7,7 +7,7 @@ import { MessageCircle, Building2, CreditCard, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import type { CartItem } from '@/lib/store/cart'
+import { useCartStore, type CartItem } from '@/lib/store/cart'
 import { createOrder, createStripeCheckoutSession } from '@/lib/actions/orders'
 import { SITE_CONFIG } from '@/lib/config'
 import { formatPrice } from '@/lib/utils'
@@ -38,6 +38,20 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
   const [error, setError] = useState('')
   const [billingSame, setBillingSame] = useState(true)
   const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'bank_transfer' | 'stripe'>('whatsapp')
+  const syncCart = useCartStore((s) => s.syncCart)
+
+  /** Shows createOrder's error; on a stale cart, resyncs prices/stock first. Returns true if it failed. */
+  function orderFailed(result: Awaited<ReturnType<typeof createOrder>>): boolean {
+    if (!result.error) return false
+    if (result.cartUpdates) {
+      syncCart(result.cartUpdates)
+      setError(t('cartChanged'))
+    } else {
+      setError(result.error)
+    }
+    setLoading(false)
+    return true
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -70,7 +84,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     if (paymentMethod === 'whatsapp') {
       // Save order first, then redirect to WhatsApp
       const result = await createOrder(data, items)
-      if (result.error) { setError(result.error); setLoading(false); return }
+      if (orderFailed(result)) return
 
       const message = encodeURIComponent(
         [
@@ -91,9 +105,10 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
 
     if (paymentMethod === 'stripe') {
       const result = await createOrder(data, items)
-      if (result.error || !result.orderId) { setError(result.error ?? t('errorCreateOrder')); setLoading(false); return }
+      if (orderFailed(result)) return
+      if (!result.orderId) { setError(t('errorCreateOrder')); setLoading(false); return }
 
-      const session = await createStripeCheckoutSession(result.orderId, items, locale)
+      const session = await createStripeCheckoutSession(result.orderId, locale)
       if (session.error || !session.url) { setError(session.error ?? t('errorStartPayment')); setLoading(false); return }
 
       window.location.href = session.url
@@ -101,7 +116,7 @@ export function CheckoutForm({ items, subtotal, shippingCost }: CheckoutFormProp
     }
 
     const result = await createOrder(data, items)
-    if (result.error) { setError(result.error); setLoading(false); return }
+    if (orderFailed(result)) return
 
     trackPurchase(result.orderNumber)
     router.push(`/checkout/success?order=${result.orderNumber}`)

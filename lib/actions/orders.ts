@@ -16,6 +16,7 @@ import {
 import { buildOrderEmailData, type OrderEmailItemInput } from '@/lib/orders/payment'
 import { VISITOR_COOKIE, parseVisitorId } from '@/lib/analytics/visitor-cookie'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { priceCart, type CartUpdates } from '@/lib/orders/cart-pricing'
 
 export async function getOrdersAdmin(options?: {
   status?: string
@@ -192,7 +193,13 @@ export async function updateOrderNotes(id: string, notes: string) {
 export async function createOrder(
   formData: CheckoutFormData,
   cartItems: CartItem[]
-): Promise<{ orderId?: string; orderNumber?: string; error?: string }> {
+): Promise<{
+  orderId?: string
+  orderNumber?: string
+  error?: string
+  /** Set when the cart no longer matches the DB; the client resyncs and asks to review. */
+  cartUpdates?: CartUpdates
+}> {
   // The checkout UI fixes the country; this guards a hand-crafted request.
   if (!SITE_CONFIG.shipping.countries.includes(formData.country)) {
     return { error: 'Shipping destination not available' }
@@ -200,7 +207,12 @@ export async function createOrder(
 
   const supabase = createSupabaseAdminClient()
 
-  const subtotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  // Prices, names and stock come from the DB — the cart is client-controlled.
+  const pricing = await priceCart(supabase, cartItems)
+  if (!pricing.ok) return { error: 'cart_changed', cartUpdates: pricing.updates }
+  const lines = pricing.lines
+
+  const subtotal = lines.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const shippingCost =
     subtotal >= SITE_CONFIG.shipping.freeShippingThreshold
       ? 0
@@ -261,14 +273,14 @@ export async function createOrder(
     .insert({ order_id: order.id, status: order.status })
   if (historyError) console.error('[order_status_history] insert failed:', historyError.message)
 
-  const orderItems = cartItems.map((item) => ({
+  const orderItems = lines.map((item) => ({
     order_id: order.id,
     product_id: item.productId,
     variant_id: item.variantId,
     product_name: item.productName,
     variant_size: item.variantSize,
     variant_color: item.variantColor,
-    sku: null,
+    sku: item.sku,
     quantity: item.quantity,
     unit_price: item.price,
     total_price: item.price * item.quantity,
@@ -278,7 +290,7 @@ export async function createOrder(
   if (itemsError) return { error: itemsError.message }
 
   // Decrement stock via direct update
-  for (const item of cartItems) {
+  for (const item of lines) {
     const { data: variant } = await supabase
       .from('product_variants')
       .select('stock_quantity')
@@ -296,7 +308,7 @@ export async function createOrder(
   // their confirmation/notification emails fire from the webhook once payment
   // actually succeeds (see markStripeOrderPaid), not here.
   if (order.payment_method !== 'stripe') {
-    const emailData = buildOrderEmailData(order, cartItems)
+    const emailData = buildOrderEmailData(order, lines)
     await Promise.allSettled([
       sendOrderConfirmation(emailData),
       sendNewOrderNotification(emailData),
@@ -311,22 +323,26 @@ export async function createOrder(
  * Creates a Stripe Checkout Session for an order already saved as
  * pending/unpaid by createOrder, and stashes the session id on
  * `payment_intent_id` so the webhook can find the order again.
- * Amount is computed server-side from `order.total` (never trusted from the
- * client) — same total createOrder just persisted.
+ * Line items come from the persisted order_items (priced server-side by
+ * createOrder) — never from the browser's cart, which is client-controlled.
+ * Refuses non-Stripe or already-paid orders: this is a public action and the
+ * order id travels through the client.
  */
 export async function createStripeCheckoutSession(
   orderId: string,
-  cartItems: CartItem[],
   locale: string
 ): Promise<{ url?: string; error?: string }> {
   const supabase = createSupabaseAdminClient()
 
   const { data: order, error } = await supabase
     .from('orders')
-    .select('order_number, customer_email, shipping_cost, currency')
+    .select('order_number, customer_email, shipping_cost, currency, payment_method, payment_status, items:order_items(product_name, variant_size, variant_color, quantity, unit_price)')
     .eq('id', orderId)
     .single()
   if (error || !order) return { error: error?.message ?? 'Order not found' }
+  if (order.payment_method !== 'stripe' || order.payment_status === 'paid' || !order.items?.length) {
+    return { error: 'Order cannot be paid by card' }
+  }
 
   const hdrs = await headers()
   const host = hdrs.get('host')
@@ -340,14 +356,14 @@ export async function createStripeCheckoutSession(
       unit_amount: number
     }
     quantity: number
-  }> = cartItems.map((item) => ({
+  }> = order.items.map((item) => ({
     price_data: {
       currency: order.currency.toLowerCase(),
       product_data: {
-        name: item.productName,
-        description: [item.variantColor, item.variantSize].filter(Boolean).join(' / '),
+        name: item.product_name,
+        description: [item.variant_color, item.variant_size].filter(Boolean).join(' / ') || undefined,
       },
-      unit_amount: Math.round(item.price * 100),
+      unit_amount: Math.round(Number(item.unit_price) * 100),
     },
     quantity: item.quantity,
   }))

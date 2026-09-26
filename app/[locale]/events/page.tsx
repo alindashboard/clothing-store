@@ -12,7 +12,7 @@ import { SITE_CONFIG } from '@/lib/config'
 import { CornerBrackets } from '@/components/layout/corner-brackets'
 import type { Event } from '@/lib/types'
 
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +23,12 @@ interface MetaProps {
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return {
+  return pageMetadata({
+    locale,
+    path: '/events',
     title: t('events.title'),
     description: t('events.description'),
-    alternates: getAlternates(locale, '/events'),
-  }
+  })
 }
 
 function EventCard({ event, isUpcoming, labels }: {

@@ -8,7 +8,7 @@ import { ProductGridInfinite } from '@/components/product/product-grid-infinite'
 import { getProductsPage } from '@/lib/actions/products'
 import { getCategories } from '@/lib/actions/categories'
 import { buildCategoryTree } from '@/lib/category-tree'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { SITE_CONFIG } from '@/lib/config'
 
 interface MetaProps {
@@ -18,11 +18,12 @@ interface MetaProps {
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return {
+  return pageMetadata({
+    locale,
+    path: '/products',
     title: t('products.title'),
     description: t('products.description'),
-    alternates: getAlternates(locale, '/products'),
-  }
+  })
 }
 
 export default async function ProductsPage() {

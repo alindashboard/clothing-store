@@ -268,6 +268,7 @@
     "continueShopping": "Continua lo shopping",
     "checkout": "Acquista",
     "viewCart": "Vedi carrello",
+    "remove": "Rimuovi",
     "orderSummary": "Riepilogo ordine",
     "proceedToCheckout": "Procedi all'acquisto",
     "backToCart": "← Torna al carrello",
@@ -332,6 +333,7 @@
     "placingOrder": "Invio ordine...",
     "errorCreateOrder": "Impossibile creare l'ordine. Riprova.",
     "errorStartPayment": "Impossibile avviare il pagamento. Riprova.",
+    "cartChanged": "Prezzi o disponibilità di alcuni articoli sono cambiati e abbiamo aggiornato il carrello. Controlla il riepilogo e conferma di nuovo.",
     "waOrder": "Ordine",
     "waTotal": "Totale",
     "waName": "Nome",
@@ -371,6 +373,23 @@
     "contact": {
       "title": "Contatto",
       "description": "Hai domande? Siamo qui per aiutarti."
+    },
+    "home": {
+      "title": "KAYA Studio Outlet — Marchi premium a prezzi outlet",
+      "description": "Outlet di abbigliamento firmato a Borgo Podgora (Latina): Palm Angels, Versace Jeans Couture, Givenchy, New Balance e altri marchi originali a prezzi outlet. Acquista online o in negozio."
+    },
+    "category": {
+      "description": "{name}: capi originali di marchi premium a prezzi outlet. Spedizione in tutta Italia, oppure vieni a trovarci nel negozio di Borgo Podgora (LT)."
+    },
+    "privacy": {
+      "description": "Come KAYA Studio Outlet tratta i tuoi dati personali, cookie e strumenti di tracciamento, e quali diritti puoi esercitare."
+    },
+    "terms": {
+      "description": "Condizioni generali di vendita di KAYA Studio Outlet: ordini, pagamenti, spedizione in Italia, diritto di recesso di 14 giorni e garanzia."
+    },
+    "product": {
+      "description": "{name}: originale al 100%, a prezzo outlet. {sizes}Spedizione in tutta Italia, oppure provalo nel negozio di Borgo Podgora (LT).",
+      "sizes": "Taglie disponibili: {list}. "
     }
   },
   "instagram": {

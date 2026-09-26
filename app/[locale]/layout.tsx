@@ -22,11 +22,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const isIT = locale === 'it'
+  // Fallback only (noindex cart/checkout/404). Indexable pages build their own
+  // complete block via pageMetadata() — no `url` here, or every page would claim
+  // to be the homepage.
   return {
     openGraph: {
       type: 'website',
       siteName: SITE_CONFIG.brand.name,
-      url: SITE_CONFIG.brand.url,
       locale: isIT ? 'it_IT' : 'en_US',
       alternateLocale: isIT ? ['en_US'] : ['it_IT'],
       images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'KAYA Studio Outlet' }],

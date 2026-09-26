@@ -25,6 +25,8 @@ interface CartStore {
   removeItem: (variantId: string) => void
   updateQuantity: (variantId: string, quantity: number) => void
   clearCart: () => void
+  /** Apply server-side price/stock (createOrder's cartUpdates); drops sold-out lines. */
+  syncCart: (updates: Record<string, { price: number; maxStock: number }>) => void
   openCart: () => void
   closeCart: () => void
   getTotal: () => number
@@ -67,6 +69,15 @@ export const useCartStore = create<CartStore>()(
                 ),
         })),
       clearCart: () => set({ items: [] }),
+      syncCart: (updates) =>
+        set((state) => ({
+          items: state.items.flatMap((i) => {
+            const u = updates[i.variantId]
+            if (!u) return [i]
+            if (u.maxStock <= 0) return []
+            return [{ ...i, price: u.price, maxStock: u.maxStock, quantity: Math.min(i.quantity, u.maxStock) }]
+          }),
+        })),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
       getTotal: () =>

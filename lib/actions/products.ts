@@ -101,7 +101,11 @@ export async function getProduct(slug: string): Promise<Product | null> {
     .single()
 
   if (error) return null
-  return data
+  // PostgREST returns embedded rows unordered; sort_order (set by the importer's
+  // sizeRank and the admin) is S < M < L < XL, 40 < 41 … — the PDP showed "S XL XXL L M".
+  const product = data as Product
+  product.variants?.sort((a, b) => a.sort_order - b.sort_order)
+  return product
 }
 
 /** Paginated product fetch for public catalog pages (/products, /category/[slug]). */
@@ -292,7 +296,9 @@ export async function getProductAdmin(id: string): Promise<Product | null> {
     .single()
 
   if (error) return null
-  return data
+  const product = data as Product
+  product.variants?.sort((a, b) => a.sort_order - b.sort_order)
+  return product
 }
 
 export async function createProduct(formData: FormData) {

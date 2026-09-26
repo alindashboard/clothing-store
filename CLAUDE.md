@@ -493,6 +493,30 @@ before writing any code. Heed deprecation notices. Notably: `proxy.ts`, **not**
   Retention runs in `purge_expired_visitor_ids()` (id after 13 months, events after 25),
   called whenever an admin opens analytics — no cron yet. Admin tab "Visitors & orders".
 
+- **Never trust cart prices (fixed 2026-09-26).** The cart is zustand-in-localStorage,
+  so every `CartItem` field is client-controlled. Until this date `createOrder` summed
+  `cartItems[].price` and `createStripeCheckoutSession` built Stripe line items from
+  the client cart — a €0.01 edit in devtools would have been charged €0.01 and marked
+  paid. Now `priceCart` (`lib/orders/cart-pricing.ts`, plain module) re-prices every
+  line from the DB (`price_override ?? base_price`, active variant+product, qty ≤
+  stock) and supplies name/size/colour/SKU; on any mismatch `createOrder` returns
+  `error: 'cart_changed'` + `cartUpdates`, the form calls `useCartStore.syncCart` and
+  shows `checkout.cartChanged` (never charge a price the customer didn't see). The
+  Stripe session reads `order_items` and refuses non-stripe/already-paid orders.
+  Stock check-then-decrement is still not atomic (two buyers, last piece) — fine at
+  current volume; move to an RPC with `stock_quantity >= qty` if it ever matters.
+- **SEO metadata**: every indexable page builds its metadata with `pageMetadata()`
+  (`lib/seo/page-metadata.ts`) — title, description, canonical/hreflang and a full OG
+  block with its own `og:url`. Next *replaces* the layout's `openGraph` when a page
+  sets one, and until 2026-09-26 every page inherited `og:url = homepage`. Product
+  pages without copy get a templated description (`meta.product.*`, lists in-stock
+  sizes); Product JSON-LD `brand` is the label from `brandFromProductName`, never the
+  shop, plus `itemCondition`, `shippingDetails` and `hasMerchantReturnPolicy` mirroring
+  `/terms`. PostgREST returns embedded variants unordered — `getProduct`/
+  `getProductAdmin` sort by `sort_order` (the PDP used to show "S XL XXL L M").
+- **Security headers** in `next.config.ts` (`X-Frame-Options`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`); no CSP yet (Pixel/GA/Maps/Stripe would
+  need allow-listing).
 - **Email (set up 2026-09-26).** DNS is on Cloudflare. *Outbound*: Resend (EU region)
   sends from `orders@kayaoutlet.com` (`lib/email/config.ts`); its records live on the
   `send.` subdomain + `resend._domainkey` — never delete them. *Inbound*: Cloudflare
@@ -612,12 +636,10 @@ GOOGLE_PLACES_API_KEY          # Google reviews on the homepage (server-only; re
 - `GOOGLE_PLACES_API_KEY` — Place ID is set (2026-09-26); the key is blocked on a
   Google Cloud billing sign-up error, so homepage review texts stay hidden until then
 
-### Open items (as of 2026-08-17)
+### Open items
 
-- **The catalog has no photos.** The stock import wiped the bucket; 356 products
-  are live with prices/variants and no images. Uploading them is the next job,
-  and nothing links a photo to a SKU yet — the ODS files carry no photo
-  reference, so the match has to be made by hand or by a new pipeline.
+- **Photos (updated 2026-09-26):** most products are photographed; products still
+  without a photo are hidden via the `hide_products_without_images` toggle.
 - **Brand names to confirm** with the owner: `BLNCG`, `POLO` (which Polo label?),
   `Richmond` (John Richmond?). Rendered conservatively in `parse-stock-ods.py`.
 - 105 products share a name with another (the owner recorded distinct pieces

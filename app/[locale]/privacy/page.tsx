@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 /**
@@ -28,11 +28,11 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'privacy' })
-  return {
-    title: { absolute: `${t('title')} | ${SITE_CONFIG.brand.name}` },
-    alternates: getAlternates(locale, '/privacy'),
-  }
+  const [t, tMeta] = await Promise.all([
+    getTranslations({ locale, namespace: 'privacy' }),
+    getTranslations({ locale, namespace: 'meta' }),
+  ])
+  return pageMetadata({ locale, path: '/privacy', title: t('title'), description: tMeta('privacy.description') })
 }
 
 export default async function PrivacyPage({ params }: PageProps) {

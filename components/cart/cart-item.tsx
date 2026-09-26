@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Minus, Plus, X } from 'lucide-react'
 import { useCartStore, type CartItem } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 
 interface CartItemProps {
   item: CartItem
@@ -12,6 +13,7 @@ interface CartItemProps {
 
 export function CartItemRow({ item, compact }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore()
+  const t = useTranslations('cart')
 
   return (
     <div className="flex gap-4 py-5 border-b border-[#2B2924] last:border-0">
@@ -33,7 +35,7 @@ export function CartItemRow({ item, compact }: CartItemProps) {
             <button
               onClick={() => removeItem(item.variantId)}
               className="text-[#6b6862] hover:text-[#EDE9E1] shrink-0 transition-colors"
-              aria-label="Remove"
+              aria-label={t('remove')}
             >
               <X className="w-4 h-4" />
             </button>

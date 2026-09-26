@@ -7,7 +7,7 @@ import { Link } from '@/i18n/navigation'
 import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 /**
@@ -27,11 +27,11 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'terms' })
-  return {
-    title: { absolute: `${t('title')} | ${SITE_CONFIG.brand.name}` },
-    alternates: getAlternates(locale, '/terms'),
-  }
+  const [t, tMeta] = await Promise.all([
+    getTranslations({ locale, namespace: 'terms' }),
+    getTranslations({ locale, namespace: 'meta' }),
+  ])
+  return pageMetadata({ locale, path: '/terms', title: t('title'), description: tMeta('terms.description') })
 }
 
 export default async function TermsPage({ params }: PageProps) {

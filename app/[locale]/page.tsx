@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
 import { getLocale, getTranslations } from 'next-intl/server'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { Header } from '@/components/layout/header'
 import { MarqueeTicker } from '@/components/layout/marquee-ticker'
@@ -27,11 +27,14 @@ interface MetaProps {
 
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
-  return {
-    title: { absolute: `${SITE_CONFIG.brand.name} — ${SITE_CONFIG.brand.tagline}` },
-    description: SITE_CONFIG.brand.tagline,
-    alternates: getAlternates(locale, ''),
-  }
+  const t = await getTranslations({ locale, namespace: 'meta' })
+  return pageMetadata({
+    locale,
+    path: '',
+    title: t('home.title'),
+    absoluteTitle: true,
+    description: t('home.description'),
+  })
 }
 
 export default async function HomePage() {

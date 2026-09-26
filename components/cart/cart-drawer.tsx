@@ -14,6 +14,7 @@ export function CartDrawer() {
   const total = getTotal()
   const count = getItemCount()
   const t = useTranslations('cart')
+  const tCommon = useTranslations('common')
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && closeCart()}>
@@ -29,7 +30,7 @@ export function CartDrawer() {
           >
             {t('title')} {count > 0 && <span className="text-[#8C8577] font-normal">({count})</span>}
           </SheetTitle>
-          <button onClick={closeCart} className="p-1 text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors" aria-label="Close">
+          <button onClick={closeCart} className="p-1 text-[#c7c3b8] hover:text-[#EDE9E1] transition-colors" aria-label={tCommon('close')}>
             <X className="w-5 h-5" />
           </button>
         </SheetHeader>

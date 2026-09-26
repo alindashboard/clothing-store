@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { getCategories } from '@/lib/actions/categories'
 import { ContactFormClient } from './contact-form-client'
 import { SITE_CONFIG } from '@/lib/config'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { DarkPageHeader } from '@/components/layout/dark-page-header'
 
 interface MetaProps {
@@ -16,11 +16,12 @@ interface MetaProps {
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return {
+  return pageMetadata({
+    locale,
+    path: '/contact',
     title: t('contact.title'),
     description: t('contact.description'),
-    alternates: getAlternates(locale, '/contact'),
-  }
+  })
 }
 
 export default async function ContactPage() {

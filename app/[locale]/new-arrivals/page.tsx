@@ -8,7 +8,7 @@ import { AnimatedNewArrivalsText } from '@/components/AnimatedNewArrivalsText'
 import { NewArrivalsCarousel } from '@/components/NewArrivalsCarousel'
 import { getNewArrivals } from '@/lib/actions/new-arrivals'
 import { getCategories } from '@/lib/actions/categories'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 
 interface MetaProps {
   params: Promise<{ locale: string }>
@@ -17,11 +17,12 @@ interface MetaProps {
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return {
+  return pageMetadata({
+    locale,
+    path: '/new-arrivals',
     title: t('newArrivals.title'),
     description: t('newArrivals.description'),
-    alternates: getAlternates(locale, '/new-arrivals'),
-  }
+  })
 }
 
 export const dynamic = 'force-dynamic'

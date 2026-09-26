@@ -14,7 +14,8 @@ import { getCategories } from '@/lib/actions/categories'
 import { SITE_CONFIG } from '@/lib/config'
 import { STORE_INFO } from '@/lib/store-info'
 import { formatPrice } from '@/lib/utils'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
+import { brandFromProductName } from '@/lib/brand-names'
 import { productCopy } from '@/lib/product-copy'
 import { ProductDetailClient } from './product-detail-client'
 import { TrustBadges } from '@/components/trust/trust-badges'
@@ -31,27 +32,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const images = product.images ?? []
   const firstImage = images.find((i) => i.is_primary) ?? images[0]
-  const ogImageUrl = firstImage?.url ?? `${SITE_CONFIG.brand.url}/og-image.jpg`
+  const tMeta = await getTranslations({ locale, namespace: 'meta' })
 
   return {
-    title: product.meta_title || product.name,
-    description: product.meta_description || productCopy(product, locale).shortDescription || undefined,
-    alternates: getAlternates(locale, `/product/${slug}`),
-    openGraph: {
-      type: 'website',
+    ...pageMetadata({
+      locale,
+      path: `/product/${slug}`,
       title: product.meta_title || product.name,
-      description: product.meta_description || productCopy(product, locale).shortDescription || undefined,
-      images: [{ url: ogImageUrl, width: 1200, height: 1200, alt: product.name }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      images: [ogImageUrl],
-    },
+      description: productDescription(product, locale, tMeta),
+      image: firstImage ? { url: firstImage.url, width: 1200, height: 1200, alt: product.name } : undefined,
+    }),
     other: {
       'og:price:amount': String(product.base_price),
       'og:price:currency': 'EUR',
     },
   }
+}
+
+/**
+ * Meta/JSON-LD description: the product's own copy when it has one, else a
+ * templated line (name + in-stock sizes). Most products have no description yet
+ * (AI drafting is paused), and an empty description made Google improvise one.
+ */
+function productDescription(
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>,
+  locale: string,
+  tMeta: Awaited<ReturnType<typeof getTranslations<'meta'>>>
+): string {
+  const copy = productCopy(product, locale)
+  const own = product.meta_description || copy.shortDescription || copy.description
+  if (own) return own
+  const sizes = (product.variants ?? [])
+    .filter((v) => v.is_active && v.stock_quantity > 0)
+    .map((v) => v.size)
+  return tMeta('product.description', {
+    name: product.name,
+    sizes: sizes.length ? tMeta('product.sizes', { list: sizes.join(', ') }) : '',
+  })
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -82,22 +99,44 @@ export default async function ProductPage({ params }: Props) {
   const siteUrl = SITE_CONFIG.brand.url
   const productUrl = `${siteUrl}/${locale}/product/${slug}`
 
+  // The label (Palm Angels…), not the shop — `brand` is the manufacturer in schema.org.
+  const brandName = brandFromProductName(product.name)
+  const { shipping } = SITE_CONFIG
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: copy.description || copy.shortDescription,
+    description: productDescription(product, locale, await getTranslations({ locale, namespace: 'meta' })),
     sku: product.sku_prefix,
-    brand: { '@type': 'Brand', name: SITE_CONFIG.brand.name },
+    ...(brandName ? { brand: { '@type': 'Brand', name: brandName } } : {}),
     url: productUrl,
     image: images.map((i) => i.url),
     offers: {
       '@type': 'Offer',
       price: product.base_price,
       priceCurrency: 'EUR',
+      itemCondition: 'https://schema.org/NewCondition',
       availability: isOutOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       url: productUrl,
       seller: { '@type': 'Organization', name: SITE_CONFIG.brand.name },
+      // Mirrors /terms: Italy only, 14-day withdrawal, customer pays return shipping.
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: product.base_price >= shipping.freeShippingThreshold ? 0 : shipping.standardShippingCost,
+          currency: 'EUR',
+        },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: shipping.countries },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'IT',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnShippingFees',
+      },
     },
   }
 

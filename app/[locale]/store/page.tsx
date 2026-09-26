@@ -9,7 +9,7 @@ import { STORE_INFO } from '@/lib/store-info'
 import { SITE_CONFIG } from '@/lib/config'
 import { MapPin, Phone, Mail, Navigation } from 'lucide-react'
 import { KayaCta } from '@/components/layout/kaya-cta'
-import { getAlternates } from '@/lib/seo/alternates'
+import { pageMetadata } from '@/lib/seo/page-metadata'
 import { StoreMap } from '@/components/store/store-map'
 
 interface MetaProps {
@@ -19,11 +19,12 @@ interface MetaProps {
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return {
+  return pageMetadata({
+    locale,
+    path: '/store',
     title: t('store.title'),
     description: t('store.description'),
-    alternates: getAlternates(locale, '/store'),
-  }
+  })
 }
 
 function WhatsAppIcon({ className }: { className?: string }) {
