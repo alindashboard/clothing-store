@@ -74,7 +74,9 @@ app/
     contacts/            # Formulare contact primite
 
   api/
-    test-email/          # Endpoint test trimitere email (dev only)
+    admin/               # Export stoc CSV / XLSX (necesită login admin)
+    analytics/           # Ingest statistici proprii + cookie kaya_vid
+    webhooks/stripe/     # Confirmare plăți Stripe (semnătură verificată)
 
 components/
   layout/                # Header, footer, nav mobil, ticker, announcement bar

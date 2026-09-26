@@ -580,7 +580,9 @@ project's memory.
 - New Arrivals curated list (admin-managed, carousel on homepage)
 - Events module (admin CRUD, public listing page)
 - Contact form → Supabase `contact_requests` table
-- Resend email (order confirmation + test endpoint at `/api/test-email`)
+- Resend email (order confirmation, new-order/contact notifications, shipping confirmation).
+  The `/api/test-email` endpoint was deleted 2026-09-26 — test emails by placing and
+  then deleting (`deleteOrder`) a bank-transfer order.
 - Admin panel: products, categories, orders, new-arrivals, events, contacts
 - Brands ticker (BARROW, VERSACE JEANS COUTURE, DS2, GIVENCHY, ALEXANDER MCQUEEN, NEW BALANCE, ICON)
 - Store info page with map embed
